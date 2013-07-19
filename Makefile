@@ -1,5 +1,6 @@
-SPELL_CLI_LIB               = build/spellCore/lib/spellcli.js
-SPELL_CORE_OUT_LIB_DIR      = build/spellCore/lib
+SPELL_CLI_BUILD_DIR	    = build
+SPELL_CLI_LIB_DIR           = tmp
+SPELL_CLI_LIB               = $(SPELL_CLI_LIB_DIR)/spellcli.js
 NODE                        = modules/nodejs/node
 NODE_SRC                    = modules/nodejs/src
 NODE_PATH                   = $$(modules/nodejs/node --which)
@@ -7,42 +8,45 @@ NODE_PATH                   = $$(modules/nodejs/node --which)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	SED = sed -i "" -e
-	SPELL_CLI_OUT_DIR = build/osx-x64
+	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/osx-x64
 	WINDOWS_ENV = false
 
 else ifeq ($(UNAME_S),Linux)
 	SED = sed -i
-	SPELL_CLI_OUT_DIR = build/linux-x64
+	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/linux-x64
 	WINDOWS_ENV = false
 
 else ifeq ($(UNAME_S),CYGWIN_NT-6.1-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
-	SPELL_CLI_OUT_DIR = build/win-ia32
+	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
 	VISUAL_STUDIO_PATCH_FILE = patches/nodejs_vs10.patch
 
 else ifeq ($(UNAME_S),CYGWIN_NT-6.2-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
-	SPELL_CLI_OUT_DIR = build/win-ia32
+	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
 	VISUAL_STUDIO_PATCH_FILE = patches/nodejs_vs11.patch
 endif
 
 
-.PHONY: all
+.PHONY: all clean cli-js cli
+
 all: cli
 
-.PHONY: cli-js
+clean:
+	rm -rf $(SPELL_CLI_BUILD_DIR) || true 
+	rm -rf $(SPELL_CLI_LIB_DIR) || true
+
 cli-js:
 	# creating the javascript includes for the command line tool
-	mkdir -p $(SPELL_CORE_OUT_LIB_DIR)
+	test -d $(SPELL_CLI_LIB_DIR) || mkdir -p $(SPELL_CLI_LIB_DIR)
 
 	echo 'var RELEASE = true' > $(SPELL_CLI_LIB)
 	cat src/spell/cli/spellcli.js >> $(SPELL_CLI_LIB)
 	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,mkdirp,path,uglify-js,amd-helper,flob,child_process,xmlbuilder,os,underscore.string,rimraf,zipstream,util,commander,ff,spell-license,wrench" >> $(SPELL_CLI_LIB)
 
 
-.PHONY: cli
 cli: cli-js
 	#reseting node src directory
 	cd $(NODE_SRC) && git reset --hard master
@@ -165,6 +169,3 @@ else
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli
 endif
 
-.PHONY: clean
-clean:
-	rm -rf build/*
