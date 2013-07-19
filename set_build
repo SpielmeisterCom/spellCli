@@ -1,0 +1,19 @@
+#!/bin/sh
+
+BUILDNUMBER=$1
+BUILDTIMESTAMP=$2
+
+if [ -z "$BUILDNUMBER" ] ; then
+	echo "Usage: $0 BUILDNUMBER BUILDTIMESTAMP"
+	exit 1
+fi
+
+if [ -z "$BUILDTIMESTAMP" ] ; then
+	echo "Usage: $0 BUILDNUMBER BUILDTIMESTAMP"
+	exit 1
+fi
+
+#setting version of spellcli
+perl -pi -e "s/buildNumber(\s*):(\s*)\'[^\']*\',/buildNumber\1:\2\'$BUILDNUMBER\',/g" src/spell/shared/Configuration.js
+perl -pi -e "s/buildTimeStamp(\s*):(\s*)\'[^\']*\',/buildTimeStamp\1:\2\'$BUILDTIMESTAMP\',/g" src/spell/shared/Configuration.js
+
