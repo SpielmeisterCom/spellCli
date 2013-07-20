@@ -92,18 +92,24 @@ define(
         }
 
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
-			var projectId               = projectConfig.config.projectId,
+            var projectId               = projectConfig.config.projectId,
                 androidBuildSettings    = projectConfig.config.android || {},
                 hasSigningSettings      = androidBuildSettings.signingKeyStore && androidBuildSettings.signingKeyStorePass && androidBuildSettings.signingKeyAlias && androidBuildSettings.signingKeyPass,
-				spellCorePath           = environmentConfig.spellCorePath,
-                spellEnginePath         = path.resolve( spellCorePath, '../../../..' ),
-                androidSdkPath          = path.resolve( spellEnginePath, 'modules', 'spellAndroid', 'modules', 'android-sdk', os.platform() == 'darwin' ? 'osx-ia32' : 'linux-ia32'),
-                JDKPath                 = path.resolve( spellEnginePath, 'modules', 'spellAndroid', 'modules', 'jdk', os.platform() == 'darwin' ? 'osx-x64' : 'linux-ia32'),
-                xslFile                 = path.resolve( spellEnginePath, 'modules', 'spellAndroid', 'modules', 'native-android', 'AndroidManifest.xsl'),
-                tealeafDebugPath        = path.resolve( spellEnginePath, 'modules', 'spellAndroid', 'build', 'debug', 'TeaLeaf'),
-                tealeafReleasePath      = path.resolve( spellEnginePath, 'modules', 'spellAndroid', 'build', 'release', 'TeaLeaf'),
-                androidTool             = path.resolve( androidSdkPath, 'tools', 'android'),
-                zipalignTool            = path.resolve( androidSdkPath, 'tools', 'zipalign'),
+
+                spellCorePath           = (environmentConfig && environmentConfig.spellCorePath)    ? environmentConfig.spellCorePath : '../spellCore/build',
+                spellAndroidPath        = (environmentConfig && environmentConfig.spellAndroidPath) ? environmentConfig.spellAndroidPath : '../spellAndroid',
+                JDKPath                 = (environmentConfig && environmentConfig.jdkPath)          ? environmentConfig.jdkPath : '../spellAndroid/modules/jdk/' + ((os.platform() == 'darwin') ? 'osx-ia32' : 'linux-ia32'),
+                androidSDKPath          = (environmentConfig && environmentConfig.androidSDKPath)   ? environmentConfig.androidSDKPath : '../spellAndroid/modules/android-sdk/' + ((os.platform() == 'darwin') ? 'osx-ia32' : 'linux-ia32'),
+
+                xslFile                 = path.resolve( spellAndroidPath, 'modules', 'native-android', 'AndroidManifest.xsl'),
+                launchClientFile        = path.join( spellAndroidPath, 'launchClient.js'),
+
+                tealeafDebugPath        = path.resolve( spellAndroidPath, 'build', 'debug', 'TeaLeaf'),
+                tealeafReleasePath      = path.resolve( spellAndroidPath, 'build', 'release', 'TeaLeaf'),
+
+                androidTool             = path.resolve( androidSDKPath, 'tools', 'android'),
+                zipalignTool            = path.resolve( androidSDKPath, 'tools', 'zipalign'),
+
                 buildOptions = {
                 /*
                  A package name must be constitued of two Java identifiers.
@@ -169,18 +175,54 @@ define(
             rmdir.sync( outputPath )
             mkdirp.sync( outputPath )
 
-            // copy the prebuild Tealeaf library into our temp directory
-            wrench.copyDirSyncRecursive(
-                debug ? tealeafDebugPath : tealeafReleasePath,
-                tealeafPath,
-                {
-                    forceDelete: true,
-                    preserveFiles: false,
-                    inflateSymlinks: false
-                }
-            )
-
 			var f = ff(
+                function() {
+                    console.log( '[spellcli] Checking prerequisite: jdk6 installed')
+                    //TODO
+                },
+                function() {
+                    console.log( '[spellcli] Checking prerequisite: android tool and android api level 15')
+
+                    if( fs.existsSync(androidTool) ) {
+                        var nextff = f.wait()
+
+                        child_process.exec(
+                            androidTool + ' list',
+
+                            function (error, stdout, stderr) {
+
+                                if (error !== null) {
+                                    f.fail(error);
+                                }
+
+                                if( stdout.toString().match(/android-15/g) ) {
+                                    nextff( error, stdout.toString() )
+                                } else {
+
+                                    nextff( 'Android API level 15 is not installed in your local android sdk. Please run the android tool manually and install it.',
+                                        stdout.toString()
+                                    )
+
+                                }
+
+                            });
+
+                    } else {
+                        f.fail('Could not find android tool in ' + androidTool + '. Please check your androidSDKPath settings.')
+                    }
+                },
+                function() {
+                    // copy the prebuild Tealeaf library into our temp directory
+                    wrench.copyDirSyncRecursive(
+                        debug ? tealeafDebugPath : tealeafReleasePath,
+                        tealeafPath,
+                        {
+                            forceDelete: true,
+                            preserveFiles: false,
+                            inflateSymlinks: false
+                        }
+                    )
+                },
 				function() {
                     console.log( '[spellcli] Creating temporary android project in ' + tmpProjectPath )
 
@@ -319,7 +361,7 @@ define(
                         spelljsResourcesPath    = path.join( resourcesPath, 'spelljs' )
 
                     copyFile(
-                        path.join( spellEnginePath, 'modules', 'spellAndroid', 'launchClient.js' ),
+                        launchClientFile,
                         path.join( resourcesPath, 'native.js.mp3' )
                     )
 
