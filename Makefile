@@ -111,16 +111,19 @@ cli: cli-js
 	# integrate glob
 	cp node_modules/glob/glob.js $(NODE_SRC)/lib/glob.js
 
-	# integrate graceful-fs (dependency for glob)
+	# integrate graceful-fs (dependency of glob)
 	cp node_modules/glob/node_modules/graceful-fs/graceful-fs.js $(NODE_SRC)/lib/gracefulfs.js
 	$(SED) 's/graceful-fs/gracefulfs/g' $(NODE_SRC)/lib/*.js
 
-	# integrate minimatch (dependency for glob)
+	# integrate minimatch (dependency of glob)
 	cp node_modules/glob/node_modules/minimatch/minimatch.js $(NODE_SRC)/lib/minimatch.js
 
-	# integrate lru-cache (dependency for minimatch)
+	# integrate lru-cache (dependency of minimatch)
 	cp node_modules/glob/node_modules/minimatch/node_modules/lru-cache/lib/lru-cache.js $(NODE_SRC)/lib/lrucache.js
 	$(SED) 's/lru-cache/lrucache/g' $(NODE_SRC)/lib/*.js
+
+	# integrate sigmund (dependency of minimatch)
+	cp node_modules/glob/node_modules/minimatch/node_modules/sigmund/sigmund.js $(NODE_SRC)/lib/sigmund.js
 
 	# integrate inherits
 	cp node_modules/glob/node_modules/inherits/inherits.js $(NODE_SRC)/lib/inherits.js
