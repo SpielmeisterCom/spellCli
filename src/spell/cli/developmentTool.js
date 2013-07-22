@@ -9,7 +9,7 @@ define(
 		'spell/shared/build/initializeProjectDirectory',
 		'spell/shared/build/isFile',
 		'spell/shared/build/printLicenseInfo',
-		'spell/shared/Configuration',
+		'spell/BuildInfo',
 
 		'commander',
 		'fs',
@@ -26,7 +26,7 @@ define(
 		initializeProjectDirectory,
 		isFile,
 		printLicenseInfo,
-		Configuration,
+		BuildInfo,
 
 		commander,
 		fs,
@@ -335,7 +335,7 @@ define(
 				argv.push( '-h' )
 			}
 
-			var apiVersion = Configuration.version
+			var apiVersion = BuildInfo.version
 
 			commander
 				.version( apiVersion )

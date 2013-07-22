@@ -1,5 +1,5 @@
 define(
-	'spell/shared/Configuration',
+	'spell/BuildInfo',
 	function() {
 		'use strict'
 

@@ -14,6 +14,6 @@ if [ -z "$BUILDTIMESTAMP" ] ; then
 fi
 
 #setting version of spellcli
-perl -pi -e "s/buildNumber(\s*):(\s*)\'[^\']*\',/buildNumber\1:\2\'$BUILDNUMBER\',/g" src/spell/shared/Configuration.js
-perl -pi -e "s/buildTimeStamp(\s*):(\s*)\'[^\']*\',/buildTimeStamp\1:\2\'$BUILDTIMESTAMP\',/g" src/spell/shared/Configuration.js
+perl -pi -e "s/buildNumber(\s*):(\s*)\'[^\']*\',/buildNumber\1:\2\'$BUILDNUMBER\',/g" src/spell/BuildInfo.js
+perl -pi -e "s/buildTimeStamp(\s*):(\s*)\'[^\']*\',/buildTimeStamp\1:\2\'$BUILDTIMESTAMP\',/g" src/spell/BuildInfo.js
 
