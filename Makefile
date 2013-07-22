@@ -52,7 +52,7 @@ cli: cli-js
 	cd $(NODE_SRC) && git reset --hard master
 
 	# patching nodejs src
-	cd $(NODE_SRC) && patch -p1 <../../../patches/nodejs_spellCore_integration.patch
+	cd $(NODE_SRC) && patch -p1 <../../../patches/nodejs_spellCli_integration.patch
 
 	# creating cli executable
 	cp $(SPELL_CLI_LIB) $(NODE_SRC)/lib/_third_party_main.js
