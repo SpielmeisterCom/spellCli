@@ -1,6 +1,6 @@
 SPELL_CLI_BUILD_DIR = build
-SPELL_CLI_LIB_DIR   = tmp
-SPELL_CLI_LIB       = $(SPELL_CLI_LIB_DIR)/spellcli.js
+TMP_DIR             = $(SPELL_CLI_BUILD_DIR)/tmp
+SPELL_CLI_LIB       = $(TMP_DIR)/spellcli.js
 NODE                = modules/nodejs/node
 NODE_SRC            = modules/nodejs/src
 NODE_PATH           = $$(modules/nodejs/node --which)
@@ -36,11 +36,11 @@ all: cli
 
 clean:
 	rm -rf $(SPELL_CLI_BUILD_DIR) || true
-	rm -rf $(SPELL_CLI_LIB_DIR) || true
+	rm -rf $(TMP_DIR) || true
 
 cli-js:
 	# creating the javascript includes for the command line tool
-	test -d $(SPELL_CLI_LIB_DIR) || mkdir -p $(SPELL_CLI_LIB_DIR)
+	test -d $(TMP_DIR) || mkdir -p $(TMP_DIR)
 
 	echo 'var RELEASE = true' > $(SPELL_CLI_LIB)
 	cat src/spell/cli/spellcli.js >> $(SPELL_CLI_LIB)
