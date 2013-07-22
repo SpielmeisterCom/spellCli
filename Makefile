@@ -161,9 +161,9 @@ cli: cli-js
 	mkdir -p $(SPELL_CLI_OUT_DIR) || true
 
 ifeq ($(WINDOWS_ENV),true)
-	cd $(NODE_SRC) && patch -p1 <../../../modules/spellCore/$(VISUAL_STUDIO_PATCH_FILE)
+	cd $(NODE_SRC) && patch -p1 < ../../../$(VISUAL_STUDIO_PATCH_FILE)
 
-	cd $(NODE_SRC) && ./vcbuild.bat
+	cd $(NODE_SRC) && chmod +x vcbuild.bat && ./vcbuild.bat
 	cp $(NODE_SRC)/Release/node.exe $(SPELL_CLI_OUT_DIR)/spellcli.exe
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli.exe
 else
