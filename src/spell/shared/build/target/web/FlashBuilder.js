@@ -391,6 +391,8 @@ define(
 
 			if( !fs.existsSync( compilerExecutablePath ) ) {
 				next( 'Error: Could not find compiler executable "' + compilerExecutablePath + '".' )
+
+				return
 			}
 
 			// remove build files from previous run
