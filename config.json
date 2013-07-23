@@ -1,4 +1,4 @@
 {
-	"spellCorePath": "./build/spellCore",
-	"spellFlashPath": "../spellFlash/build/spellFlash"
+	"spellCorePath": "../spellCore/build",
+	"spellFlashPath": "../spellFlash/build"
 }
