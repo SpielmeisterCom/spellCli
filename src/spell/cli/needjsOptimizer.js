@@ -112,7 +112,7 @@ define(
 				.option( '-l, --list', 'prints the names of the traced modules to stdout instead of a concatenation of the modules contents' )
 				.parse( argv )
 
-			var sourcePath       = ( commander.sourceBase ? path.normalize( commander.sourceBase ) : cwd ),
+			var sourcePath       = commander.sourceBase ? path.resolve( commander.sourceBase ) : cwd,
 				entryModuleName  = commander.module,
 				blackListModules = commander.ignore || [],
 				extractNamespace = commander.extract || []

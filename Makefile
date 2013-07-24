@@ -44,7 +44,7 @@ cli-js:
 
 	echo 'var RELEASE = true' > $(SPELL_CLI_LIB)
 	cat src/spell/cli/spellcli.js >> $(SPELL_CLI_LIB)
-	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,mkdirp,path,uglify-js,amd-helper,flob,child_process,xmlbuilder,os,underscore.string,rimraf,zipstream,util,commander,ff,spell-license,wrench" >> $(SPELL_CLI_LIB)
+	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,mkdirp,path,uglify-js,amd-helper,child_process,xmlbuilder,os,underscore.string,rimraf,zipstream,util,commander,ff,spell-license,wrench,pathUtil" >> $(SPELL_CLI_LIB)
 
 
 cli: cli-js
@@ -101,33 +101,6 @@ cli: cli-js
 	$(SED) 's/.\/traceDependencies/amdhelper_traceDependencies/g' $(NODE_SRC)/lib/*.js
 	$(SED) 's/uglify-js/uglifyjs/g' $(NODE_SRC)/lib/*.js
 
-	# integrate flob
-	cp node_modules/flob/lib/index.js $(NODE_SRC)/lib/flob.js
-	cp node_modules/flob/lib/byTypes.js $(NODE_SRC)/lib/flob_byTypes.js
-	cp node_modules/flob/lib/sync.js $(NODE_SRC)/lib/flob_sync.js
-	$(SED) 's/.\/byTypes/flob_byTypes/g' $(NODE_SRC)/lib/flob.js
-	$(SED) 's/.\/sync/flob_sync/g' $(NODE_SRC)/lib/flob.js
-
-	# integrate glob
-	cp node_modules/glob/glob.js $(NODE_SRC)/lib/glob.js
-
-	# integrate graceful-fs (dependency of glob)
-	cp node_modules/glob/node_modules/graceful-fs/graceful-fs.js $(NODE_SRC)/lib/gracefulfs.js
-	$(SED) 's/graceful-fs/gracefulfs/g' $(NODE_SRC)/lib/*.js
-
-	# integrate minimatch (dependency of glob)
-	cp node_modules/glob/node_modules/minimatch/minimatch.js $(NODE_SRC)/lib/minimatch.js
-
-	# integrate lru-cache (dependency of minimatch)
-	cp node_modules/glob/node_modules/minimatch/node_modules/lru-cache/lib/lru-cache.js $(NODE_SRC)/lib/lrucache.js
-	$(SED) 's/lru-cache/lrucache/g' $(NODE_SRC)/lib/*.js
-
-	# integrate sigmund (dependency of minimatch)
-	cp node_modules/glob/node_modules/minimatch/node_modules/sigmund/sigmund.js $(NODE_SRC)/lib/sigmund.js
-
-	# integrate inherits
-	cp node_modules/glob/node_modules/inherits/inherits.js $(NODE_SRC)/lib/inherits.js
-
 	# integrate underscore.string
 	cp node_modules/underscore.string/lib/underscore.string.js $(NODE_SRC)/lib/underscorestring.js
 	$(SED) 's/underscore.string/underscorestring/g' $(NODE_SRC)/lib/*.js
@@ -156,6 +129,9 @@ cli: cli-js
 
 	# integrate wrench
 	cp node_modules/wrench/lib/wrench.js $(NODE_SRC)/lib/wrench.js
+
+	# integrate pathUtil
+	cp node_modules/pathUtil/lib/index.js $(NODE_SRC)/lib/pathUtil.js
 
 	# compile nodejs
 	mkdir -p $(SPELL_CLI_OUT_DIR) || true

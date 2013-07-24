@@ -3,29 +3,28 @@ define(
 	[
 		'spell/functions',
 
-		'flob',
-		'path'
+		'path',
+		'pathUtil'
 	],
 	function(
 		_,
 
-		flob,
-		path
+		path,
+		pathUtil
 	) {
 		'use strict'
 
 
 		return function( projectLibraryPath, ignoreOggFiles ) {
-			var filePaths = _.filter(
-				flob.sync( '**/*', { cwd : projectLibraryPath } ),
-				function( filePath ) {
-					var extension = path.extname( filePath )
+			var filter = function( filePath ) {
+				var extension = path.extname( filePath )
 
-					return extension !== '.js' && extension !== '.json' && (!ignoreOggFiles || extension !== '.ogg')
-				}
-			)
+				return extension !== '.js' &&
+					extension !== '.json' &&
+					( !ignoreOggFiles || extension !== '.ogg' )
+			}
 
-			return filePaths
+			return pathUtil.createPathsFromDirSync( projectLibraryPath, filter )
 		}
 	}
 )

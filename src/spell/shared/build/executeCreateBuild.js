@@ -19,8 +19,8 @@ define(
 		'amd-helper',
 		'ff',
 		'fs',
-		'flob',
-		'path'
+		'path',
+		'pathUtil'
 	],
 	function(
 		cleanDirectory,
@@ -41,8 +41,8 @@ define(
 		amdHelper,
 		ff,
 		fs,
-		flob,
-		path
+		path,
+		pathUtil
 	) {
 		'use strict'
 
@@ -77,14 +77,13 @@ define(
 		}
 
 		var loadJsonFromLibrary = function( result, libraryPath ) {
-			var filePaths = flob.sync(
-				'**/*.json',
-				{
-					root : libraryPath
-				}
-			)
+			var filter = function( x ) {
+				return _.last( x.split( '.' ) ) == 'json'
+			}
 
-			return loadJsonFromPaths( result, libraryPath, filePaths )
+			var jsonFilePaths = pathUtil.createPathsFromDirSync( libraryPath, filter )
+
+			return loadJsonFromPaths( result, libraryPath, jsonFilePaths )
 		}
 
 		var readProjectConfigFile = function( filePath ) {

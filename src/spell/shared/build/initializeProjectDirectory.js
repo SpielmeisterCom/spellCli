@@ -7,11 +7,10 @@ define(
 		'spell/shared/build/isFile',
 
 		'fs',
-		'flob',
 		'mkdirp',
 		'path',
+		'pathUtil',
 		'rimraf',
-		'util',
 		'spell/functions'
 	],
 	function(
@@ -21,11 +20,10 @@ define(
 		isFile,
 
 		fs,
-		flob,
 		mkdirp,
 		path,
+		pathUtil,
 		rmdir,
-		util,
 		_
 	) {
 		'use strict'
@@ -43,16 +41,10 @@ define(
 		 * @param targetPath
 		 */
 		var copyDirectory = function( sourcePath, targetPath ) {
-			var relativeFilePaths = flob.sync(
-				'/**/*',
-				{
-					root : sourcePath,
-					nomount : true
-				}
-			)
+			var filePaths = pathUtil.createPathsFromDirSync( sourcePath )
 
 			_.each(
-				relativeFilePaths,
+				filePaths,
 				function( relativeFilePath ) {
 					var sourceFilePath = path.join( sourcePath, relativeFilePath ),
 						targetFilePath = path.join( targetPath, relativeFilePath ),
@@ -69,26 +61,24 @@ define(
 			)
 		}
 
-		var createDescendantDirectoryPaths = function( inputPath ) {
-			return _.filter(
-				flob.sync(
-					'*',
-					{
-						root : inputPath,
-						nomount : true
-					}
-				),
+		/**
+		 * Removes only those parts of the library which are contained in the spellCore library.
+		 *
+		 * @param spellCoreLibraryPath
+		 * @param projectLibraryPath
+		 */
+		var clearTargetLibraryPath = function( spellCoreLibraryPath, projectLibraryPath ) {
+			var descendantDirectoryPaths = pathUtil.createPathsFromDirSync(
+				spellCoreLibraryPath,
 				function( x ) {
-					var absolutePath = path.resolve( inputPath, x )
+					var absolutePath = path.resolve( spellCoreLibraryPath, x )
 
 					return isDirectory( absolutePath )
 				}
 			)
-		}
 
-		var clearTargetLibraryPath = function( spellCoreLibraryPath, projectLibraryPath ) {
 			_.each(
-				createDescendantDirectoryPaths( spellCoreLibraryPath ),
+				descendantDirectoryPaths,
 				function( directoryPath ) {
 					var absolutePath = path.resolve( projectLibraryPath, directoryPath )
 

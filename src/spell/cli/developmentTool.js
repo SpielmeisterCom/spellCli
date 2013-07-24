@@ -246,7 +246,7 @@ define(
 				logProject( projectPath )
 
 				exportArchive(
-					spellCorePath,
+					environmentConfig,
 					projectPath,
 					outputFilePath,
 					target,

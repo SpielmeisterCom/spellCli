@@ -7,9 +7,9 @@ define(
 
 		'ff',
 		'fs',
-		'flob',
 		'mkdirp',
 		'path',
+		'pathUtil',
 		'zipstream'
 	],
 	function(
@@ -19,9 +19,9 @@ define(
 
 		ff,
 		fs,
-		flob,
 		mkdirp,
 		path,
+		pathUtil,
 		ZipStream
 	) {
 		'use strict'
@@ -65,7 +65,7 @@ define(
 		}
 
 
-		return function( spellCorePath, projectPath, outputFilePath, target, next ) {
+		return function( environmentConfig, projectPath, outputFilePath, target, next ) {
 			var outputPath         = path.dirname( outputFilePath ),
 				projectsPath       = path.resolve( projectPath, '..' ),
 				projectName        = path.basename( projectPath ),
@@ -96,7 +96,7 @@ define(
 					console.log( 'building...' )
 
 					executeCreateBuild(
-						spellCorePath,
+						environmentConfig,
 						projectPath,
 						projectFilePath,
 						target,
@@ -110,12 +110,15 @@ define(
 					// create archive
 					console.log( 'creating archive "' + outputFilePath + '"...' )
 
-					var filePaths = flob.sync(
-						projectName + '/build/release/**',
-						{
-							cwd : projectsPath
-						}
-					)
+					var filter = function( filePath ) {
+						var parts = filePath.split( path.sep )
+
+						return parts.length >= 3 ?
+							parts[ 0 ] == projectName && parts[ 1 ] == 'build' && parts[ 2 ] == 'release' :
+							false
+					}
+
+					var filePaths = pathUtil.createPathsFromDirSync( projectPath, filter, 'include-base-path' )
 
 					createZipFile( outputFilePath, projectsPath, filePaths, f.wait() )
 				},

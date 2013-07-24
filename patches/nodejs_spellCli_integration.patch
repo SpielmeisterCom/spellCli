@@ -1,8 +1,8 @@
 diff --git src/node.gyp src/node.gyp
-index b07a1e0..bf110a0 100644
+index b07a1e0..ab03326 100644
 --- src/node.gyp
 +++ src/node.gyp
-@@ -58,6 +58,41 @@
+@@ -58,6 +58,34 @@
        'lib/util.js',
        'lib/vm.js',
        'lib/zlib.js',
@@ -21,14 +21,6 @@ index b07a1e0..bf110a0 100644
 +      'lib/amdhelper_traceDependencies.js',
 +      'lib/underscore.js',
 +      'lib/ff.js',
-+      'lib/flob.js',
-+      'lib/flob_byTypes.js',
-+      'lib/flob_sync.js',
-+      'lib/glob.js',
-+      'lib/gracefulfs.js',
-+      'lib/minimatch.js',
-+      'lib/lrucache.js',
-+      'lib/inherits.js',
 +      'lib/underscorestring.js',
 +      'lib/xmlbuilder.js',
 +      'lib/xmlbuilder_XMLBuilder.js',
@@ -40,17 +32,18 @@ index b07a1e0..bf110a0 100644
 +      'lib/spelllicense.js',
 +      'lib/_third_party_main.js',
 +      'lib/wrench.js',
-+      'lib/sigmund.js'
++      'lib/sigmund.js',
++      'lib/pathUtil.js'
      ],
    },
- 
+
 diff --git src/src/node.cc src/src/node.cc
 index f1a84a9..dfd8f90 100644
 --- src/src/node.cc
 +++ src/src/node.cc
 @@ -2980,7 +2980,7 @@ char** Init(int argc, char *argv[]) {
    uv_disable_stdio_inheritance();
- 
+
    // Parse a few arguments which are specific to Node.
 -  node::ParseArgs(argc, argv);
 +  //node::ParseArgs(argc, argv);
@@ -63,7 +56,7 @@ index b4a0a9b..5dc52ed 100644
 +++ src/src/node_string.h
 @@ -38,8 +38,13 @@ class ImmutableAsciiSource : public v8::String::ExternalAsciiStringResource {
                                                    size_t length);
- 
+
    ImmutableAsciiSource(const char *src, size_t src_len)
 -      : buffer_(src),
 -        buf_len_(src_len) {
@@ -75,23 +68,23 @@ index b4a0a9b..5dc52ed 100644
 +		buffer_[i] = ( src[i] ^ 2705 ) % 128;
 +	    }
    }
- 
+
    ~ImmutableAsciiSource() {
 @@ -54,7 +59,7 @@ class ImmutableAsciiSource : public v8::String::ExternalAsciiStringResource {
    }
- 
+
   private:
 -  const char *buffer_;
 +  char *buffer_;
    size_t buf_len_;
  };
- 
+
 diff --git src/tools/js2c.py src/tools/js2c.py
 index 772a0f5..dda2d58 100755
 --- src/tools/js2c.py
 +++ src/tools/js2c.py
 @@ -55,7 +55,10 @@ def ToCArray(filename, lines):
- 
+
      if value >= 128:
        print 'non-ascii value ' + filename + ':' + str(row) + ':' + str(col)
 -      sys.exit(1);
@@ -99,6 +92,6 @@ index 772a0f5..dda2d58 100755
 +#      sys.exit(1);
 +
 +    value = (value ^ 2705) % 128
- 
+
      result.append(str(value))
    result.append("0")

@@ -14,7 +14,6 @@ define(
 
 		'amd-helper',
 		'fs',
-		'flob',
 		'mkdirp',
 		'path'
 	],
@@ -32,7 +31,6 @@ define(
 
 		amdHelper,
 		fs,
-		flob,
 		mkdirp,
 		path
 	) {
