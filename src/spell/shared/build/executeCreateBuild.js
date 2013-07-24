@@ -77,11 +77,7 @@ define(
 		}
 
 		var loadJsonFromLibrary = function( result, libraryPath ) {
-			var filter = function( x ) {
-				return _.last( x.split( '.' ) ) == 'json'
-			}
-
-			var jsonFilePaths = pathUtil.createPathsFromDirSync( libraryPath, filter )
+			var jsonFilePaths = pathUtil.createFilePathsFromDirSync( libraryPath, [ 'json' ] )
 
 			return loadJsonFromPaths( result, libraryPath, jsonFilePaths )
 		}
