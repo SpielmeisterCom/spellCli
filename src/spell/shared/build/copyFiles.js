@@ -5,7 +5,7 @@ define(
 		'spell/shared/build/isDirectory',
 
 		'fs',
-		'mkdirp',
+		'wrench',
 		'path',
 		'spell/functions'
 	],
@@ -14,7 +14,7 @@ define(
 		isDirectory,
 
 		fs,
-		mkdirp,
+		wrench,
 		path,
 		_
 	) {
@@ -42,7 +42,7 @@ define(
 					var targetPath = path.dirname( targetFilePath )
 
 					if( !fs.existsSync( targetPath ) ) {
-						mkdirp.sync( targetPath )
+						wrench.mkdirSyncRecursive( targetPath )
 					}
 
 					copyFile( sourceFilePath, targetFilePath )

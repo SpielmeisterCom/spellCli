@@ -7,7 +7,7 @@ define(
 
 		'ff',
 		'fs',
-		'mkdirp',
+		'wrench',
 		'path',
 		'pathUtil',
 		'zipstream'
@@ -19,7 +19,7 @@ define(
 
 		ff,
 		fs,
-		mkdirp,
+		wrench,
 		path,
 		pathUtil,
 		ZipStream
@@ -77,7 +77,7 @@ define(
 				debug              = false
 
 			if( !fs.existsSync( outputPath ) ) {
-				mkdirp.sync( outputPath )
+				wrench.mkdirSyncRecursive( outputPath )
 			}
 
 			var f = ff(

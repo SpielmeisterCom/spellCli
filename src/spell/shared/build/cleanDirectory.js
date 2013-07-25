@@ -1,19 +1,17 @@
 define(
 	'spell/shared/build/cleanDirectory',
 	[
-		'mkdirp',
-		'rimraf'
+		'wrench'
 	],
 	function(
-		mkdirp,
-		rmdir
+		wrench
 	) {
 		'use strict'
 
 
 		return function( path ) {
-			rmdir.sync( path )
-			mkdirp.sync( path )
+			wrench.rmdirSyncRecursive( path, true )
+			wrench.mkdirSyncRecursive( path )
 
 			console.log( 'Cleaning completed successfully.' )
 		}

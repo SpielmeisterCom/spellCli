@@ -17,11 +17,10 @@ define(
 		'child_process',
 		'ff',
 		'fs',
-		'mkdirp',
+		'wrench',
 		'path',
 		'xmlbuilder',
 		'os',
-		'rimraf',
 		'uglify-js',
 
 		'underscore.string',
@@ -44,11 +43,10 @@ define(
 		child_process,
 		ff,
 		fs,
-		mkdirp,
+		wrench,
 		path,
 		xmlbuilder,
 		os,
-		rmdir,
 		uglify,
 
 		_s,
@@ -369,7 +367,7 @@ define(
 						outputPath = path.dirname( filePath )
 
 					if( !fs.existsSync( outputPath ) ) {
-						mkdirp.sync( outputPath )
+						wrench.mkdirSyncRecursive( outputPath )
 					}
 
 					writeFile( filePath, source )
@@ -396,8 +394,8 @@ define(
 			}
 
 			// remove build files from previous run
-			rmdir.sync( spielmeisterPackagePath )
-			mkdirp.sync( spielmeisterPackagePath )
+			wrench.rmdirSyncRecursive( spielmeisterPackagePath, true )
+			wrench.mkdirSyncRecursive( spielmeisterPackagePath )
 
 			if( fs.existsSync( compilerConfigFilePath ) ) {
 				fs.unlinkSync( compilerConfigFilePath )

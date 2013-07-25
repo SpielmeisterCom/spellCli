@@ -19,9 +19,7 @@ define(
 		'child_process',
 		'ff',
 		'fs',
-		'mkdirp',
 		'path',
-		'rimraf',
         'os',
         'wrench'
 	],
@@ -44,9 +42,7 @@ define(
 		child_process,
 		ff,
 		fs,
-		mkdirp,
 		path,
-		rmdir,
         os,
         wrench
 	) {
@@ -166,12 +162,12 @@ define(
                 signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk')
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
-            rmdir.sync( tmpProjectPath )
-            mkdirp.sync( tmpProjectPath )
+            wrench.rmdirSyncRecursive( tmpProjectPath, true )
+            wrench.mkdirSyncRecursive( tmpProjectPath )
 
             console.log( '[spellcli] Cleaning ' + outputPath )
-            rmdir.sync( outputPath )
-            mkdirp.sync( outputPath )
+			wrench.rmdirSyncRecursive( outputPath, true )
+            wrench.mkdirSyncRecursive( outputPath )
 
 			var f = ff(
                 function() {
@@ -324,7 +320,7 @@ define(
                 function() {
                   console.log( '[spellcli] creating assets/resources directory' )
 
-                  mkdirp.sync( resourcesPath )
+                  wrench.mkdirSyncRecursive( resourcesPath )
                 },
                 function() {
                     console.log( '[spellcli] Copying splash screen resources into android project' )
@@ -364,7 +360,7 @@ define(
                     )
 
                     // create application module and engine library file
-                    mkdirp.sync( spelljsResourcesPath )
+                    wrench.mkdirSyncRecursive( spelljsResourcesPath )
 
                     writeFile(
 						path.join( spelljsResourcesPath, 'data.js.mp3' ),

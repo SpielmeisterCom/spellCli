@@ -7,10 +7,9 @@ define(
 		'spell/shared/build/isFile',
 
 		'fs',
-		'mkdirp',
+		'wrench',
 		'path',
 		'pathUtil',
-		'rimraf',
 		'spell/functions'
 	],
 	function(
@@ -20,10 +19,9 @@ define(
 		isFile,
 
 		fs,
-		mkdirp,
+		wrench,
 		path,
 		pathUtil,
-		rmdir,
 		_
 	) {
 		'use strict'
@@ -53,7 +51,7 @@ define(
 					if( isDirectory( sourceFilePath ) ) return
 
 					if( !fs.existsSync( targetDirectoryPath ) ) {
-						mkdirp.sync( targetDirectoryPath )
+						wrench.mkdirSyncRecursive( targetDirectoryPath )
 					}
 
 					copyFile( sourceFilePath, targetFilePath )
@@ -84,7 +82,7 @@ define(
 
 					if( !isDirectory( absolutePath ) ) return
 
-					rmdir.sync( absolutePath )
+					wrench.rmdirSyncRecursive( absolutePath, true )
 				}
 			)
 		}
@@ -151,7 +149,7 @@ define(
 
 		var createProjectDirectory = function( projectPath, next ) {
 			try {
-				mkdirp.sync( projectPath )
+				wrench.mkdirSyncRecursive( projectPath )
 
 			} catch( e ) {
 				next( e.toString() )
@@ -220,7 +218,7 @@ define(
 
 					if( isDirectory( fullPath ) ) return
 
-					mkdirp.sync( fullPath )
+					wrench.mkdirSyncRecursive( fullPath )
 				}
 			)
 
@@ -251,7 +249,7 @@ define(
 			)
 
 			if( !fs.existsSync( html5OutputPath ) ) {
-				fs.mkdirSync( html5OutputPath )
+				wrench.mkdirSyncRecursive( html5OutputPath )
 			}
 
 			// copying engine library

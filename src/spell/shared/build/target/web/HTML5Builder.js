@@ -14,7 +14,7 @@ define(
 
 		'amd-helper',
 		'fs',
-		'mkdirp',
+		'wrench',
 		'path'
 	],
 	function(
@@ -31,7 +31,7 @@ define(
 
 		amdHelper,
 		fs,
-		mkdirp,
+		wrench,
 		path
 	) {
 		'use strict'
@@ -52,7 +52,7 @@ define(
 			)
 
 			// copying all files required by the build to the output directory "build/release/web"
-			mkdirp.sync( outputWebHtml5Path )
+			wrench.mkdirSyncRecursive( outputWebHtml5Path )
 
 			// write data file to "build/release/web/html5/data.js"
 			var dataFilePath = path.join( outputWebHtml5Path, 'data.js' )
