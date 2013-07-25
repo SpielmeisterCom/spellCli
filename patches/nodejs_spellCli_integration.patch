@@ -1,13 +1,12 @@
 diff --git src/node.gyp src/node.gyp
-index b07a1e0..0bfbcc0 100644
+index b07a1e0..51a85e4 100644
 --- src/node.gyp
 +++ src/node.gyp
-@@ -58,6 +58,33 @@
+@@ -58,6 +58,31 @@
        'lib/util.js',
        'lib/vm.js',
        'lib/zlib.js',
 +      'lib/requirejs.js',
-+      'lib/mkdirp.js',
 +      'lib/uglifyjs.js',
 +      'lib/uglifyjs_parsejs.js',
 +      'lib/uglifyjs_process.js',
@@ -25,7 +24,6 @@ index b07a1e0..0bfbcc0 100644
 +      'lib/xmlbuilder.js',
 +      'lib/xmlbuilder_XMLBuilder.js',
 +      'lib/xmlbuilder_XMLFragment.js',
-+      'lib/rimraf.js',
 +      'lib/zipstream.js',
 +      'lib/zipstream_crc32.js',
 +      'lib/commander.js',

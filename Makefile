@@ -63,9 +63,6 @@ cli: cli-js
 	# integrate requirejs
 	tail -n +2 node_modules/requirejs/bin/r.js >$(NODE_SRC)/lib/requirejs.js
 
-	# integrate mkdirp
-	cp node_modules/mkdirp/index.js $(NODE_SRC)/lib/mkdirp.js
-
 	# integrate uglify-js
 	cp node_modules/uglify-js/uglify-js.js $(NODE_SRC)/lib/uglifyjs.js
 	cp node_modules/uglify-js/lib/process.js $(NODE_SRC)/lib/uglifyjs_process.js
@@ -111,9 +108,6 @@ cli: cli-js
 	cp node_modules/xmlbuilder/lib/XMLFragment.js $(NODE_SRC)/lib/xmlbuilder_XMLFragment.js
 	$(SED) 's/.\/XMLBuilder/xmlbuilder_XMLBuilder/g' $(NODE_SRC)/lib/xmlbuilder*.js
 	$(SED) 's/.\/XMLFragment/xmlbuilder_XMLFragment/g' $(NODE_SRC)/lib/xmlbuilder*.js
-
-	# integrate rimraf
-	cp node_modules/rimraf/rimraf.js $(NODE_SRC)/lib/rimraf.js
 
 	# integrate zipstream
 	cp node_modules/zipstream/zipstream.js $(NODE_SRC)/lib/zipstream.js
