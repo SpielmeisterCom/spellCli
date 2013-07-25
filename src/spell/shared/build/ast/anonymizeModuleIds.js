@@ -3,16 +3,16 @@ define(
 	[
 		'spell/shared/build/ast/isAmdHeader',
 		'spell/shared/util/hashModuleId',
-		'spell/functions',
 
-		'uglify-js'
+		'uglify-js',
+		'underscore'
 	],
 	function(
 		isAmdHeader,
 		hashModuleId,
-		_,
 
-		uglify
+		uglify,
+		_
 	) {
 		'use strict'
 

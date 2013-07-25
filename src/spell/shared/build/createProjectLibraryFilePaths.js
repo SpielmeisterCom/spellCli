@@ -1,14 +1,10 @@
 define(
 	'spell/shared/build/createProjectLibraryFilePaths',
 	[
-		'spell/functions',
-
 		'path',
 		'pathUtil'
 	],
 	function(
-		_,
-
 		path,
 		pathUtil
 	) {

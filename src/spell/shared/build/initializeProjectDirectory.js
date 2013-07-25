@@ -10,7 +10,7 @@ define(
 		'wrench',
 		'path',
 		'pathUtil',
-		'spell/functions'
+		'underscore'
 	],
 	function(
 		createDebugPath,

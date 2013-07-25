@@ -1,7 +1,7 @@
 define(
 	'spell/shared/util/createCacheContent',
 	[
-		'spell/functions'
+		'underscore'
 	],
 	function(
 		_

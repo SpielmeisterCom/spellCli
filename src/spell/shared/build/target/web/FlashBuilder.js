@@ -25,7 +25,7 @@ define(
 		'uglify-js',
 
 		'underscore.string',
-		'spell/functions'
+		'underscore'
 	],
 	function(
 		createAST,

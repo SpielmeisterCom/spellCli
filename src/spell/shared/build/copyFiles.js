@@ -7,7 +7,7 @@ define(
 		'fs',
 		'wrench',
 		'path',
-		'spell/functions'
+		'underscore'
 	],
 	function(
 		copyFile,

@@ -13,13 +13,13 @@ define(
 		'spell/shared/util/createCacheContent',
 		'spell/shared/util/createIdFromLibraryFilePath',
 		'spell/shared/util/hashModuleId',
-		'spell/functions',
 
 		'amd-helper',
 		'ff',
 		'fs',
 		'path',
-		'pathUtil'
+		'pathUtil',
+		'underscore'
 	],
 	function(
 		createDebugPath,
@@ -34,13 +34,13 @@ define(
 		createCacheContent,
 		createIdFromLibraryFilePath,
 		hashModuleId,
-		_,
 
 		amdHelper,
 		ff,
 		fs,
 		path,
-		pathUtil
+		pathUtil,
+		_
 	) {
 		'use strict'
 

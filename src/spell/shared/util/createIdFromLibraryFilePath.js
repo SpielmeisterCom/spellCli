@@ -1,11 +1,6 @@
 define(
 	'spell/shared/util/createIdFromLibraryFilePath',
-	[
-		'spell/functions'
-	],
-	function(
-		_
-	) {
+	function() {
 		'use strict'
 
 

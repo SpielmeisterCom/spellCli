@@ -15,7 +15,7 @@ define(
 		'fs',
 		'path',
 		'spell-license',
-		'spell/functions'
+		'underscore'
 	],
 	function(
 		Certificates,

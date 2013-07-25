@@ -8,8 +8,8 @@ define(
 		'fs',
 		'path',
 
-		'underscore.string',
-		'spell/functions'
+		'underscore',
+		'underscore.string'
 	],
 	function(
 		processSource,
@@ -19,8 +19,8 @@ define(
 		fs,
 		path,
 
-		_s,
-		_
+		_,
+		_s
 	) {
 		/*
 		 * private
