@@ -65,7 +65,7 @@ define(
 		}
 
 
-		return function( environmentConfig, projectPath, outputFilePath, target, next ) {
+		return function( environmentConfig, projectPath, outputFilePath, target, forceSplashScreen, next ) {
 			var outputPath         = path.dirname( outputFilePath ),
 				projectsPath       = path.resolve( projectPath, '..' ),
 				projectName        = path.basename( projectPath ),
@@ -103,6 +103,7 @@ define(
 						minify,
 						anonymizeModuleIds,
 						debug,
+						forceSplashScreen,
 						f.wait()
 					)
 				},

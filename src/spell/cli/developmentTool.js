@@ -143,6 +143,27 @@ define(
 				license.createLicenseInfo( Certificates.LICENSE_PUBLIC_KEY, fs.readFileSync( licenseFilePath ).toString() ) :
 				undefined
 
+			if( installedLicenseInfo &&
+				installedLicenseInfo.error ) {
+
+				printErrors( installedLicenseInfo.error )
+
+				process.exit( 1 )
+			}
+
+			if( installedLicenseInfo ) {
+				var forceSplashScreen = _.any(
+					installedLicenseInfo.productFeatures,
+					function( feature ) {
+						return feature.name === 'forceSplashScreen' &&
+							feature.included
+					}
+				)
+
+			} else {
+				forceSplashScreen = true
+			}
+
 			var cleanCommand = function( cwd, command ) {
 				var projectPath = createProjectPath( cwd, command.project ),
 					errors      = checkProjectPath( projectPath )
@@ -163,27 +184,6 @@ define(
 					debug              = command.debug || false,
 					minify             = !debug,
 					anonymizeModuleIds = true
-
-				if( installedLicenseInfo &&
-					installedLicenseInfo.error ) {
-
-					printErrors( installedLicenseInfo.error )
-
-					process.exit( 1 )
-				}
-
-				if( installedLicenseInfo ) {
-					var forceSplashScreen = _.any(
-						installedLicenseInfo.productFeatures,
-						function( feature ) {
-							return feature.name === 'forceSplashScreen' &&
-								feature.included
-						}
-					)
-
-				} else {
-					forceSplashScreen = true
-				}
 
 				if( printErrors( errors ) ) {
 					process.exit( 1 )
@@ -250,6 +250,7 @@ define(
 					projectPath,
 					outputFilePath,
 					target,
+					forceSplashScreen,
 					onComplete
 				)
 			}
