@@ -7,6 +7,7 @@ define(
 		'spell/shared/build/createProjectLibraryFilePaths',
 		'spell/shared/build/copyFile',
 		'spell/shared/build/copyFiles',
+		'spell/shared/build/emptyDirectory',
 		'spell/shared/build/processSource',
 		'spell/shared/build/isFile',
 		'spell/shared/build/loadAssociatedScriptModules',
@@ -30,6 +31,7 @@ define(
 		createProjectLibraryFilePaths,
 		copyFile,
 		copyFiles,
+		emptyDirectory,
 		processSource,
 		isFile,
 		loadAssociatedScriptModules,
@@ -162,12 +164,10 @@ define(
                 signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk')
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
-            wrench.rmdirSyncRecursive( tmpProjectPath, true )
-            wrench.mkdirSyncRecursive( tmpProjectPath )
+			emptyDirectory( tmpProjectPath )
 
             console.log( '[spellcli] Cleaning ' + outputPath )
-			wrench.rmdirSyncRecursive( outputPath, true )
-            wrench.mkdirSyncRecursive( outputPath )
+			emptyDirectory( outputPath )
 
 			var f = ff(
                 function() {

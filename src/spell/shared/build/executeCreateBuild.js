@@ -1,7 +1,6 @@
 define(
 	'spell/shared/build/executeCreateBuild',
 	[
-		'spell/shared/build/cleanDirectory',
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/createProjectLibraryFilePaths',
 		'spell/shared/build/copyFiles',
@@ -23,7 +22,6 @@ define(
 		'pathUtil'
 	],
 	function(
-		cleanDirectory,
 		createDebugPath,
 		createProjectLibraryFilePaths,
 		copyFiles,

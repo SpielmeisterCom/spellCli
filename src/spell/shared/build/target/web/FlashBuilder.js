@@ -8,6 +8,7 @@ define(
 		'spell/shared/build/ast/isAmdHeader',
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/copyFile',
+		'spell/shared/build/emptyDirectory',
 		'spell/shared/build/isFile',
 		'spell/shared/build/loadAssociatedScriptModules',
 		'spell/shared/build/processSource',
@@ -34,6 +35,7 @@ define(
 		isAmdHeader,
 		createDebugPath,
 		copyFile,
+		emptyDirectory,
 		isFile,
 		loadAssociatedScriptModules,
 		processSource,
@@ -394,8 +396,7 @@ define(
 			}
 
 			// remove build files from previous run
-			wrench.rmdirSyncRecursive( spielmeisterPackagePath, true )
-			wrench.mkdirSyncRecursive( spielmeisterPackagePath )
+			emptyDirectory( spielmeisterPackagePath )
 
 			if( fs.existsSync( compilerConfigFilePath ) ) {
 				fs.unlinkSync( compilerConfigFilePath )
