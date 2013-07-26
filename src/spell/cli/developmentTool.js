@@ -124,7 +124,11 @@ define(
 				licenseFilePath     = pathUtil.createConfigFilePath( basePath, 'spell', 'license.txt' )
 
 			var installedLicenseInfo = licenseFilePath ?
-				license.createLicenseInfo( Certificates.LICENSE_PUBLIC_KEY, fs.readFileSync( licenseFilePath ).toString() ) :
+				license.createLicenseInfo(
+					Certificates.LICENSE_PUBLIC_KEY,
+					fs.readFileSync( licenseFilePath ).toString(),
+					BuildInfo.buildTimestamp
+				) :
 				undefined
 
 			if( installedLicenseInfo &&
@@ -271,7 +275,11 @@ define(
 					process.stdin.on(
 						'end',
 						function() {
-							var suppliedLicenseInfo = license.createLicenseInfo( Certificates.LICENSE_PUBLIC_KEY, accumulatedChunks )
+							var suppliedLicenseInfo = license.createLicenseInfo(
+								Certificates.LICENSE_PUBLIC_KEY,
+								accumulatedChunks,
+								BuildInfo.buildTimestamp
+							)
 
 							if( suppliedLicenseInfo &&
 								suppliedLicenseInfo.error ) {

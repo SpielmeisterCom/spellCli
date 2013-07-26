@@ -15,5 +15,5 @@ fi
 
 #setting version of spellcli
 perl -pi -e "s/buildNumber(\s*):(\s*)\'[^\']*\',/buildNumber\1:\2\'$BUILDNUMBER\',/g" src/spell/BuildInfo.js
-perl -pi -e "s/buildTimeStamp(\s*):(\s*)\'[^\']*\'/buildTimeStamp\1:\2\'$BUILDTIMESTAMP\'/g" src/spell/BuildInfo.js
+perl -pi -e "s/buildTimestamp(\s*):(\s*)\'[^\']*\'/buildTimestamp\1:\2\'$BUILDTIMESTAMP\'/g" src/spell/BuildInfo.js
 
