@@ -3,7 +3,6 @@ define(
 	[
 		'spell/cli/Certificates',
 		'spell/shared/build/cleanDirectory',
-		'spell/shared/build/createOsPath',
 		'spell/shared/build/executeCreateBuild',
 		'spell/shared/build/exportArchive',
 		'spell/shared/build/initializeProjectDirectory',
@@ -14,13 +13,13 @@ define(
 		'commander',
 		'fs',
 		'path',
+		'pathUtil',
 		'spell-license',
 		'underscore'
 	],
 	function(
 		Certificates,
 		cleanDirectory,
-		createOsPath,
 		executeCreateBuild,
 		exportArchive,
 		initializeProjectDirectory,
@@ -31,6 +30,7 @@ define(
 		commander,
 		fs,
 		path,
+		pathUtil,
 		license,
 		_
 	) {
@@ -110,24 +110,8 @@ define(
 			return config
 		}
 
-		var createConfigFilePath = function( basePath, fileName ) {
-			var environmentConfigFilePath = path.resolve( basePath, fileName )
-
-			if( fs.existsSync( environmentConfigFilePath ) ) {
-				return environmentConfigFilePath
-			}
-
-			var appDataPath = createOsPath().createAppDataPath( 'spell' )
-
-			environmentConfigFilePath = path.resolve( appDataPath, fileName )
-
-			if( fs.existsSync( environmentConfigFilePath ) ) {
-				return environmentConfigFilePath
-			}
-		}
-
 		return function( argv, cwd, basePath, isDevEnv ) {
-			var environmentConfigFilePath = createConfigFilePath( basePath, 'config.json' )
+			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, 'spell', 'config.json' )
 
 			if( !environmentConfigFilePath ) {
 				printErrors( 'Error: Missing spell configuration file "config.json".' )
@@ -137,7 +121,7 @@ define(
 
 			var environmentConfig   = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath ) ),
 				spellCorePath       = environmentConfig.spellCorePath,
-				licenseFilePath     = createConfigFilePath( basePath, 'license.txt' )
+				licenseFilePath     = pathUtil.createConfigFilePath( basePath, 'spell', 'license.txt' )
 
 			var installedLicenseInfo = licenseFilePath ?
 				license.createLicenseInfo( Certificates.LICENSE_PUBLIC_KEY, fs.readFileSync( licenseFilePath ).toString() ) :
