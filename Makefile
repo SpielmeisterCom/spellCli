@@ -44,7 +44,7 @@ cli-js:
 
 	echo 'var RELEASE = true' > $(SPELL_CLI_LIB)
 	cat src/spell/cli/spellcli.js >> $(SPELL_CLI_LIB)
-	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,mkdirp,path,uglify-js,amd-helper,child_process,xmlbuilder,os,underscore,underscore.string,rimraf,zipstream,util,commander,ff,spell-license,wrench,pathUtil" >> $(SPELL_CLI_LIB)
+	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,path,uglify-js,amd-helper,child_process,xmlbuilder,os,underscore,underscore.string,zipstream,util,commander,ff,spell-license,wrench,pathUtil" >> $(SPELL_CLI_LIB)
 
 
 cli: cli-js
