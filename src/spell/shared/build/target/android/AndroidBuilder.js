@@ -189,9 +189,12 @@ define(
 				unsignedDebugApkFile    = path.join( tmpProjectPath, 'bin', name + '-debug.apk' ),
 				unsignedReleaseApkFile  = path.join( tmpProjectPath, 'bin', name + '-release-unsigned.apk' ),
 				unalignedReleaseApkFile = path.join( tmpProjectPath, 'bin', name + '-release-signed-unaligned.apk' ),
-				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk' )
+				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
+                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) )
 
-			console.log( '[spellcli] Cleaning ' + tmpProjectPath )
+
+
+            console.log( '[spellcli] Cleaning ' + tmpProjectPath )
 			emptyDirectory( tmpProjectPath )
 
 			console.log( '[spellcli] Cleaning ' + androidOutputPath )
@@ -237,6 +240,13 @@ define(
 						f.fail( 'Could not find android tool in ' + androidTool + '. Please check your androidSDKPath settings.' )
 					}
 				},
+                function() {
+                    console.log( '[spellcli] Checking prerequisite: spellCore build' )
+
+                    if( !fs.existsSync( spellEngineFile ) ) {
+                        f.fail( 'Could not find a spellCore build in ' + spellEngineFile )
+                    }
+                },
 				function() {
 					// copy the prebuild Tealeaf library into our temp directory
 					wrench.copyDirSyncRecursive(
@@ -366,6 +376,7 @@ define(
 				function() {
 					console.log( '[spellcli] Populating the android project with SpellJS project resources' )
 
+
 					// copy project library directory
 					var libraryResourcesPath = path.join( resourcesPath, 'library' ),
 						spelljsResourcesPath = path.join( resourcesPath, 'spelljs' )
@@ -384,7 +395,7 @@ define(
 					)
 
 					copyFile(
-						createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
+                        spellEngineFile,
 						path.join( spelljsResourcesPath, 'spell.js.mp3' )
 					)
 
