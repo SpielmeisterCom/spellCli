@@ -386,11 +386,11 @@ define(
 				spielmeisterPackagePath  = path.join( srcPath, 'Spielmeister' ),
 				outputFlashPath          = path.join( outputPath, 'web', 'flash' ),
 				compilerConfigFilePath   = path.join( tmpPath, 'compile-config.xml' ),
-				flexSdkPath              = path.join( spellFlashPath, 'vendor/flex_sdk' ),
+				flexSdkPath              = path.join( spellFlashPath, 'vendor', 'flex_sdk' ),
 				compilerExecutablePath   = path.join( flexSdkPath, 'bin', os.platform() == 'win32' ? 'mxmlc.bat' : 'mxmlc' )
 
 			if( !fs.existsSync( compilerExecutablePath ) ) {
-				next( 'Error: Could not find compiler executable "' + compilerExecutablePath + '".' )
+				next( 'Could not find compiler executable "' + compilerExecutablePath + '". Please make sure that spellFlash is included in the build.' )
 
 				return
 			}
@@ -404,15 +404,15 @@ define(
 
 			// copy splash screen image
 			copyFile(
-				path.join( projectPath, "library", "spell", "splash.png" ),
-				path.join( srcPath, "splash.png" )
+				path.join( projectPath, 'library', 'spell', 'splash.png' ),
+				path.join( srcPath, 'splash.png' )
 			)
 
 			// reading engine source file
 			var spellEngineSourceFilePath = createDebugPath( debug, 'spell.common.js', 'spell.common.min.js', path.join( spellCorePath, 'lib' ) )
 
 			if( !fs.existsSync( spellEngineSourceFilePath ) ) {
-				errors.push( 'Error: Could not locate engine include file \'' + spellEngineSourceFilePath + '\'.' )
+				errors.push( 'Could not locate engine include file \'' + spellEngineSourceFilePath + '\'.' )
 				next( errors )
 			}
 
@@ -485,7 +485,7 @@ define(
 				false,
 				function( error, status ) {
 					if( error ) {
-						next( 'Error: Missing a Java Runtime Environment. Please install one.' )
+						next( 'Missing a Java Runtime Environment. Please install one.' )
 					}
 
 					next()
