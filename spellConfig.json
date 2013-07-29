@@ -1,4 +1,7 @@
 {
+	"androidSdkPath": "",
+	"jdkPath": "",
+	"spellCliPath": ".",
 	"spellCorePath": "../spellCore/build",
 	"spellFlashPath": "../spellFlash/build"
 }

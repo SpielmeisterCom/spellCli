@@ -111,17 +111,17 @@ define(
 		}
 
 		return function( argv, cwd, basePath, isDevEnv ) {
-			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, 'spell', 'config.json' )
+			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, 'spell', 'spellConfig.json' )
 
 			if( !environmentConfigFilePath ) {
-				printErrors( 'Error: Missing spell configuration file "config.json".' )
+				printErrors( 'Error: Missing spell configuration file "spellConfig.json".' )
 
 				process.exit( 1 )
 			}
 
-			var environmentConfig   = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath ) ),
-				spellCorePath       = environmentConfig.spellCorePath,
-				licenseFilePath     = pathUtil.createConfigFilePath( basePath, 'spell', 'license.txt' )
+			var environmentConfig = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath ) ),
+				spellCorePath     = environmentConfig.spellCorePath,
+				licenseFilePath   = pathUtil.createConfigFilePath( basePath, 'spell', 'license.txt' )
 
 			var installedLicenseInfo = licenseFilePath ?
 				license.createLicenseInfo(
