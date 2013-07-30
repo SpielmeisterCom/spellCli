@@ -26,9 +26,6 @@ define(
 	) {
 		'use strict'
 
-		/*
-		 * private
-		 */
 
 		var LIBRARY_PATH = 'library'
 
@@ -138,8 +135,31 @@ define(
 			return false
 		}
 
-		var isInitRequired = function( projectApiVersion, toolApiVersion, next ) {
-			return lessVersionString( projectApiVersion, toolApiVersion, next )
+		var createRelativeDirectoryPaths = function( currentPath ) {
+			return fs.readdirSync( currentPath ).filter(
+				function( x ) {
+					return fs.statSync( path.join( currentPath, x ) ).isDirectory()
+				}
+			)
+		}
+
+		var isInitRequired = function( spellCoreLibraryPath, projectLibraryPath, projectApiVersion, toolApiVersion, next ) {
+			if( lessVersionString( projectApiVersion, toolApiVersion, next ) ) {
+				return true
+			}
+
+			// determine if any child directory of spellCoreLibraryPath is not contained in projectLibraryPath
+			var sourceLibraryListing = createRelativeDirectoryPaths( spellCoreLibraryPath ),
+				destLibraryListing   = createRelativeDirectoryPaths( projectLibraryPath )
+
+			var isAllContained = _.all(
+				sourceLibraryListing,
+				function( x ) {
+					return _.contains( destLibraryListing, x )
+				}
+			)
+
+			return !isAllContained
 		}
 
 		var printSuccess = function() {
@@ -156,9 +176,11 @@ define(
 		}
 
 		return function( spellCorePath, projectName, projectPath, projectFilePath, force, apiVersion, isDevEnv, next ) {
-			var publicDirName   = 'public',
-				outputPath      = path.join( projectPath, publicDirName ),
-				html5OutputPath = path.join( outputPath, 'html5' )
+			var publicDirName        = 'public',
+				outputPath           = path.join( projectPath, publicDirName ),
+				html5OutputPath      = path.join( outputPath, 'html5' ),
+				spellCoreLibraryPath = path.join( spellCorePath, LIBRARY_PATH ),
+				projectLibraryPath   = path.join( projectPath, LIBRARY_PATH )
 
 			if( !isDirectory( projectPath ) ) {
 				createProjectDirectory( projectPath, next )
@@ -180,7 +202,7 @@ define(
 				}
 
 				var projectApiVersion = projectConfig.apiVersion || '0',
-					initRequired      = isInitRequired( projectApiVersion, apiVersion, next )
+					initRequired      = isInitRequired( spellCoreLibraryPath, projectLibraryPath, projectApiVersion, apiVersion, next )
 
 				if( !initRequired &&
 					!force ) {
@@ -220,9 +242,6 @@ define(
 					wrench.mkdirSyncRecursive( fullPath )
 				}
 			)
-
-			var spellCoreLibraryPath = path.join( spellCorePath, LIBRARY_PATH ),
-				projectLibraryPath   = path.join( projectPath, LIBRARY_PATH )
 
 			// remove old spell sdk library
 			clearTargetLibraryPath( spellCoreLibraryPath, projectLibraryPath )
