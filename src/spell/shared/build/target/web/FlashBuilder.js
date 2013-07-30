@@ -406,7 +406,7 @@ define(
 
 			// write engine source wrapper class file
 			var engineSourceFilePath = path.join( spielmeisterPackagePath, 'SpellEngine.as' ),
-				engineSource         = fs.readFileSync( spellEngineSourceFilePath ).toString()
+				engineSource         = fs.readFileSync( spellEngineSourceFilePath, 'utf8' )
 
 			writeFile(
 				engineSourceFilePath,

@@ -53,7 +53,7 @@ define(
 				function( filePath ) {
 					var fullyQualifiedFilePath = path.join( libraryPath, filePath )
 
-					var data = fs.readFileSync( fullyQualifiedFilePath )
+					var data = fs.readFileSync( fullyQualifiedFilePath, 'utf8' )
 
 					try {
 						var content = JSON.parse( data )
@@ -81,7 +81,7 @@ define(
 		}
 
 		var readProjectConfigFile = function( filePath ) {
-			return fs.readFileSync( filePath )
+			return fs.readFileSync( filePath, 'utf8' )
 		}
 
 		var parseProjectConfig = function( projectConfigData, callback ) {

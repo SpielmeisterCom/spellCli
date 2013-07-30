@@ -90,7 +90,7 @@ define(
 
 		var createEnvironmentConfig = function( basePath, data ) {
 			try {
-				var config = JSON.parse( data.toString() )
+				var config = JSON.parse( data )
 
 			} catch( e ) {
 				printErrors( 'Error: Parsing spell configuration file failed.' )
@@ -119,14 +119,14 @@ define(
 				process.exit( 1 )
 			}
 
-			var environmentConfig = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath ) ),
+			var environmentConfig = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath, 'utf8' ) ),
 				spellCorePath     = environmentConfig.spellCorePath,
 				licenseFilePath   = pathUtil.createConfigFilePath( basePath, 'spell', 'license.txt' )
 
 			var installedLicenseInfo = licenseFilePath ?
 				license.createLicenseInfo(
 					Certificates.LICENSE_PUBLIC_KEY,
-					fs.readFileSync( licenseFilePath ).toString(),
+					fs.readFileSync( licenseFilePath, 'utf8' ),
 					BuildInfo.buildTimestamp
 				) :
 				undefined

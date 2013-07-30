@@ -109,7 +109,7 @@ define(
 
 		var readProjectConfigFile = function( projectFilePath ) {
 			return JSON.parse(
-				fs.readFileSync( projectFilePath )
+				fs.readFileSync( projectFilePath, 'utf8' )
 			)
 		}
 
