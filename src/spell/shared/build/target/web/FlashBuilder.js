@@ -210,7 +210,7 @@ define(
 			.ele( 'output' )
 				.txt( outputFilePath )
 
-			fs.writeFileSync( compilerConfigFilePath, root.toString( { pretty : true } ), 'utf-8' )
+			fs.writeFileSync( compilerConfigFilePath, root.toString( { pretty : true } ) )
 		}
 
 		var compile = function( compilerExecutablePath, configFilePath, next ) {
@@ -406,7 +406,7 @@ define(
 
 			// write engine source wrapper class file
 			var engineSourceFilePath = path.join( spielmeisterPackagePath, 'SpellEngine.as' ),
-				engineSource         = fs.readFileSync( spellEngineSourceFilePath ).toString( 'utf-8' )
+				engineSource         = fs.readFileSync( spellEngineSourceFilePath ).toString()
 
 			writeFile(
 				engineSourceFilePath,

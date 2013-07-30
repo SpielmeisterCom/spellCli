@@ -103,14 +103,13 @@ define(
 		var writeProjectConfigFile = function( projectFilePath, projectConfig ) {
 			fs.writeFileSync(
 				projectFilePath,
-				JSON.stringify( projectConfig, null, '\t' ),
-				'utf-8'
+				JSON.stringify( projectConfig, null, '\t' )
 			)
 		}
 
 		var readProjectConfigFile = function( projectFilePath ) {
 			return JSON.parse(
-				fs.readFileSync( projectFilePath, 'utf-8' )
+				fs.readFileSync( projectFilePath )
 			)
 		}
 

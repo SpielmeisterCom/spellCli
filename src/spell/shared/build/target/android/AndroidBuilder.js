@@ -62,7 +62,7 @@ define(
 
 			fs.readFile(
 				activityFile,
-				'utf-8',
+				null,
 				function( err, contents ) {
 					contents = contents
 						.replace( /extends Activity/g, 'extends com.tealeaf.TeaLeaf' )
