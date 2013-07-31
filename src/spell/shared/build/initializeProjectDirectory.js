@@ -3,6 +3,7 @@ define(
 	[
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/copyFile',
+		'spell/shared/build/defaultStartScene',
 		'spell/shared/build/isDirectory',
 		'spell/shared/build/isFile',
 
@@ -15,6 +16,7 @@ define(
 	function(
 		createDebugPath,
 		copyFile,
+		defaultStartScene,
 		isDirectory,
 		isFile,
 
@@ -84,23 +86,30 @@ define(
 			)
 		}
 
-		var createDefaultProjectConfig = function( apiVersion ) {
+		var createDefaultProjectConfig = function( apiVersion, projectName, defaultSceneId ) {
 			return {
 				"version": 1,
 				"apiVersion": apiVersion,
 				"config": {
+					"projectId": projectName,
 					"supportedLanguages": []
 				},
-				"startScene": "",
+				"startScene": defaultSceneId,
 				"type": "project",
-				"scenes": []
+				"scenes": [
+					defaultSceneId
+				]
 			}
 		}
 
-		var writeProjectConfigFile = function( projectFilePath, projectConfig ) {
-			fs.writeFileSync(
-				projectFilePath,
-				JSON.stringify( projectConfig, null, '\t' )
+		var writeFile = function( filePath, data ) {
+			fs.writeFileSync( filePath, data )
+		}
+
+		var writeJsonFile = function( filePath, object ) {
+			writeFile(
+				filePath,
+				JSON.stringify( object, null, '\t' )
 			)
 		}
 
@@ -182,15 +191,38 @@ define(
 				spellCoreLibraryPath = path.join( spellCorePath, LIBRARY_PATH ),
 				projectLibraryPath   = path.join( projectPath, LIBRARY_PATH )
 
+			if( !projectName ) {
+				next( 'projectName is undefined' )
+				return
+			}
+
 			if( !isDirectory( projectPath ) ) {
 				createProjectDirectory( projectPath, next )
 			}
 
 			if( !isFile( projectFilePath ) ) {
-				// initial creation of project config file
-				writeProjectConfigFile(
+				// full initialization
+				var defaultSceneId = projectName + '.Scene'
+
+				// add project config file
+				writeJsonFile(
 					projectFilePath,
-					createDefaultProjectConfig( apiVersion )
+					createDefaultProjectConfig( apiVersion, projectName, defaultSceneId )
+				)
+
+				// add default start scene
+				var projectNamespacePath = path.join( projectLibraryPath, projectName )
+
+				wrench.mkdirSyncRecursive( projectNamespacePath )
+
+				writeJsonFile(
+					path.join( projectNamespacePath, 'Scene.json' ),
+					defaultStartScene.JSON
+				)
+
+				writeFile(
+					path.join( projectNamespacePath, 'Scene.js' ),
+					_s.sprintf( defaultStartScene.JS, defaultSceneId.replace( /\./g, '/' ) )
 				)
 
 			} else {
@@ -222,7 +254,7 @@ define(
 				}
 
 				projectConfig.apiVersion = apiVersion
-				writeProjectConfigFile( projectFilePath, projectConfig )
+				writeJsonFile( projectFilePath, projectConfig )
 			}
 
 			// create directory structure
