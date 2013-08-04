@@ -23,13 +23,11 @@ else ifeq ($(UNAME_S),CYGWIN_NT-6.1-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
-	VISUAL_STUDIO_PATCH_FILE = patches/nodejs_vs10.patch
 
 else ifeq ($(UNAME_S),CYGWIN_NT-6.2-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
-	VISUAL_STUDIO_PATCH_FILE = patches/nodejs_vs11.patch
 endif
 
 
@@ -61,8 +59,6 @@ cli: $(NODE_SRC)/lib/_third_party_main.js
 	mkdir -p $(SPELL_CLI_OUT_DIR) || true
 
 ifeq ($(WINDOWS_ENV),true)
-	cd $(NODE_SRC) && patch -p1 < ../../../$(VISUAL_STUDIO_PATCH_FILE)
-
 	cd $(NODE_SRC) && chmod +x vcbuild.bat && ./vcbuild.bat
 	cp $(NODE_SRC)/Release/node.exe $(SPELL_CLI_OUT_DIR)/spellcli.exe
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli.exe
