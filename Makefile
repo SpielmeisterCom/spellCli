@@ -40,9 +40,9 @@ all: cli
 clean:
 	rm -rf $(SPELL_CLI_BUILD_DIR) || true
 	rm -rf $(TMP_DIR) || true
-	cd $(NODE_SRC) && make clean
+	cd $(NODE_SRC) && make clean && rm lib/_third_party_main.js || true
 
-cli-js:
+$(SPELL_CLI_LIB):
 	# creating the javascript includes for the command line tool
 	test -d $(TMP_DIR) || mkdir -p $(TMP_DIR)
 
@@ -50,16 +50,15 @@ cli-js:
 	cat src/spell/cli/spellcli.js >> $(SPELL_CLI_LIB)
 	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,path,uglify-js,amd-helper,child_process,xmlbuilder,os,underscore,underscore.string,zipstream,util,commander,ff,spell-license,wrench,pathUtil" >> $(SPELL_CLI_LIB)
 
-
-cli: cli-js
-	mkdir -p $(SPELL_CLI_OUT_DIR) || true
-	
-	# replace _third_party_main.js
+$(NODE_SRC)/lib/_third_party_main.js: $(SPELL_CLI_LIB)
 	cp $(SPELL_CLI_LIB) $(NODE_SRC)/lib/_third_party_main.js
 	$(SED) 's/uglify-js/uglifyjs/g' $(NODE_SRC)/lib/_third_party_main.js
 	$(SED) 's/amd-helper/amdhelper/g' $(NODE_SRC)/lib/_third_party_main.js
 	$(SED) 's/underscore.string/underscorestring/g' $(NODE_SRC)/lib/_third_party_main.js
 	$(SED) 's/spell-license/spelllicense/g' $(NODE_SRC)/lib/_third_party_main.js
+
+cli: $(NODE_SRC)/lib/_third_party_main.js 
+	mkdir -p $(SPELL_CLI_OUT_DIR) || true
 
 ifeq ($(WINDOWS_ENV),true)
 	cd $(NODE_SRC) && patch -p1 < ../../../$(VISUAL_STUDIO_PATCH_FILE)
