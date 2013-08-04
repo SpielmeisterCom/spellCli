@@ -2,7 +2,7 @@ SPELL_CLI_BUILD_DIR = build
 TMP_DIR             = $(SPELL_CLI_BUILD_DIR)/tmp
 SPELL_CLI_LIB       = $(TMP_DIR)/spellcli.js
 NODE                = modules/nodejs/node
-NODE_SRC            = modules/nodejs/src
+NODE_SRC            = modules/node
 NODE_PATH           = $$(modules/nodejs/node --which)
 
 UNAME_S := $(shell uname -s)
@@ -40,6 +40,7 @@ all: cli
 clean:
 	rm -rf $(SPELL_CLI_BUILD_DIR) || true
 	rm -rf $(TMP_DIR) || true
+	cd $(NODE_SRC) && make clean
 
 cli-js:
 	# creating the javascript includes for the command line tool
@@ -51,87 +52,14 @@ cli-js:
 
 
 cli: cli-js
-	# reseting node src directory
-	cd $(NODE_SRC) && git reset --hard master
-
-	# patching nodejs src
-	cd $(NODE_SRC) && patch -p1 <../../../patches/nodejs_spellCli_integration.patch
-
-	# creating cli executable
-	cp $(SPELL_CLI_LIB) $(NODE_SRC)/lib/_third_party_main.js
-
-	# patch includes in _third_party_main.js
-	$(SED) 's/uglify-js/uglifyjs/g' $(NODE_SRC)/lib/_third_party_main.js
-
-	# integrate requirejs
-	tail -n +2 node_modules/requirejs/bin/r.js >$(NODE_SRC)/lib/requirejs.js
-
-	# integrate uglify-js
-	cp node_modules/uglify-js/uglify-js.js $(NODE_SRC)/lib/uglifyjs.js
-	cp node_modules/uglify-js/lib/process.js $(NODE_SRC)/lib/uglifyjs_process.js
-	cp node_modules/uglify-js/lib/parse-js.js $(NODE_SRC)/lib/uglifyjs_parsejs.js
-	cp node_modules/uglify-js/lib/squeeze-more.js $(NODE_SRC)/lib/uglifyjs_squeezemore.js
-	cp node_modules/uglify-js/lib/consolidator.js $(NODE_SRC)/lib/uglifyjs_consolidator.js
-	$(SED) 's/\.\/lib\/parse-js/uglifyjs_parsejs/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/parse-js/uglifyjs_parsejs/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/lib\/process/uglifyjs_process/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/process/uglifyjs_process/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/lib\/squeeze-more/uglifyjs_squeezemore/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/squeeze-more/uglifyjs_squeezemore/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/lib\/consolidator/uglifyjs_consolidator/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/\.\/consolidator/uglifyjs_consolidator/g' $(NODE_SRC)/lib/*.js
-
-	# integrate underscore
-	cp node_modules/underscore/underscore.js $(NODE_SRC)/lib/underscore.js
-
-	# integrate ff
-	cp node_modules/ff/lib/ff.js $(NODE_SRC)/lib/ff.js
-
-	# integrate amd-helper
-	cp node_modules/amd-helper/lib/index.js $(NODE_SRC)/lib/amdhelper.js
-	cp node_modules/amd-helper/lib/createModuleHeader.js $(NODE_SRC)/lib/amdhelper_createModuleHeader.js
-	cp node_modules/amd-helper/lib/extractModuleHeader.js $(NODE_SRC)/lib/amdhelper_extractModuleHeader.js
-	cp node_modules/amd-helper/lib/loadModule.js $(NODE_SRC)/lib/amdhelper_loadModule.js
-	cp node_modules/amd-helper/lib/loadModules.js $(NODE_SRC)/lib/amdhelper_loadModules.js
-	cp node_modules/amd-helper/lib/traceDependencies.js $(NODE_SRC)/lib/amdhelper_traceDependencies.js
-	$(SED) 's/amd-helper/amdhelper/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/.\/extractModuleHeader/amdhelper_extractModuleHeader/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/.\/loadModule/amdhelper_loadModule/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/.\/createModuleHeader/amdhelper_createModuleHeader/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/.\/traceDependencies/amdhelper_traceDependencies/g' $(NODE_SRC)/lib/*.js
-	$(SED) 's/uglify-js/uglifyjs/g' $(NODE_SRC)/lib/*.js
-
-	# integrate underscore.string
-	cp node_modules/underscore.string/lib/underscore.string.js $(NODE_SRC)/lib/underscorestring.js
-	$(SED) 's/underscore.string/underscorestring/g' $(NODE_SRC)/lib/*.js
-
-	# integrate xmlbuilder
-	cp node_modules/xmlbuilder/lib/index.js $(NODE_SRC)/lib/xmlbuilder.js
-	cp node_modules/xmlbuilder/lib/XMLBuilder.js $(NODE_SRC)/lib/xmlbuilder_XMLBuilder.js
-	cp node_modules/xmlbuilder/lib/XMLFragment.js $(NODE_SRC)/lib/xmlbuilder_XMLFragment.js
-	$(SED) 's/.\/XMLBuilder/xmlbuilder_XMLBuilder/g' $(NODE_SRC)/lib/xmlbuilder*.js
-	$(SED) 's/.\/XMLFragment/xmlbuilder_XMLFragment/g' $(NODE_SRC)/lib/xmlbuilder*.js
-
-	# integrate zipstream
-	cp node_modules/zipstream/zipstream.js $(NODE_SRC)/lib/zipstream.js
-	cp node_modules/zipstream/crc32.js $(NODE_SRC)/lib/zipstream_crc32.js
-	$(SED) 's/.\/crc32/zipstream_crc32/g' $(NODE_SRC)/lib/zipstream.js
-
-	# integrate commander
-	cp node_modules/commander/lib/commander.js $(NODE_SRC)/lib/commander.js
-
-	# integrate spell-license
-	cp node_modules/spell-license/lib/index.js $(NODE_SRC)/lib/spelllicense.js
-	$(SED) 's/spell-license/spelllicense/g' $(NODE_SRC)/lib/*.js
-
-	# integrate wrench
-	cp node_modules/wrench/lib/wrench.js $(NODE_SRC)/lib/wrench.js
-
-	# integrate pathUtil
-	cp node_modules/pathUtil/lib/index.js $(NODE_SRC)/lib/pathUtil.js
-
-	# compile nodejs
 	mkdir -p $(SPELL_CLI_OUT_DIR) || true
+	
+	# replace _third_party_main.js
+	cp $(SPELL_CLI_LIB) $(NODE_SRC)/lib/_third_party_main.js
+	$(SED) 's/uglify-js/uglifyjs/g' $(NODE_SRC)/lib/_third_party_main.js
+	$(SED) 's/amd-helper/amdhelper/g' $(NODE_SRC)/lib/_third_party_main.js
+	$(SED) 's/underscore.string/underscorestring/g' $(NODE_SRC)/lib/_third_party_main.js
+	$(SED) 's/spell-license/spelllicense/g' $(NODE_SRC)/lib/_third_party_main.js
 
 ifeq ($(WINDOWS_ENV),true)
 	cd $(NODE_SRC) && patch -p1 < ../../../$(VISUAL_STUDIO_PATCH_FILE)
@@ -140,7 +68,7 @@ ifeq ($(WINDOWS_ENV),true)
 	cp $(NODE_SRC)/Release/node.exe $(SPELL_CLI_OUT_DIR)/spellcli.exe
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli.exe
 else
-	cd $(NODE_SRC) && make clean && ./configure $(NODEJS_CONFIGURE_OPTS) && make -j4
+	cd $(NODE_SRC) && ./configure $(NODEJS_CONFIGURE_OPTS) && make -j4
 	cp $(NODE_SRC)/out/Release/node $(SPELL_CLI_OUT_DIR)/spellcli
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli
 endif
