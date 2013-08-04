@@ -6,10 +6,13 @@ NODE_SRC            = modules/nodejs/src
 NODE_PATH           = $$(modules/nodejs/node --which)
 
 UNAME_S := $(shell uname -s)
+NODEJS_CONFIGURE_OPTS = 
+
 ifeq ($(UNAME_S),Darwin)
 	SED = sed -i "" -e
-	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/osx-x64
+	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/osx-ia32
 	WINDOWS_ENV = false
+	NODEJS_CONFIGURE_OPTS = "--dest-cpu=ia32"
 
 else ifeq ($(UNAME_S),Linux)
 	SED = sed -i
@@ -137,7 +140,7 @@ ifeq ($(WINDOWS_ENV),true)
 	cp $(NODE_SRC)/Release/node.exe $(SPELL_CLI_OUT_DIR)/spellcli.exe
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli.exe
 else
-	cd $(NODE_SRC) && make clean && ./configure && make -j4
+	cd $(NODE_SRC) && make clean && ./configure $(NODEJS_CONFIGURE_OPTS) && make -j4
 	cp $(NODE_SRC)/out/Release/node $(SPELL_CLI_OUT_DIR)/spellcli
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli
 endif
