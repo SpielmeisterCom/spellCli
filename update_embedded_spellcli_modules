@@ -9,6 +9,15 @@ else
         SED="sed -i"
 fi
 
+git submodule init
+git submodule update
+
+cd modules/node
+git reset --hard
+git checkout master
+git pull origin
+cd ../..
+
 # integrate requirejs
 tail -n +2 node_modules/requirejs/bin/r.js >$NODE_SRC/lib/requirejs.js
 
@@ -76,5 +85,7 @@ cp node_modules/wrench/lib/wrench.js $NODE_SRC/lib/wrench.js
 # integrate pathUtil
 cp node_modules/pathUtil/lib/index.js $NODE_SRC/lib/pathUtil.js
 
-
+cd modules/node
+git commit -a -m "integrated most recent modules"
+git push origin master
 
