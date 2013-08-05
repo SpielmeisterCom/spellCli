@@ -121,7 +121,7 @@ define(
 			cleanDirectory( path.join( projectPath, 'build' ) )
 		}
 
-		var buildCommand = function( cwd, installedLicenseInfo, target, command ) {
+		var buildCommand = function( cwd, installedLicenseInfo, environmentConfig, forceSplashScreen, target, command ) {
 			var projectPath        = createProjectPath( cwd, command.project ),
 				errors             = checkProjectPath( projectPath ),
 				debug              = command.debug || false,
@@ -174,7 +174,7 @@ define(
 			)
 		}
 
-		var exportCommand = function( spellCorePath, cwd, target, command ) {
+		var exportCommand = function( spellCorePath, cwd, forceSplashScreen, target, command ) {
 			var projectPath = createProjectPath( cwd, command.project ),
 				errors      = checkProjectPath( projectPath )
 
@@ -342,14 +342,14 @@ define(
 				.option( '-d, --debug', 'creates a debug build' )
 				.option( '-r, --release', 'creates a release build' )
 				.description( 'Creates a build for a specific target; available targets: web, web-html5, web-flash, android, ios.' )
-				.action( _.bind( buildCommand, this, cwd, installedLicenseInfo ) )
+				.action( _.bind( buildCommand, this, cwd, installedLicenseInfo, environmentConfig, forceSplashScreen ) )
 
 			commander
 				.command( 'export [target]' )
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.option( '-f, --file [file]', 'the name of the output file' )
 				.description( 'Creates a release version of the supplied targets and packages them into a zip archive.' )
-				.action( _.bind( exportCommand, this, spellCorePath, cwd ) )
+				.action( _.bind( exportCommand, this, spellCorePath, cwd, forceSplashScreen ) )
 
 			commander
 				.command( 'info' )
