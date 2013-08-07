@@ -61,7 +61,6 @@ cli: $(NODE_SRC)/lib/_third_party_main.js
 ifeq ($(WINDOWS_ENV),true)
 	cd $(NODE_SRC) && chmod +x vcbuild.bat && ./vcbuild.bat
 	cp $(NODE_SRC)/Release/node.exe $(SPELL_CLI_OUT_DIR)/spellcli.exe
-	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli.exe
 else
 	cd $(NODE_SRC) && ./configure $(NODEJS_CONFIGURE_OPTS) && make -j4
 	cp $(NODE_SRC)/out/Release/node $(SPELL_CLI_OUT_DIR)/spellcli
