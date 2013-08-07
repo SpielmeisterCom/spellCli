@@ -56,9 +56,6 @@ define(
 			if( error ) {
 				printErrors( error )
 				process.exit( 1 )
-
-			} else {
-				process.exit( 0 )
 			}
 		}
 
@@ -110,7 +107,178 @@ define(
 			return config
 		}
 
-		return function( argv, cwd, basePath, isDevEnv ) {
+		var cleanCommand = function( cwd, command ) {
+			var projectPath = createProjectPath( cwd, command.project ),
+				errors      = checkProjectPath( projectPath )
+
+			if( printErrors( errors ) ) {
+				process.exit( 1 )
+			}
+
+			logProject( projectPath )
+			console.log( 'cleaning...' )
+
+			cleanDirectory( path.join( projectPath, 'build' ) )
+		}
+
+		var buildCommand = function( cwd, installedLicenseInfo, environmentConfig, forceSplashScreen, target, command ) {
+			var projectPath        = createProjectPath( cwd, command.project ),
+				errors             = checkProjectPath( projectPath ),
+				debug              = command.debug || false,
+				minify             = !debug,
+				anonymizeModuleIds = true
+
+			if( printErrors( errors ) ) {
+				process.exit( 1 )
+			}
+
+			var projectFilePath = createProjectFilePath( projectPath )
+
+			if( !isFile( projectFilePath ) ) {
+				printErrors( 'Error: Missing project file "' + projectFilePath + '".' )
+
+				process.exit( 1 )
+			}
+
+			logProject( projectPath )
+			console.log( 'building...' )
+
+			executeCreateBuild(
+				environmentConfig,
+				projectPath,
+				projectFilePath,
+				target,
+				minify,
+				anonymizeModuleIds,
+				debug,
+				forceSplashScreen,
+				onComplete
+			)
+		}
+
+		var initCommand = function( spellCorePath, cwd, apiVersion, isDevEnv, command ) {
+			var projectPath = createProjectPath( cwd, command.project ),
+				force       = command.force
+
+			logProject( projectPath )
+
+			initializeProjectDirectory(
+				spellCorePath,
+				createProjectName( projectPath ),
+				projectPath,
+				createProjectFilePath( projectPath ),
+				force,
+				apiVersion,
+				isDevEnv,
+				onComplete
+			)
+		}
+
+		var exportCommand = function( spellCorePath, cwd, forceSplashScreen, target, command ) {
+			var projectPath = createProjectPath( cwd, command.project ),
+				errors      = checkProjectPath( projectPath )
+
+			if( printErrors( errors ) ) {
+				process.exit( 1 )
+			}
+
+			var outputFilePath = _.isString( command.file ) ?
+				path.resolve( command.file ) :
+				path.resolve( projectPath, 'export.zip' )
+
+			logProject( projectPath )
+
+			exportArchive(
+				environmentConfig,
+				projectPath,
+				outputFilePath,
+				target,
+				forceSplashScreen,
+				onComplete
+			)
+		}
+
+		var infoCommand = function( spellCorePath, cwd, command ) {
+			var projectPath = createProjectPath( cwd, command.project ),
+				errors      = checkProjectPath( projectPath )
+
+			if( printErrors( errors ) ) {
+				process.exit( 1 )
+			}
+
+			console.log( 'spellCore directory: ' + spellCorePath )
+			console.log( 'project directory: ' + projectPath )
+		}
+
+		var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseInfo, command ) {
+			var humanReadable = !command.json,
+				stdin         = command.stdin
+
+			if( stdin ) {
+				var accumulatedChunks = ''
+
+				process.stdin.resume()
+				process.stdin.setEncoding( 'utf8' )
+
+				process.stdin.on(
+					'data',
+					function( chunk ) {
+						accumulatedChunks += chunk
+					}
+				)
+
+				process.stdin.on(
+					'end',
+					function() {
+						var suppliedLicenseInfo = license.createLicenseInfo(
+							Certificates.LICENSE_PUBLIC_KEY,
+							accumulatedChunks,
+							BuildInfo.buildTimestamp
+						)
+
+						if( suppliedLicenseInfo &&
+							suppliedLicenseInfo.error ) {
+
+							printErrors( suppliedLicenseInfo.error )
+
+							process.exit( 1 )
+						}
+
+						printLicenseInfo(
+							isDevEnv,
+							humanReadable,
+							suppliedLicenseInfo,
+							onComplete
+						)
+					}
+				)
+
+			} else {
+				if( !licenseInfo ) {
+					printErrors( 'Error: No license installed.' )
+
+					process.exit( 1 )
+				}
+
+				if( licenseInfo &&
+					licenseInfo.error ) {
+
+					printErrors( licenseInfo.error )
+
+					process.exit( 1 )
+				}
+
+				if( licenseInfo ) {
+					printLicenseInfo( isDevEnv, humanReadable, licenseInfo, onComplete )
+
+				} else {
+					console.log( 'No license available.' )
+					onComplete()
+				}
+			}
+		}
+
+		return function( argv, cwd, basePath, isDevEnv  ) {
 			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, 'spell', 'spellConfig.json' )
 
 			if( !environmentConfigFilePath ) {
@@ -152,177 +320,6 @@ define(
 				forceSplashScreen = true
 			}
 
-			var cleanCommand = function( cwd, command ) {
-				var projectPath = createProjectPath( cwd, command.project ),
-					errors      = checkProjectPath( projectPath )
-
-				if( printErrors( errors ) ) {
-					process.exit( 1 )
-				}
-
-				logProject( projectPath )
-				console.log( 'cleaning...' )
-
-				cleanDirectory( path.join( projectPath, 'build' ) )
-			}
-
-			var buildCommand = function( cwd, installedLicenseInfo, target, command ) {
-				var projectPath        = createProjectPath( cwd, command.project ),
-					errors             = checkProjectPath( projectPath ),
-					debug              = command.debug || false,
-					minify             = !debug,
-					anonymizeModuleIds = true
-
-				if( printErrors( errors ) ) {
-					process.exit( 1 )
-				}
-
-				var projectFilePath = createProjectFilePath( projectPath )
-
-				if( !isFile( projectFilePath ) ) {
-					printErrors( 'Error: Missing project file "' + projectFilePath + '".' )
-
-					process.exit( 1 )
-				}
-
-				logProject( projectPath )
-				console.log( 'building...' )
-
-				executeCreateBuild(
-					environmentConfig,
-					projectPath,
-					projectFilePath,
-					target,
-					minify,
-					anonymizeModuleIds,
-					debug,
-					forceSplashScreen,
-					onComplete
-				)
-			}
-
-			var initCommand = function( spellCorePath, cwd, apiVersion, isDevEnv, command ) {
-				var projectPath = createProjectPath( cwd, command.project ),
-					force       = command.force
-
-				logProject( projectPath )
-
-				initializeProjectDirectory(
-					spellCorePath,
-					createProjectName( projectPath ),
-					projectPath,
-					createProjectFilePath( projectPath ),
-					force,
-					apiVersion,
-					isDevEnv,
-					onComplete
-				)
-			}
-
-			var exportCommand = function( spellCorePath, cwd, target, command ) {
-				var projectPath = createProjectPath( cwd, command.project ),
-					errors      = checkProjectPath( projectPath )
-
-				if( printErrors( errors ) ) {
-					process.exit( 1 )
-				}
-
-				var outputFilePath = _.isString( command.file ) ?
-					path.resolve( command.file ) :
-					path.resolve( projectPath, 'export.zip' )
-
-				logProject( projectPath )
-
-				exportArchive(
-					environmentConfig,
-					projectPath,
-					outputFilePath,
-					target,
-					forceSplashScreen,
-					onComplete
-				)
-			}
-
-			var infoCommand = function( spellCorePath, cwd, command ) {
-				var projectPath = createProjectPath( cwd, command.project ),
-					errors      = checkProjectPath( projectPath )
-
-				if( printErrors( errors ) ) {
-					process.exit( 1 )
-				}
-
-				console.log( 'spellCore directory: ' + spellCorePath )
-				console.log( 'project directory: ' + projectPath )
-			}
-
-			var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseInfo, command ) {
-				var humanReadable = !command.json,
-					stdin         = command.stdin
-
-				if( stdin ) {
-					var accumulatedChunks = ''
-
-					process.stdin.resume()
-					process.stdin.setEncoding( 'utf8' )
-
-					process.stdin.on(
-						'data',
-						function( chunk ) {
-							accumulatedChunks += chunk
-						}
-					)
-
-					process.stdin.on(
-						'end',
-						function() {
-							var suppliedLicenseInfo = license.createLicenseInfo(
-								Certificates.LICENSE_PUBLIC_KEY,
-								accumulatedChunks,
-								BuildInfo.buildTimestamp
-							)
-
-							if( suppliedLicenseInfo &&
-								suppliedLicenseInfo.error ) {
-
-								printErrors( suppliedLicenseInfo.error )
-
-								process.exit( 1 )
-							}
-
-							printLicenseInfo(
-								isDevEnv,
-								humanReadable,
-								suppliedLicenseInfo,
-								onComplete
-							)
-						}
-					)
-
-				} else {
-					if( !licenseInfo ) {
-						printErrors( 'Error: No license installed.' )
-
-						process.exit( 1 )
-					}
-
-					if( licenseInfo &&
-						licenseInfo.error ) {
-
-						printErrors( licenseInfo.error )
-
-						process.exit( 1 )
-					}
-
-					if( licenseInfo ) {
-						printLicenseInfo( isDevEnv, humanReadable, licenseInfo, onComplete )
-
-					} else {
-						console.log( 'No license available.' )
-						onComplete()
-					}
-				}
-			}
-
 			// prepare argv array
 			if( argv.length < 3 ) {
 				argv.push( '-h' )
@@ -345,14 +342,14 @@ define(
 				.option( '-d, --debug', 'creates a debug build' )
 				.option( '-r, --release', 'creates a release build' )
 				.description( 'Creates a build for a specific target; available targets: web, web-html5, web-flash, android, ios.' )
-				.action( _.bind( buildCommand, this, cwd, installedLicenseInfo ) )
+				.action( _.bind( buildCommand, this, cwd, installedLicenseInfo, environmentConfig, forceSplashScreen ) )
 
 			commander
 				.command( 'export [target]' )
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.option( '-f, --file [file]', 'the name of the output file' )
 				.description( 'Creates a release version of the supplied targets and packages them into a zip archive.' )
-				.action( _.bind( exportCommand, this, spellCorePath, cwd ) )
+				.action( _.bind( exportCommand, this, spellCorePath, cwd, forceSplashScreen ) )
 
 			commander
 				.command( 'info' )
