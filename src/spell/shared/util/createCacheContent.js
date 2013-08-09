@@ -1,12 +1,12 @@
 define(
 	'spell/shared/util/createCacheContent',
 	[
-		'path',
+		'spell/shared/build/createLibraryPath',
 
 		'underscore'
 	],
 	function(
-		path,
+		createLibraryPath,
 
 		_
 	) {
@@ -18,7 +18,7 @@ define(
 				resources,
 				function( memo, resource ) {
 					var	content     = resource.content,
-						libraryPath = resource.filePath.split( path.sep ).join( '/' )
+						libraryPath = createLibraryPath( resource.filePath )
 
 					if( _.has( memo, libraryPath ) ) {
 						throw 'Error: Resource path duplication detected. Could not build.'

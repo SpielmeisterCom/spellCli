@@ -2,6 +2,7 @@ define(
 	'spell/shared/build/target/web/FlashBuilder',
 	[
 		'spell/shared/build/createBuilderType',
+		'spell/shared/build/createLibraryPath',
 		'spell/shared/build/ast/createComponentTypeDefinition',
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/copyFile',
@@ -23,6 +24,7 @@ define(
 	],
 	function(
 		createBuilderType,
+		createLibraryPath,
 		createComponentTypeDefinition,
 		createDebugPath,
 		copyFile,
@@ -343,7 +345,7 @@ define(
 					var component = _.find(
 						components,
 						function( component ) {
-							return component.filePath === componentTypeDefinition.libraryPath + '.json'
+							return createLibraryPath( component.filePath ) === componentTypeDefinition.libraryPath + '.json'
 						}
 					)
 
