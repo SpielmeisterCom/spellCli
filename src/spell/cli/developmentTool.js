@@ -6,6 +6,7 @@ define(
 		'spell/shared/build/executeCreateBuild',
 		'spell/shared/build/exportArchive',
 		'spell/shared/build/initializeProjectDirectory',
+		'spell/shared/build/isDirectory',
 		'spell/shared/build/isFile',
 		'spell/shared/build/printLicenseInfo',
 		'spell/BuildInfo',
@@ -23,6 +24,7 @@ define(
 		executeCreateBuild,
 		exportArchive,
 		initializeProjectDirectory,
+		isDirectory,
 		isFile,
 		printLicenseInfo,
 		BuildInfo,
@@ -87,24 +89,39 @@ define(
 
 		var createEnvironmentConfig = function( basePath, data ) {
 			try {
-				var config = JSON.parse( data )
+				var rawConfig = JSON.parse( data )
 
 			} catch( e ) {
 				printErrors( 'Error: Parsing spell configuration file failed.' )
 				process.exit( 1 )
 			}
 
-			if( !config.spellCorePath ||
-				!config.spellFlashPath ) {
+			var configKeys = [ 'androidSdkPath', 'jdkPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
 
-				printErrors( 'Error: Invalid spell configuration file.' )
-				process.exit( 1 )
-			}
+			var result = {}
 
-			config.spellCorePath = path.resolve( basePath, config.spellCorePath )
-			config.spellFlashPath = path.resolve( basePath, config.spellFlashPath )
+			_.each(
+				configKeys,
+				function( key ) {
+					var value = rawConfig[ key ]
 
-			return config
+					if( value === undefined ) {
+						printErrors( 'Error: Invalid spell configuration file. Configuration option "' + key + '" is missing.' )
+						process.exit( 1 )
+					}
+
+					var resolvedDirPath = path.resolve( basePath, value )
+
+					if( !isDirectory( resolvedDirPath ) ) {
+						printErrors( 'Error: Parsing spell configuration file failed. Configuration option "' + key + '" points to non-existing directory "' + resolvedDirPath + '".' )
+						process.exit( 1 )
+					}
+
+					result[ key ] = resolvedDirPath
+				}
+			)
+
+			return result
 		}
 
 		var cleanCommand = function( cwd, command ) {
@@ -278,7 +295,7 @@ define(
 			}
 		}
 
-		return function( argv, cwd, basePath, isDevEnv  ) {
+		return function( argv, cwd, basePath, isDevEnv ) {
 			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, 'spell', 'spellConfig.json' )
 
 			if( !environmentConfigFilePath ) {
