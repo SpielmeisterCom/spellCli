@@ -34,7 +34,6 @@ define(
 
 					if( isDirectory( sourceFilePath ) ) return
 
-
 					var targetFilePath = isMoved ?
 						filePathInfo[ 1 ] :
 						path.resolve( targetDirectoryPath,  filePathInfo )

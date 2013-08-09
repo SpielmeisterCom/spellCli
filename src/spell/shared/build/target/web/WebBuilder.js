@@ -127,7 +127,6 @@ define(
 					builders,
 					function( builder ) {
 						if( builder.handlesTarget( target ) ) {
-
 							f.next( function() {
 								builder.build( f.wait() )
 							} )
