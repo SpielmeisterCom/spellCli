@@ -223,7 +223,7 @@ define(
 				true,
 				function( error, code ) {
 					if( error ) {
-						next( error )
+						next( error.toString() )
 
 					} else if( code !== 0 ) {
 						next( 'Error: Compilation aborted.' )
