@@ -64,7 +64,7 @@ define(
 				activityFile,
 				null,
 				function( err, contents ) {
-					contents = contents
+					contents = contents.toString()
 						.replace( /extends Activity/g, 'extends com.tealeaf.TeaLeaf' )
 						.replace( /setContentView\(R\.layout\.main\);/g, 'startGame();' )
 
@@ -135,38 +135,36 @@ define(
 				androidBuildSettings = projectConfig.config.android || {},
 				hasSigningSettings   = androidBuildSettings.signingKeyStore && androidBuildSettings.signingKeyStorePass && androidBuildSettings.signingKeyAlias && androidBuildSettings.signingKeyPass
 
-			var spellCorePath = path.resolve(
-				environmentConfig && environmentConfig.spellCorePath ?
-					environmentConfig.spellCorePath :
-					'../spellCore/build'
-			)
+			var spellCorePath = environmentConfig && environmentConfig.spellCorePath ?
+				environmentConfig.spellCorePath :
+				path.resolve( '../spellCore/build' )
 
-			var spellAndroidPath = path.resolve(
-				environmentConfig && environmentConfig.spellAndroidPath ?
-					environmentConfig.spellAndroidPath :
-					'../spellAndroid'
-			)
+			var spellAndroidPath = environmentConfig && environmentConfig.spellAndroidPath ?
+				environmentConfig.spellAndroidPath :
+				path.resolve( '../spellAndroid' )
 
 			var platform = os.platform() == 'darwin' ? 'osx-ia32' : 'linux-ia32'
 
-			var jdkPath = path.resolve(
+			var jdkPath = path.join(
 				environmentConfig && environmentConfig.jdkPath ?
 					environmentConfig.jdkPath :
-					'../spellAndroid/modules/jdk/' + platform
+					path.resolve( '../spellAndroid/modules/jdk/' ),
+				platform
 			)
 
-			var androidSDKPath = path.resolve(
-				environmentConfig && environmentConfig.androidSDKPath ?
-					environmentConfig.androidSDKPath :
-					'../spellAndroid/modules/android-sdk/' + platform
+			var androidSdkPath = path.join(
+				environmentConfig && environmentConfig.androidSdkPath ?
+					environmentConfig.androidSdkPath :
+					path.resolve( '../spellAndroid/modules/android-sdk' ),
+				platform
 			)
 
 			var xslFile            = path.resolve( spellAndroidPath, 'modules', 'native-android', 'AndroidManifest.xsl' ),
 				launchClientFile   = path.resolve( spellAndroidPath, 'launchClient.js' ),
-				tealeafDebugPath   = path.resolve( spellAndroidPath, 'build', 'debug', 'TeaLeaf' ),
-				tealeafReleasePath = path.resolve( spellAndroidPath, 'build', 'release', 'TeaLeaf' ),
-				androidTool        = path.resolve( androidSDKPath, 'tools', 'android' ),
-				zipalignTool       = path.resolve( androidSDKPath, 'tools', 'zipalign' )
+				tealeafDebugPath   = path.resolve( spellAndroidPath, 'debug', 'TeaLeaf' ),
+				tealeafReleasePath = path.resolve( spellAndroidPath, 'release', 'TeaLeaf' ),
+				androidTool        = path.resolve( androidSdkPath, 'tools', 'android' ),
+				zipalignTool       = path.resolve( androidSdkPath, 'tools', 'zipalign' )
 
 			var buildOptions = createBuildOptions( debug, projectId ),
 				name         = buildOptions.shortname,
@@ -219,7 +217,6 @@ define(
 						child_process.exec(
 							androidTool + ' list',
 							function( error, stdout, stderr ) {
-
 								if( error !== null ) {
 									f.fail( error )
 								}
@@ -237,7 +234,7 @@ define(
 						)
 
 					} else {
-						f.fail( 'Could not find android tool in ' + androidTool + '. Please check your androidSDKPath settings.' )
+						f.fail( 'Could not find android tool in ' + androidTool + '. Please check your androidSdkPath settings.' )
 					}
 				},
                 function() {
@@ -484,7 +481,7 @@ define(
 				console.log( 'building for target "' + TARGET_NAME + '"...' )
 
 				build(
-					this.spellCorePath,
+					this.environmentConfig,
 					this.projectPath,
 					this.projectLibraryPath,
 					this.outputPath,
