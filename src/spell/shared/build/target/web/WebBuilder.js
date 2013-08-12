@@ -7,8 +7,10 @@ define(
 		'spell/shared/build/createBuilderType',
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/createProjectLibraryFilePaths',
+		'spell/shared/build/writeFile',
 
 		'ff',
+		'fs',
 		'path'
 	],
 	function(
@@ -18,14 +20,16 @@ define(
 		createBuilderType,
 		createDebugPath,
 		createProjectLibraryFilePaths,
+		writeFile,
 
 		ff,
+		fs,
 		path
 	) {
 		'use strict'
 
 
-		var build = function( projectLibraryPath, spellCorePath, outputWebPath, debug ) {
+		var build = function( projectLibraryPath, spellCorePath, outputWebPath, debug, includedSubTargets ) {
 			// copy common files
 
 			// the library files
@@ -42,16 +46,43 @@ define(
 				path.join( outputWebPath, 'main.css' )
 			] )
 
-			// stage zero loader goes to "build/release/spell.loader.js"
-			outputFilePaths.push( [
-				createDebugPath( debug, 'spell.loader.js', 'spell.loader.min.js', path.join( spellCorePath, 'lib' ) ),
-				path.join( outputWebPath, 'spell.loader.js' )
-			] )
-
 			// copy new library content to destination
 			var outputWebLibraryPath = path.join( outputWebPath, 'library' )
 
 			copyFiles( projectLibraryPath, outputWebLibraryPath, outputFilePaths )
+
+			// stage zero loader goes to "build/release/spell.loader.js"
+			var configData = 'var INCLUDED_SUB_TARGETS = [' +
+				_.map(
+					includedSubTargets,
+					function( subTarget ) {
+						return '"' + subTarget + '"'
+					}
+				).join( ',' ) + '];\n'
+
+			var loaderData = fs.readFileSync(
+				createDebugPath( debug, 'spell.loader.js', 'spell.loader.min.js', path.join( spellCorePath, 'lib' ) ),
+				'utf8'
+			)
+
+			writeFile(
+				path.join( outputWebPath, 'spell.loader.js' ),
+				configData + loaderData
+			)
+		}
+
+		var createIncludedSubTargets = function( builders, target ) {
+			return _.reduce(
+				builders,
+				function( memo, builder ) {
+					if( builder.handlesTarget( target ) ) {
+						memo.push( builder.getName() )
+					}
+
+					return memo
+				},
+				[]
+			)
 		}
 
 		var TARGET_NAME = 'web',
@@ -108,18 +139,19 @@ define(
 			build : function( next ) {
 				console.log( 'building for target "' + TARGET_NAME + '"...' )
 
-				var target        = this.target,
-					outputWebPath = path.join( this.outputPath, 'web' )
+				var target             = this.target,
+					builders           = this.builders,
+					outputWebPath      = path.join( this.outputPath, 'web' )
 
-				var builders = this.builders,
-					f        = ff( this )
+				var f = ff( this )
 
 				f.next( function() {
 					build(
 						this.projectLibraryPath,
 						this.environmentConfig.spellCorePath,
 						outputWebPath,
-						this.debug
+						this.debug,
+						createIncludedSubTargets( this.builders, target )
 					)
 				} )
 
