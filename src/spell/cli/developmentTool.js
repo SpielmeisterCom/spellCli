@@ -96,7 +96,7 @@ define(
 				process.exit( 1 )
 			}
 
-			var configKeys = [ 'androidSdkPath', 'jdkPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
+			var configKeys = [ 'androidSdkPath', 'jdkPath', 'spellAndroidPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
 
 			var result = {}
 
@@ -215,7 +215,7 @@ define(
 			)
 		}
 
-		var infoCommand = function( spellCorePath, cwd, command ) {
+		var infoCommand = function( spellCorePath, cwd, environmentConfigFilePath, command ) {
 			var projectPath = createProjectPath( cwd, command.project ),
 				errors      = checkProjectPath( projectPath )
 
@@ -225,6 +225,7 @@ define(
 
 			console.log( 'spellCore directory: ' + spellCorePath )
 			console.log( 'project directory: ' + projectPath )
+			console.log( 'spell config: ' + environmentConfigFilePath )
 		}
 
 		var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseInfo, command ) {
@@ -372,7 +373,7 @@ define(
 				.command( 'info' )
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.description( 'Prints information about current environment.' )
-				.action( _.bind( infoCommand, this, spellCorePath, cwd ) )
+				.action( _.bind( infoCommand, this, spellCorePath, cwd, environmentConfigFilePath ) )
 
 			commander
 				.command( 'init' )
