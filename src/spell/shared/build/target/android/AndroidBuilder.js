@@ -257,7 +257,7 @@ define(
 					)
 				},
 				function() {
-					console.log( '[spellcli] Creating temporary android project in ' + tmpProjectPath )
+					console.log( '[spellcli] Creating temporary android project in ' + tmpProjectPath + ' [name=' + name + ', package=' + buildOptions.package + ', activity=' + activity + ']' )
 
 					spawnChildProcess(
 						androidTool,
