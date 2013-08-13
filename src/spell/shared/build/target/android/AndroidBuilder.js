@@ -141,7 +141,7 @@ define(
 
 			var spellAndroidPath = environmentConfig && environmentConfig.spellAndroidPath ?
 				environmentConfig.spellAndroidPath :
-				path.resolve( '../spellAndroid' )
+				path.resolve( '../spellAndroid/build' )
 
 			var platform = os.platform() == 'darwin' ? 'osx-ia32' : 'linux-ia32'
 
@@ -188,7 +188,7 @@ define(
 				unalignedReleaseApkFile = path.join( tmpProjectPath, 'bin', name + '-release-signed-unaligned.apk' ),
 				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
-				xslFile                 = path.resolve( spellAndroidPath, 'modules', 'native-android', 'AndroidManifest.xsl' ),
+				xslFile                 = path.resolve( spellAndroidPath, '..', 'modules', 'native-android', 'AndroidManifest.xsl' ),
 				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' )
 
 
