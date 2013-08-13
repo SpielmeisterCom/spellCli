@@ -159,8 +159,7 @@ define(
 				platform
 			)
 
-			var xslFile            = path.resolve( spellAndroidPath, 'modules', 'native-android', 'AndroidManifest.xsl' ),
-				launchClientFile   = path.resolve( spellAndroidPath, 'launchClient.js' ),
+			var launchClientFile   = path.resolve( spellAndroidPath, 'launchClient.js' ),
 				tealeafDebugPath   = path.resolve( spellAndroidPath, 'debug', 'TeaLeaf' ),
 				tealeafReleasePath = path.resolve( spellAndroidPath, 'release', 'TeaLeaf' ),
 				androidTool        = path.resolve( androidSdkPath, 'tools', 'android' ),
@@ -188,7 +187,9 @@ define(
 				unsignedReleaseApkFile  = path.join( tmpProjectPath, 'bin', name + '-release-unsigned.apk' ),
 				unalignedReleaseApkFile = path.join( tmpProjectPath, 'bin', name + '-release-signed-unaligned.apk' ),
 				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
-                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) )
+                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
+				xslFile                 = path.resolve( spellAndroidPath, 'modules', 'native-android', 'AndroidManifest.xsl' ),
+				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' )
 
 
 
@@ -244,6 +245,16 @@ define(
                         f.fail( 'Could not find a spellCore build in ' + spellEngineFile )
                     }
                 },
+				function() {
+					//check for all required files
+					var requiredFiles = [ xslFile, androidManifestFile, launchClientFile ]
+
+					requiredFiles.forEach( function( file ) {
+						if( !fs.existsSync( file ) ) {
+							f.fail( '[spellcli] Missing file ' + file )
+						}
+					})
+				},
 				function() {
 					// copy the prebuild Tealeaf library into our temp directory
 					wrench.copyDirSyncRecursive(
