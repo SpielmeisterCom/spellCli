@@ -1,21 +1,19 @@
 define(
 	'spell/shared/build/writeFile',
 	[
-		'spell/shared/build/isFile',
-
-		'fs'
+		'fs',
+		'fsUtil'
 	],
 	function(
-		isFile,
-
-		fs
+		fs,
+		fsUtil
 	) {
 		'use strict'
 
 
 		return function( filePath, data ) {
 			// delete file if it already exists
-			if( isFile( filePath ) ) {
+			if( fsUtil.isFile( filePath ) ) {
 				fs.unlinkSync( filePath )
 			}
 

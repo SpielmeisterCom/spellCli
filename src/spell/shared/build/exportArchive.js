@@ -3,10 +3,10 @@ define(
 	[
 		'spell/shared/build/cleanDirectory',
 		'spell/shared/build/executeCreateBuild',
-		'spell/shared/build/isFile',
 
 		'ff',
 		'fs',
+		'fsUtil',
 		'wrench',
 		'path',
 		'pathUtil',
@@ -15,10 +15,10 @@ define(
 	function(
 		cleanDirectory,
 		executeCreateBuild,
-		isFile,
 
 		ff,
 		fs,
+		fsUtil,
 		wrench,
 		path,
 		pathUtil,
@@ -33,7 +33,7 @@ define(
 			if( filePath ) {
 				var absoluteFilePath = path.join( rootPath, filePath )
 
-				if( isFile( absoluteFilePath ) ) {
+				if( fsUtil.isFile( absoluteFilePath ) ) {
 					zip.addFile(
 						fs.createReadStream( absoluteFilePath ),
 						{ name : filePath.replace( /\/build\/release/, '' ) },

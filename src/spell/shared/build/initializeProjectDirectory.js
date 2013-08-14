@@ -3,8 +3,6 @@ define(
 	[
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/defaultStartScene',
-		'spell/shared/build/isDirectory',
-		'spell/shared/build/isFile',
 
 		'fs',
 		'fsUtil',
@@ -16,8 +14,6 @@ define(
 	function(
 		createDebugPath,
 		defaultStartScene,
-		isDirectory,
-		isFile,
 
 		fs,
 		fsUtil,
@@ -47,7 +43,7 @@ define(
 						targetFilePath = path.join( targetPath, relativeFilePath ),
 						targetDirectoryPath = path.dirname( targetFilePath )
 
-					if( isDirectory( sourceFilePath ) ) return
+					if( fsUtil.isDirectory( sourceFilePath ) ) return
 
 					if( !fs.existsSync( targetDirectoryPath ) ) {
 						wrench.mkdirSyncRecursive( targetDirectoryPath )
@@ -70,7 +66,7 @@ define(
 				function( x ) {
 					var absolutePath = path.resolve( spellCoreLibraryPath, x )
 
-					return isDirectory( absolutePath )
+					return fsUtil.isDirectory( absolutePath )
 				}
 			)
 
@@ -79,7 +75,7 @@ define(
 				function( directoryPath ) {
 					var absolutePath = path.resolve( projectLibraryPath, directoryPath )
 
-					if( !isDirectory( absolutePath ) ) return
+					if( !fsUtil.isDirectory( absolutePath ) ) return
 
 					wrench.rmdirSyncRecursive( absolutePath, true )
 				}
@@ -196,11 +192,11 @@ define(
 				return
 			}
 
-			if( !isDirectory( projectPath ) ) {
+			if( !fsUtil.isDirectory( projectPath ) ) {
 				createProjectDirectory( projectPath, next )
 			}
 
-			if( !isFile( projectFilePath ) ) {
+			if( !fsUtil.isFile( projectFilePath ) ) {
 				// full initialization
 				var defaultSceneId = projectName + '.Scene'
 
@@ -269,7 +265,7 @@ define(
 				function( directory ) {
 					var fullPath = path.join( projectPath, directory )
 
-					if( isDirectory( fullPath ) ) return
+					if( fsUtil.isDirectory( fullPath ) ) return
 
 					wrench.mkdirSyncRecursive( fullPath )
 				}

@@ -6,13 +6,12 @@ define(
 		'spell/shared/build/executeCreateBuild',
 		'spell/shared/build/exportArchive',
 		'spell/shared/build/initializeProjectDirectory',
-		'spell/shared/build/isDirectory',
-		'spell/shared/build/isFile',
 		'spell/shared/build/printLicenseInfo',
 		'spell/BuildInfo',
 
 		'commander',
 		'fs',
+		'fsUtil',
 		'path',
 		'pathUtil',
 		'spell-license',
@@ -24,13 +23,12 @@ define(
 		executeCreateBuild,
 		exportArchive,
 		initializeProjectDirectory,
-		isDirectory,
-		isFile,
 		printLicenseInfo,
 		BuildInfo,
 
 		commander,
 		fs,
+		fsUtil,
 		path,
 		pathUtil,
 		license,
@@ -72,7 +70,7 @@ define(
 		var checkProjectPath = function( projectPath ) {
 			var projectFilePath = createProjectFilePath( projectPath )
 
-			if( !isFile( projectFilePath ) ) {
+			if( !fsUtil.isFile( projectFilePath ) ) {
 				return [ 'Error: The directory "' + projectPath + '" does not contain a spell project.' ]
 			}
 
@@ -112,7 +110,7 @@ define(
 
 					var resolvedDirPath = path.resolve( basePath, value )
 
-					if( !isDirectory( resolvedDirPath ) ) {
+					if( !fsUtil.isDirectory( resolvedDirPath ) ) {
 						printErrors( 'Error: Parsing spell configuration file failed. Configuration option "' + key + '" points to non-existing directory "' + resolvedDirPath + '".' )
 						process.exit( 1 )
 					}
@@ -151,7 +149,7 @@ define(
 
 			var projectFilePath = createProjectFilePath( projectPath )
 
-			if( !isFile( projectFilePath ) ) {
+			if( !fsUtil.isFile( projectFilePath ) ) {
 				printErrors( 'Error: Missing project file "' + projectFilePath + '".' )
 
 				process.exit( 1 )

@@ -1,19 +1,19 @@
 define(
 	'spell/shared/build/loadAssociatedScriptModules',
 	[
-		'spell/shared/build/isFile',
 		'spell/shared/util/createIdFromLibraryFilePath',
 		'spell/shared/util/createModuleId',
 
 		'amd-helper',
+		'fsUtil',
 		'path'
 	],
 	function(
-		isFile,
 		createIdFromLibraryFilePath,
 		createModuleId,
 
 		amdHelper,
+		fsUtil,
 		path
 	) {
 		'use strict'
@@ -28,7 +28,7 @@ define(
 						moduleFilePath = path.join( projectLibraryPath, moduleId + '.js' )
 
 					// TODO: remove once all components have a script
-					if( !isFile( moduleFilePath ) ) {
+					if( !fsUtil.isFile( moduleFilePath ) ) {
 						return memo
 					}
 
