@@ -85,6 +85,9 @@ cp node_modules/wrench/lib/wrench.js $NODE_SRC/lib/wrench.js
 # integrate pathUtil
 cp node_modules/pathUtil/lib/index.js $NODE_SRC/lib/pathUtil.js
 
+# integrate fsUtil
+cp node_modules/fsUtil/lib/index.js $NODE_SRC/lib/fsUtil.js
+
 cd modules/node
 git commit -a -m "integrated most recent modules"
 git push origin master

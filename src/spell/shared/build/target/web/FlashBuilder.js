@@ -5,7 +5,6 @@ define(
 		'spell/shared/build/createLibraryPath',
 		'spell/shared/build/ast/createComponentTypeDefinition',
 		'spell/shared/build/createDebugPath',
-		'spell/shared/build/copyFile',
 		'spell/shared/build/emptyDirectory',
 		'spell/shared/build/loadAssociatedScriptModules',
 		'spell/shared/build/processSource',
@@ -14,6 +13,7 @@ define(
 
 		'ff',
 		'fs',
+		'fsUtil',
 		'wrench',
 		'path',
 		'xmlbuilder',
@@ -27,7 +27,6 @@ define(
 		createLibraryPath,
 		createComponentTypeDefinition,
 		createDebugPath,
-		copyFile,
 		emptyDirectory,
 		loadAssociatedScriptModules,
 		processSource,
@@ -36,6 +35,7 @@ define(
 
 		ff,
 		fs,
+		fsUtil,
 		wrench,
 		path,
 		xmlbuilder,
@@ -393,7 +393,7 @@ define(
 			}
 
 			// copy splash screen image
-			copyFile(
+			fsUtil.copyFile(
 				path.join( projectPath, 'library', 'spell', 'splash.png' ),
 				path.join( srcPath, 'splash.png' )
 			)

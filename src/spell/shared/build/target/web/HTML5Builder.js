@@ -4,7 +4,6 @@ define(
 		'spell/shared/build/createBuilderType',
 		'spell/shared/build/createDataFileContent',
 		'spell/shared/build/createDebugPath',
-		'spell/shared/build/copyFiles',
 		'spell/shared/util/createModuleId',
 		'spell/shared/build/processSource',
 		'spell/shared/build/isFile',
@@ -14,6 +13,7 @@ define(
 
 		'amd-helper',
 		'fs',
+		'fsUtil',
 		'wrench',
 		'path'
 	],
@@ -21,7 +21,6 @@ define(
 		createBuilderType,
 		createDataFileContent,
 		createDebugPath,
-		copyFiles,
 		createModuleId,
 		processSource,
 		isFile,
@@ -31,6 +30,7 @@ define(
 
 		amdHelper,
 		fs,
+		fsUtil,
 		wrench,
 		path
 	) {
@@ -70,7 +70,7 @@ define(
 				path.join( outputWebHtml5Path, 'spell.js' )
 			] )
 
-			copyFiles( projectLibraryPath, outputWebLibraryPath, outputFilePaths )
+			fsUtil.copyFiles( projectLibraryPath, outputWebLibraryPath, outputFilePaths )
 
 			next()
 		}

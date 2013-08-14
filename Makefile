@@ -46,7 +46,7 @@ $(SPELL_CLI_LIB):
 
 	echo 'var RELEASE = true' > $(SPELL_CLI_LIB)
 	cat src/spell/cli/spellcli.js >> $(SPELL_CLI_LIB)
-	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,path,uglify-js,amd-helper,child_process,xmlbuilder,os,underscore,underscore.string,zipstream,util,commander,ff,spell-license,wrench,pathUtil" >> $(SPELL_CLI_LIB)
+	$(NODE) tools/n.js -s src -m spell/cli/developmentTool -i "fs,path,uglify-js,amd-helper,child_process,xmlbuilder,os,underscore,underscore.string,zipstream,util,commander,ff,spell-license,wrench,pathUtil,fsUtil" >> $(SPELL_CLI_LIB)
 
 $(NODE_SRC)/lib/_third_party_main.js: $(SPELL_CLI_LIB)
 	cp $(SPELL_CLI_LIB) $(NODE_SRC)/lib/_third_party_main.js

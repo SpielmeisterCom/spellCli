@@ -3,26 +3,26 @@ define(
 	[
 		'spell/shared/build/target/web/FlashBuilder',
 		'spell/shared/build/target/web/HTML5Builder',
-		'spell/shared/build/copyFiles',
 		'spell/shared/build/createBuilderType',
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/createProjectLibraryFilePaths',
 		'spell/shared/build/writeFile',
 
 		'ff',
+		'fsUtil',
 		'fs',
 		'path'
 	],
 	function(
 		FlashBuilder,
 		HTML5Builder,
-		copyFiles,
 		createBuilderType,
 		createDebugPath,
 		createProjectLibraryFilePaths,
 		writeFile,
 
 		ff,
+		fsUtil,
 		fs,
 		path
 	) {
@@ -49,7 +49,7 @@ define(
 			// copy new library content to destination
 			var outputWebLibraryPath = path.join( outputWebPath, 'library' )
 
-			copyFiles( projectLibraryPath, outputWebLibraryPath, outputFilePaths )
+			fsUtil.copyFiles( projectLibraryPath, outputWebLibraryPath, outputFilePaths )
 
 			// stage zero loader goes to "build/release/spell.loader.js"
 			var configData = 'var INCLUDED_SUB_TARGETS = [' +

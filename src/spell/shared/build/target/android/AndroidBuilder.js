@@ -5,8 +5,6 @@ define(
 		'spell/shared/build/createDataFileContent',
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/createProjectLibraryFilePaths',
-		'spell/shared/build/copyFile',
-		'spell/shared/build/copyFiles',
 		'spell/shared/build/emptyDirectory',
 		'spell/shared/build/processSource',
 		'spell/shared/build/isFile',
@@ -20,6 +18,7 @@ define(
 		'child_process',
 		'ff',
 		'fs',
+		'fsUtil',
 		'path',
 		'os',
 		'wrench'
@@ -29,8 +28,6 @@ define(
 		createDataFileContent,
 		createDebugPath,
 		createProjectLibraryFilePaths,
-		copyFile,
-		copyFiles,
 		emptyDirectory,
 		processSource,
 		isFile,
@@ -44,6 +41,7 @@ define(
 		child_process,
 		ff,
 		fs,
+		fsUtil,
 		path,
 		os,
 		wrench
@@ -374,7 +372,7 @@ define(
 							dstPath = path.join( resourcesPath, 'splash-' + key + '.png' )
 
 						if( fs.existsSync( srcPath ) ) {
-							copyFile( srcPath, dstPath )
+							fsUtil.copyFile( srcPath, dstPath )
 
 						} else {
 							console.log('[spellcli] WARN did not find splash screen ' + srcPath )
@@ -389,7 +387,7 @@ define(
 					var libraryResourcesPath = path.join( resourcesPath, 'library' ),
 						spelljsResourcesPath = path.join( resourcesPath, 'spelljs' )
 
-					copyFile(
+					fsUtil.copyFile(
 						launchClientFile,
 						path.join( resourcesPath, 'native.js.mp3' )
 					)
@@ -402,12 +400,12 @@ define(
 						createDataFileContent( scriptSource, cacheContent, projectConfig )
 					)
 
-					copyFile(
+					fsUtil.copyFile(
                         spellEngineFile,
 						path.join( spelljsResourcesPath, 'spell.js.mp3' )
 					)
 
-					copyFiles(
+					fsUtil.copyFiles(
 						projectLibraryPath,
 						libraryResourcesPath,
 						createProjectLibraryFilePaths( projectLibraryPath, true )
@@ -470,7 +468,7 @@ define(
 
 					console.log( '[spellcli] Copying ' + apkFileName + ' into ' + outputFile )
 
-					copyFile( apkFileName, outputFile )
+					fsUtil.copyFile( apkFileName, outputFile )
 				},
 				next
 			)

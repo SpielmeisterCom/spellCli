@@ -2,12 +2,12 @@ define(
 	'spell/shared/build/initializeProjectDirectory',
 	[
 		'spell/shared/build/createDebugPath',
-		'spell/shared/build/copyFile',
 		'spell/shared/build/defaultStartScene',
 		'spell/shared/build/isDirectory',
 		'spell/shared/build/isFile',
 
 		'fs',
+		'fsUtil',
 		'wrench',
 		'path',
 		'pathUtil',
@@ -15,12 +15,12 @@ define(
 	],
 	function(
 		createDebugPath,
-		copyFile,
 		defaultStartScene,
 		isDirectory,
 		isFile,
 
 		fs,
+		fsUtil,
 		wrench,
 		path,
 		pathUtil,
@@ -53,7 +53,7 @@ define(
 						wrench.mkdirSyncRecursive( targetDirectoryPath )
 					}
 
-					copyFile( sourceFilePath, targetFilePath )
+					fsUtil.copyFile( sourceFilePath, targetFilePath )
 				}
 			)
 		}
@@ -291,7 +291,7 @@ define(
 			_.each(
 				fileNames,
 				function( fileName ) {
-					copyFile(
+					fsUtil.copyFile(
 						path.join( spellCorePath, 'htmlTemplate', fileName ),
 						path.join( projectPath, publicDirName, fileName )
 					)
@@ -303,13 +303,13 @@ define(
 			}
 
 			// copying engine library
-			copyFile(
+			fsUtil.copyFile(
 				createDebugPath( true, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
 				path.join( html5OutputPath, 'spell.js' )
 			)
 
 			// copying stage zero loader
-			copyFile(
+			fsUtil.copyFile(
 				createDebugPath( true, 'spell.loader.js', 'spell.loader.min.js', path.join( spellCorePath, 'lib' ) ),
 				path.join( outputPath, 'spell.loader.js' )
 			)

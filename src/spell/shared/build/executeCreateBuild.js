@@ -3,7 +3,6 @@ define(
 	[
 		'spell/shared/build/createDebugPath',
 		'spell/shared/build/createProjectLibraryFilePaths',
-		'spell/shared/build/copyFiles',
 		'spell/shared/util/createModuleId',
 		'spell/shared/build/processSource',
 		'spell/shared/build/isFile',
@@ -24,7 +23,6 @@ define(
 	function(
 		createDebugPath,
 		createProjectLibraryFilePaths,
-		copyFiles,
 		createModuleId,
 		processSource,
 		isFile,
