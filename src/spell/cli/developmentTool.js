@@ -37,6 +37,8 @@ define(
 		'use strict'
 
 
+		var APP_NAME = 'SpellJS'
+
 		var printErrors = function( errors ) {
 			if( errors &&
 				errors.length > 0 ) {
@@ -295,7 +297,7 @@ define(
 		}
 
 		return function( argv, cwd, basePath, isDevEnv ) {
-			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, 'spell', 'spellConfig.json' )
+			var environmentConfigFilePath = pathUtil.createConfigFilePath( basePath, APP_NAME, 'spellConfig.json' )
 
 			if( !environmentConfigFilePath ) {
 				printErrors( 'Error: Missing spell configuration file "spellConfig.json".' )
@@ -305,7 +307,7 @@ define(
 
 			var environmentConfig = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath, 'utf8' ) ),
 				spellCorePath     = environmentConfig.spellCorePath,
-				licenseFilePath   = pathUtil.createConfigFilePath( basePath, 'spell', 'license.txt' )
+				licenseFilePath   = pathUtil.createConfigFilePath( basePath, APP_NAME, 'license.txt' )
 
 			var installedLicenseInfo = licenseFilePath ?
 				license.createLicenseInfo(
