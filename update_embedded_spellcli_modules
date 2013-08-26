@@ -9,14 +9,17 @@ else
         SED="sed -i"
 fi
 
-git submodule init
-git submodule update
-
-cd modules/node
 git reset --hard
 git checkout master
 git pull origin
-cd ../..
+
+git submodule foreach 'git reset --hard'
+
+git submodule init
+git submodule update
+
+git submodule foreach 'git checkout master'
+git submodule foreach 'git pull origin'
 
 # integrate requirejs
 tail -n +2 node_modules/requirejs/bin/r.js >$NODE_SRC/lib/requirejs.js
