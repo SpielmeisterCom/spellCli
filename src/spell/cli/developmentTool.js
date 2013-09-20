@@ -191,7 +191,7 @@ define(
 			)
 		}
 
-		var exportCommand = function( spellCorePath, cwd, forceSplashScreen, target, command ) {
+		var exportCommand = function( spellCorePath, cwd, environmentConfig, forceSplashScreen, target, command ) {
 			var projectPath = createProjectPath( cwd, command.project ),
 				errors      = checkProjectPath( projectPath )
 
@@ -367,7 +367,7 @@ define(
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.option( '-f, --file [file]', 'the name of the output file' )
 				.description( 'Creates a release version of the supplied targets and packages them into a zip archive.' )
-				.action( _.bind( exportCommand, this, spellCorePath, cwd, forceSplashScreen ) )
+				.action( _.bind( exportCommand, this, spellCorePath, cwd, environmentConfig, forceSplashScreen ) )
 
 			commander
 				.command( 'info' )
