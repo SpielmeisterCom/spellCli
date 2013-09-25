@@ -259,7 +259,7 @@ define(
 
 							printErrors( suppliedLicenseInfo.error )
 
-							process.exit( 1 )
+							process.exit( 2 )
 						}
 
 						printLicenseInfo(
@@ -275,7 +275,7 @@ define(
 				if( !licenseInfo ) {
 					printErrors( 'Error: No license installed.' )
 
-					process.exit( 1 )
+					process.exit( 2 )
 				}
 
 				if( licenseInfo &&
@@ -283,7 +283,7 @@ define(
 
 					printErrors( licenseInfo.error )
 
-					process.exit( 1 )
+					process.exit( 2 )
 				}
 
 				if( licenseInfo ) {
