@@ -33,6 +33,12 @@ define(
 			).join( '\n' )
 		}
 
+		var createLicenseStatus = function( licenseInfo ) {
+			return licenseInfo.isSignatureValid ?
+				( licenseInfo.isInValidityPeriod ? 'valid' : 'expired' ) :
+				'invalid'
+		}
+
 		return function( isDevEnv, humanReadable, licenseInfo, next ) {
 			if( !licenseInfo ) {
 				next( 'Error: licenseInfo is undefined.' )
@@ -48,7 +54,7 @@ define(
 				createFeatureList( payload.pfs ) + '\n' +
 				createLine( 'issue date', payload.isd ) + '\n' +
 				createLine( 'validity period (days)', payload.days ) + '\n' +
-				createLine( 'status', licenseInfo.isValid ? 'valid' : 'not valid' )	:
+				createLine( 'status', createLicenseStatus( licenseInfo ) )	:
 				JSON.stringify( licenseInfo )
 
 			console.log( message )

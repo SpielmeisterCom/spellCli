@@ -39,6 +39,53 @@ define(
 
 		var APP_NAME = 'SpellJS'
 
+		var createLicenseInfo = function( licenseFilePath ) {
+			return licenseFilePath ?
+				license.createLicenseInfo(
+					Certificates.LICENSE_PUBLIC_KEY,
+					fs.readFileSync( licenseFilePath, 'utf8' ),
+					BuildInfo.buildTimestamp
+				) :
+				undefined
+		}
+
+		var checkLicenseInfo = function( licenseInfo ) {
+			if( !licenseInfo ) {
+				printErrors( 'Error: No license installed. This feature requires a valid license to work.' )
+
+				process.exit( 2 )
+
+			} else {
+				if( licenseInfo.error ) {
+					printErrors( licenseInfo.error )
+
+					process.exit( 2 )
+
+				} else if( !licenseInfo.isInValidityPeriod ) {
+					printErrors(
+						'Error: Your license is not compatible with this version (' + BuildInfo.version + ') of the SpellJS framework. ' +
+						'Please use a version that was released before ' + new Date( BuildInfo.buildTimestamp ).toDateString() + ' or consider acquiring a new license.'
+					)
+
+					process.exit( 2 )
+				}
+			}
+
+			return true
+		}
+
+		var createForceSplashScreen = function( licenseInfo ) {
+			return licenseInfo ?
+				_.any(
+					licenseInfo.productFeatures,
+					function( feature ) {
+						return feature.name === 'forceSplashScreen' &&
+							feature.included
+					}
+				) :
+				true
+		}
+
 		var printErrors = function( errors ) {
 			if( errors &&
 				errors.length > 0 ) {
@@ -124,9 +171,12 @@ define(
 			return result
 		}
 
-		var cleanCommand = function( cwd, command ) {
+		var cleanCommand = function( cwd, licenseFilePath, command ) {
 			var projectPath = createProjectPath( cwd, command.project ),
-				errors      = checkProjectPath( projectPath )
+				errors      = checkProjectPath( projectPath ),
+				licenseInfo = createLicenseInfo( licenseFilePath )
+
+			checkLicenseInfo( licenseInfo )
 
 			if( printErrors( errors ) ) {
 				process.exit( 1 )
@@ -138,12 +188,15 @@ define(
 			cleanDirectory( path.join( projectPath, 'build' ) )
 		}
 
-		var buildCommand = function( cwd, installedLicenseInfo, environmentConfig, forceSplashScreen, target, command ) {
+		var buildCommand = function( cwd, environmentConfig, licenseFilePath, target, command ) {
 			var projectPath        = createProjectPath( cwd, command.project ),
 				errors             = checkProjectPath( projectPath ),
 				debug              = command.debug || false,
 				minify             = !debug,
-				anonymizeModuleIds = true
+				anonymizeModuleIds = true,
+				licenseInfo        = createLicenseInfo( licenseFilePath )
+
+			checkLicenseInfo( licenseInfo )
 
 			if( printErrors( errors ) ) {
 				process.exit( 1 )
@@ -168,14 +221,17 @@ define(
 				minify,
 				anonymizeModuleIds,
 				debug,
-				forceSplashScreen,
+				createForceSplashScreen( licenseInfo ),
 				onComplete
 			)
 		}
 
-		var initCommand = function( spellCorePath, cwd, apiVersion, isDevEnv, command ) {
+		var initCommand = function( spellCorePath, cwd, apiVersion, isDevEnv, licenseFilePath, command ) {
 			var projectPath = createProjectPath( cwd, command.project ),
-				force       = command.force
+				force       = command.force,
+				licenseInfo = createLicenseInfo( licenseFilePath )
+
+			checkLicenseInfo( licenseInfo )
 
 			logProject( projectPath )
 
@@ -191,9 +247,12 @@ define(
 			)
 		}
 
-		var exportCommand = function( spellCorePath, cwd, environmentConfig, forceSplashScreen, target, command ) {
+		var exportCommand = function( spellCorePath, cwd, environmentConfig, licenseFilePath, target, command ) {
 			var projectPath = createProjectPath( cwd, command.project ),
-				errors      = checkProjectPath( projectPath )
+				errors      = checkProjectPath( projectPath ),
+				licenseInfo = createLicenseInfo( licenseFilePath )
+
+			checkLicenseInfo( licenseInfo )
 
 			if( printErrors( errors ) ) {
 				process.exit( 1 )
@@ -210,7 +269,7 @@ define(
 				projectPath,
 				outputFilePath,
 				target,
-				forceSplashScreen,
+				createForceSplashScreen( licenseInfo ),
 				onComplete
 			)
 		}
@@ -228,7 +287,7 @@ define(
 			console.log( 'spell config: ' + environmentConfigFilePath )
 		}
 
-		var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseInfo, command ) {
+		var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseFilePath, command ) {
 			var humanReadable = !command.json,
 				stdin         = command.stdin
 
@@ -272,27 +331,10 @@ define(
 				)
 
 			} else {
-				if( !licenseInfo ) {
-					printErrors( 'Error: No license installed.' )
+				var licenseInfo = createLicenseInfo( licenseFilePath )
 
-					process.exit( 2 )
-				}
-
-				if( licenseInfo &&
-					licenseInfo.error ) {
-
-					printErrors( licenseInfo.error )
-
-					process.exit( 2 )
-				}
-
-				if( licenseInfo ) {
-					printLicenseInfo( isDevEnv, humanReadable, licenseInfo, onComplete )
-
-				} else {
-					console.log( 'No license available.' )
-					onComplete()
-				}
+				checkLicenseInfo( licenseInfo )
+				printLicenseInfo( isDevEnv, humanReadable, licenseInfo, onComplete )
 			}
 		}
 
@@ -309,35 +351,6 @@ define(
 				spellCorePath     = environmentConfig.spellCorePath,
 				licenseFilePath   = pathUtil.createConfigFilePath( basePath, APP_NAME, 'license.txt' )
 
-			var installedLicenseInfo = licenseFilePath ?
-				license.createLicenseInfo(
-					Certificates.LICENSE_PUBLIC_KEY,
-					fs.readFileSync( licenseFilePath, 'utf8' ),
-					BuildInfo.buildTimestamp
-				) :
-				undefined
-
-			if( installedLicenseInfo &&
-				installedLicenseInfo.error ) {
-
-				printErrors( installedLicenseInfo.error )
-
-				process.exit( 1 )
-			}
-
-			if( installedLicenseInfo ) {
-				var forceSplashScreen = _.any(
-					installedLicenseInfo.productFeatures,
-					function( feature ) {
-						return feature.name === 'forceSplashScreen' &&
-							feature.included
-					}
-				)
-
-			} else {
-				forceSplashScreen = true
-			}
-
 			// prepare argv array
 			if( argv.length < 3 ) {
 				argv.push( '-h' )
@@ -352,7 +365,7 @@ define(
 				.command( 'clean' )
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.description( 'Cleans the build directory.' )
-				.action( _.bind( cleanCommand, this, cwd ) )
+				.action( _.bind( cleanCommand, this, cwd, licenseFilePath ) )
 
 			commander
 				.command( 'build [target]' )
@@ -360,14 +373,14 @@ define(
 				.option( '-d, --debug', 'creates a debug build' )
 				.option( '-r, --release', 'creates a release build' )
 				.description( 'Creates a build for a specific target; available targets: web, web-html5, web-flash, android, ios.' )
-				.action( _.bind( buildCommand, this, cwd, installedLicenseInfo, environmentConfig, forceSplashScreen ) )
+				.action( _.bind( buildCommand, this, cwd, environmentConfig, licenseFilePath ) )
 
 			commander
 				.command( 'export [target]' )
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.option( '-f, --file [file]', 'the name of the output file' )
 				.description( 'Creates a release version of the supplied targets and packages them into a zip archive.' )
-				.action( _.bind( exportCommand, this, spellCorePath, cwd, environmentConfig, forceSplashScreen ) )
+				.action( _.bind( exportCommand, this, spellCorePath, cwd, environmentConfig, licenseFilePath ) )
 
 			commander
 				.command( 'info' )
@@ -380,14 +393,14 @@ define(
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.option( '-f, --force', 'Forces a project initialization.' )
 				.description( 'Initializes a project directory with project scaffolding.' )
-				.action( _.bind( initCommand, this, spellCorePath, cwd, apiVersion, isDevEnv ) )
+				.action( _.bind( initCommand, this, spellCorePath, cwd, apiVersion, isDevEnv, licenseFilePath ) )
 
 			commander
 				.command( 'license' )
 				.option( '-j, --json', 'Enables json ouput.' )
 				.option( '-s, --stdin', 'Read license data from stdin.' )
 				.description( 'Prints information about active license.' )
-				.action( _.bind( licenseCommand, this, spellCorePath, cwd, isDevEnv, installedLicenseInfo ) )
+				.action( _.bind( licenseCommand, this, spellCorePath, cwd, isDevEnv, licenseFilePath ) )
 
 			commander.parse( argv )
 		}
