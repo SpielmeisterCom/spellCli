@@ -185,7 +185,8 @@ define(
 				outputPath           = path.join( projectPath, publicDirName ),
 				html5OutputPath      = path.join( outputPath, 'html5' ),
 				spellCoreLibraryPath = path.join( spellCorePath, LIBRARY_PATH ),
-				projectLibraryPath   = path.join( projectPath, LIBRARY_PATH )
+				projectLibraryPath   = path.join( projectPath, LIBRARY_PATH ),
+				performInit          = false
 
 			if( !projectName ) {
 				next( 'projectName is undefined' )
@@ -198,6 +199,10 @@ define(
 
 			if( !fsUtil.isFile( projectFilePath ) ) {
 				// full initialization
+				console.log( 'Initialization required.' )
+
+				performInit = true
+
 				var defaultSceneId = projectName + '.Scene'
 
 				// add project config file
@@ -236,10 +241,6 @@ define(
 					!force ) {
 
 					console.log( 'Initialization not required: project API version "' + projectApiVersion + '" is up-to-date.' )
-
-					printSuccess()
-
-					next()
 				}
 
 				if( force ) {
@@ -249,66 +250,70 @@ define(
 					console.log( 'Initialization required: updating project API version from "' + projectApiVersion + '" to "' + apiVersion + '".' )
 				}
 
+				performInit = force || initRequired
+
 				projectConfig.apiVersion = apiVersion
 				writeJsonFile( projectFilePath, projectConfig )
 			}
 
-			// create directory structure
-			var directories = [
-				publicDirName,
-				'build',
-				path.join( LIBRARY_PATH, projectName )
-			]
+			if( performInit ) {
+				// create directory structure
+				var directories = [
+					publicDirName,
+					'build',
+					path.join( LIBRARY_PATH, projectName )
+				]
 
-			_.each(
-				directories,
-				function( directory ) {
-					var fullPath = path.join( projectPath, directory )
+				_.each(
+					directories,
+					function( directory ) {
+						var fullPath = path.join( projectPath, directory )
 
-					if( fsUtil.isDirectory( fullPath ) ) return
+						if( fsUtil.isDirectory( fullPath ) ) return
 
-					wrench.mkdirSyncRecursive( fullPath )
+						wrench.mkdirSyncRecursive( fullPath )
+					}
+				)
+
+				// remove old spell sdk library
+				clearTargetLibraryPath( spellCoreLibraryPath, projectLibraryPath )
+
+				// copy spell sdk library
+				copyDirectory( spellCoreLibraryPath, projectLibraryPath )
+
+
+				// populate public directory
+				var fileNames = [
+					'main.css',
+					'spellEdShim.html'
+				]
+
+				_.each(
+					fileNames,
+					function( fileName ) {
+						fsUtil.copyFile(
+							path.join( spellCorePath, 'htmlTemplate', fileName ),
+							path.join( projectPath, publicDirName, fileName )
+						)
+					}
+				)
+
+				if( !fs.existsSync( html5OutputPath ) ) {
+					wrench.mkdirSyncRecursive( html5OutputPath )
 				}
-			)
 
-			// remove old spell sdk library
-			clearTargetLibraryPath( spellCoreLibraryPath, projectLibraryPath )
+				// copying engine library
+				fsUtil.copyFile(
+					createDebugPath( true, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
+					path.join( html5OutputPath, 'spell.js' )
+				)
 
-			// copy spell sdk library
-			copyDirectory( spellCoreLibraryPath, projectLibraryPath )
-
-
-			// populate public directory
-			var fileNames = [
-				'main.css',
-				'spellEdShim.html'
-			]
-
-			_.each(
-				fileNames,
-				function( fileName ) {
-					fsUtil.copyFile(
-						path.join( spellCorePath, 'htmlTemplate', fileName ),
-						path.join( projectPath, publicDirName, fileName )
-					)
-				}
-			)
-
-			if( !fs.existsSync( html5OutputPath ) ) {
-				wrench.mkdirSyncRecursive( html5OutputPath )
+				// copying stage zero loader
+				fsUtil.copyFile(
+					createDebugPath( true, 'spell.loader.js', 'spell.loader.min.js', path.join( spellCorePath, 'lib' ) ),
+					path.join( outputPath, 'spell.loader.js' )
+				)
 			}
-
-			// copying engine library
-			fsUtil.copyFile(
-				createDebugPath( true, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
-				path.join( html5OutputPath, 'spell.js' )
-			)
-
-			// copying stage zero loader
-			fsUtil.copyFile(
-				createDebugPath( true, 'spell.loader.js', 'spell.loader.min.js', path.join( spellCorePath, 'lib' ) ),
-				path.join( outputPath, 'spell.loader.js' )
-			)
 
 			printSuccess()
 
