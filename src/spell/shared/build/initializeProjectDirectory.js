@@ -88,7 +88,8 @@ define(
 				"apiVersion": apiVersion,
 				"config": {
 					"projectId": projectName,
-					"supportedLanguages": []
+					"supportedLanguages": [],
+					"web": { html5: true }
 				},
 				"startScene": defaultSceneId,
 				"type": "project",
