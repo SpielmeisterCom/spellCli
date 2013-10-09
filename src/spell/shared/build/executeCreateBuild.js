@@ -219,6 +219,23 @@ define(
 
 			var builderTypes = [ AndroidBuilder, WebBuilder ]
 
+			//check project web build settings
+			if( target === 'web' && projectConfig.config.web ) {
+				var webConf = projectConfig.config.web,
+					html5   = !!webConf.html5,
+					flash   = !!webConf.flash
+
+				if( flash && !html5 ) {
+					target = 'flash'
+
+				} else if( html5 && !flash ) {
+					target = 'html5'
+
+				} else if( !html5 && !flash ) {
+					next( 'Error: Specify a web target in project.json.' )
+				}
+			}
+
 			var builders = _.map(
 				builderTypes,
 				function( builderType ) {
