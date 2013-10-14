@@ -87,6 +87,16 @@ define(
 				"version": 1,
 				"apiVersion": apiVersion,
 				"config": {
+					"android": {
+						"package": "com.spelljs." + projectName,
+						"title": projectName,
+						"version": "1.0",
+						"orientation": "portrait",
+						"signingKeyStore": "",
+						"signingKeyStorePass": "",
+						"signingKeyAlias": "",
+						"signingKeyPass": ""
+					},
 					"projectId": projectName,
 					"supportedLanguages": [],
 					"web": { html5: true }
