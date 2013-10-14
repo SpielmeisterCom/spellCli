@@ -88,17 +88,17 @@ define(
 			return cliParams
 		}
 
-		var createBuildOptions = function( debug, projectId ) {
+		var createBuildOptions = function( debug, projectId, androidBuildSettings ) {
 			return {
 				/**
 				 * A package name must be constitued of two Java identifiers.
 				 * Each identifier allowed characters are: a-z A-Z 0-9 _
 				 */
-				'package'         : 'com.kaisergames.' + projectId, //namespace,
+				'package'         : androidBuildSettings.package ? androidBuildSettings.package : 'com.spelljs.' + projectId,
 				'activity'        : '.' + projectId + 'Activity',
 
-				'title'           : 'Jungle Chaos', // title underneath the icon
-				'version'         : '1.0', // is shown in app manager
+				'title'           : androidBuildSettings.title ? androidBuildSettings.title : projectId,
+				'version'         : androidBuildSettings.version ? androidBuildSettings.version : '1.0',
 				'versionCode'     : '1',
 
 				'shortname'       : projectId,
@@ -106,10 +106,10 @@ define(
 				'debuggable'      : debug ? 'true' : 'false',
 				'develop'         : debug ? 'true' : 'false',
 
-				'orientation'     : 'landscape', // landscape, unspecified
+				'orientation'     : androidBuildSettings.orientation ? androidBuildSettings.orientation : 'landscape',
 
 				// unused parameters
-				'appid'           : 'Jungle Chaos',
+				'appid'           : '',
 				'gameHash'        : '1.0',
 				'sdkHash'         : '1.0',
 				'androidHash'     : '1.0',
@@ -161,7 +161,7 @@ define(
 				androidTool        = path.resolve( androidSdkPath, 'tools', 'android' ),
 				zipalignTool       = path.resolve( androidSdkPath, 'tools', 'zipalign' )
 
-			var buildOptions = createBuildOptions( debug, projectId ),
+			var buildOptions = createBuildOptions( debug, projectId, androidBuildSettings ),
 				name         = buildOptions.shortname,
 				activity     = ( buildOptions.activity.substring( 0, 1 ) == '.' ) ? buildOptions.activity.substring( 1 ) : buildOptions.activity
 
@@ -391,7 +391,7 @@ define(
 
 					fsUtil.copyFile(
 						launchClientFile,
-						path.join( resourcesPath, 'native.js.mp3' )
+						path.join( resourcesPath, 'native.js' )
 					)
 
 					// create application module and engine library file
