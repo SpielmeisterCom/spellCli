@@ -177,7 +177,7 @@ define(
 			// set up temporary android project
 			var tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'android', projectId ),
 				resourcesPath           = path.join( tmpProjectPath, 'assets', 'resources' ),
-				tealeafPath             = path.join( tmpProjectPath, '..', 'TeaLeaf' ),
+				tmpProjectTealeafPath   = path.join( tmpProjectPath, '..', 'TeaLeaf'),
 				androidOutputPath       = path.join( outputPath, 'android' ),
 				unsignedDebugApkFile    = path.join( tmpProjectPath, 'bin', name + '-debug.apk' ),
 				unsignedReleaseApkFile  = path.join( tmpProjectPath, 'bin', name + '-release-unsigned.apk' ),
@@ -185,7 +185,7 @@ define(
 				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
 				xslFile                 = path.resolve( spellAndroidPath, '..', 'modules', 'native-android', 'AndroidManifest.xsl' ),
-				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' )
+				androidManifestFile     = path.resolve( debug ? tealeafDebugPath : tealeafReleasePath, 'AndroidManifest.xml' )
 
 
 
@@ -243,7 +243,11 @@ define(
                 },
 				function() {
 					//check for all required files
-					var requiredFiles = [ xslFile, androidManifestFile, launchClientFile ]
+					var requiredFiles = [
+						xslFile,
+						androidManifestFile,
+						launchClientFile
+					]
 
 					requiredFiles.forEach( function( file ) {
 						if( !fs.existsSync( file ) ) {
@@ -255,7 +259,7 @@ define(
 					// copy the prebuild Tealeaf library into our temp directory
 					wrench.copyDirSyncRecursive(
 						debug ? tealeafDebugPath : tealeafReleasePath,
-						tealeafPath,
+						tmpProjectTealeafPath,
 						{
 							forceDelete : true,
 							preserveFiles : false,
@@ -302,7 +306,7 @@ define(
 
 					var xsltprocParameters = createXsltProcCliParams(
 						xslFile,
-						path.resolve( tealeafPath, 'AndroidManifest.xml' ),
+						path.resolve( tmpProjectTealeafPath, 'AndroidManifest.xml' ),
 						path.resolve( tmpProjectPath, 'AndroidManifest.xml' ),
 						buildOptions
 					)
