@@ -135,25 +135,9 @@ define(
 				environmentConfig.spellCorePath :
 				path.resolve( '../spellCore/build' )
 
-			var spellAndroidPath = environmentConfig && environmentConfig.spellAndroidPath ?
-				environmentConfig.spellAndroidPath :
-				path.resolve( '../spellAndroid/build' )
-
-			var platform = os.platform() == 'darwin' ? 'osx-ia32' : 'linux-ia32'
-
-			var jdkPath = path.join(
-				environmentConfig && environmentConfig.jdkPath ?
-					environmentConfig.jdkPath :
-					path.resolve( '../spellAndroid/modules/jdk/' ),
-				platform
-			)
-
-			var androidSdkPath = path.join(
-				environmentConfig && environmentConfig.androidSdkPath ?
-					environmentConfig.androidSdkPath :
-					path.resolve( '../spellAndroid/modules/android-sdk' ),
-				platform
-			)
+			var spellAndroidPath = environmentConfig.spellAndroidPath,
+				jdkPath          = environmentConfig.jdkPath,
+				androidSdkPath   = environmentConfig.androidSdkPath
 
 			var launchClientFile   = path.resolve( spellAndroidPath, 'launchClient.js' ),
 				tealeafDebugPath   = path.resolve( spellAndroidPath, 'debug', 'TeaLeaf' ),
