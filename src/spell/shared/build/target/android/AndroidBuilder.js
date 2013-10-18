@@ -168,7 +168,7 @@ define(
 				unalignedReleaseApkFile = path.join( tmpProjectPath, 'bin', name + '-release-signed-unaligned.apk' ),
 				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
-				xslFile                 = path.resolve( spellAndroidPath, '..', 'modules', 'native-android', 'AndroidManifest.xsl' ),
+				xslFile                 = path.join( spellAndroidPath, 'AndroidManifest.xsl' ),
 				androidManifestFile     = path.resolve( debug ? tealeafDebugPath : tealeafReleasePath, 'AndroidManifest.xml' )
 
 
