@@ -14,6 +14,24 @@ define(
 			//jdkPath          = environmentConfig.jdkPath,
 		}
 
+
+		var hasJava = function( next ) {
+			var child = spawnChildProcess(
+				'java',
+				[ '-version' ],
+				{},
+				false,
+				function( error, status ) {
+					if( error ) {
+						next( 'Missing a Java Runtime Environment. Please install one.' )
+					}
+
+					next()
+				}
+			)
+		}
+
+
 		return {
 			checkPrerequisite: function( environmentConfig, successCb, failCb ) {
 				successCb();

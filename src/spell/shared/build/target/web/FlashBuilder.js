@@ -11,6 +11,9 @@ define(
 		'spell/shared/build/writeFile',
 		'spell/shared/build/spawnChildProcess',
 
+		'spell/shared/build/external/java',
+		'spell/shared/build/external/mxmlc',
+
 		'ff',
 		'fs',
 		'fsUtil',
@@ -32,6 +35,9 @@ define(
 		processSource,
 		writeFile,
 		spawnChildProcess,
+
+		java,
+		mxmlc,
 
 		ff,
 		fs,
@@ -215,26 +221,6 @@ define(
 			fs.writeFileSync( compilerConfigFilePath, root.toString( { pretty : true } ) )
 		}
 
-		var compile = function( compilerExecutablePath, configFilePath, next ) {
-			spawnChildProcess(
-				compilerExecutablePath,
-				[ '-load-config', configFilePath ],
-				{},
-				true,
-				function( error, code ) {
-					if( error ) {
-						next( error.toString() )
-
-					} else if( code !== 0 ) {
-						next( 'Error: Compilation aborted.' )
-
-					} else {
-						next()
-					}
-				}
-			)
-		}
-
 		var createComponentTypeClassName = function( libraryPath ) {
 			var componentId = libraryPath.replace( /\//g, '.' ),
 				result      = 'Spielmeister.ComponentType.'
@@ -368,22 +354,17 @@ define(
 		}
 
 
-		var build = function( spellCorePath, spellFlashPath, projectPath, projectLibraryPath, outputPath, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
+		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
 			var errors                   = [],
+				spellCorePath            = environmentConfig.spellCorePath,
+				spellFlashPath           = environmentConfig.spellFlashPath,
+				flexSdkPath              = path.join( spellFlashPath, 'vendor', 'flex_sdk' ),
 				projectBuildPath         = path.join( projectPath, 'build' ),
 				tmpPath                  = path.join( projectBuildPath, 'tmp', 'web', 'flash' ),
 				srcPath                  = path.join( tmpPath, 'src' ),
 				spielmeisterPackagePath  = path.join( srcPath, 'Spielmeister' ),
 				outputFlashPath          = path.join( outputPath, 'web', 'flash' ),
-				compilerConfigFilePath   = path.join( tmpPath, 'compile-config.xml' ),
-				flexSdkPath              = path.join( spellFlashPath, 'vendor', 'flex_sdk' ),
-				compilerExecutablePath   = path.join( flexSdkPath, 'bin', os.platform() == 'win32' ? 'mxmlc.bat' : 'mxmlc' )
-
-			if( !fs.existsSync( compilerExecutablePath ) ) {
-				next( 'Could not find compiler executable "' + compilerExecutablePath + '". Please make sure that spellFlash is included in the build.' )
-
-				return
-			}
+				compilerConfigFilePath   = path.join( tmpPath, 'compile-config.xml' )
 
 			// remove build files from previous run
 			emptyDirectory( spielmeisterPackagePath )
@@ -441,7 +422,7 @@ define(
 
 			var componentScripts = loadAssociatedScriptModules( projectLibraryPath, library.component )
 
-			console.log( 'generating AS3 classes...' )
+			console.log( '[spellcli]  generating AS3 classes...' )
 
 			var componentTypeDefinitions = createComponentTypeDefinitions( componentScripts )
 
@@ -451,7 +432,7 @@ define(
 			// create config and compile
 			var outputFilePath = path.join( outputFlashPath, 'spell.swf' )
 
-			console.log( 'compiling...' )
+			console.log( '[spellcli] compiling...' )
 
 			writeCompilerConfigFile(
 				srcPath,
@@ -464,21 +445,20 @@ define(
 				debug
 			)
 
-			compile( compilerExecutablePath, compilerConfigFilePath, next )
-		}
-
-		var hasJava = function( next ) {
-			var child = spawnChildProcess(
-				'java',
-				[ '-version' ],
-				{},
-				false,
-				function( error, status ) {
+			mxmlc.run(
+				environmentConfig,
+				[ '-load-config', compilerConfigFilePath ],
+				tmpPath,
+				function( error, code ) {
 					if( error ) {
-						next( 'Missing a Java Runtime Environment. Please install one.' )
-					}
+						next( error.toString() )
 
-					next()
+					} else if( code !== 0 ) {
+						next( 'Error: Compilation aborted.' )
+
+					} else {
+						next()
+					}
 				}
 			)
 		}
@@ -497,17 +477,21 @@ define(
 					x === TARGET_NAME
 			},
 			build : function( next ) {
-				console.log( 'building for sub-target "' + TARGET_NAME + '"...' )
+				console.log( '[spellcli] building for sub-target "' + TARGET_NAME + '"...' )
 
 				var f = ff(
 					this,
 					function() {
-						hasJava( f.wait() )
+						console.log( '[spellcli] Checking prerequisite: java' )
+						java.checkPrerequisite( this.environmentConfig, f.next, f.fail )
+					},
+					function() {
+						console.log( '[spellcli] Checking prerequisite: mxmlc' )
+						mxmlc.checkPrerequisite( this.environmentConfig, f.next, f.fail )
 					},
 					function() {
 						build(
-							this.environmentConfig.spellCorePath,
-							this.environmentConfig.spellFlashPath,
+							this.environmentConfig,
 							this.projectPath,
 							this.projectLibraryPath,
 							this.outputPath,
