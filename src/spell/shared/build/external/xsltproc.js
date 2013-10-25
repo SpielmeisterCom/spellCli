@@ -9,10 +9,10 @@ define(
 
 		var getXsltProcPath = function() {
 
-			if(process.platform == "win32") {
-
+			if( process.platform == "win32" ) {
+				return 'xsltproc.exe'
 			} else {
-				return '/usr/bin/xsltproc';
+				return '/usr/bin/xsltproc'
 			}
 		}
 
@@ -36,8 +36,10 @@ define(
 			},
 
 			checkPrerequisite: function( environmentConfig, successCb, failCb ) {
-				if ( ! fs.existsSync( getXsltProcPath() ) ) {
-					failCb();
+				var xsltPath = getXsltProcPath( environmentConfig )
+
+				if ( ! fs.existsSync( xsltPath ) ) {
+					failCb( 'Could not find xslt tool in ' + xsltPath )
 				}
 
 				successCb();
