@@ -2,54 +2,52 @@ define(
 	'spell/shared/build/external/java',
 	[
 		'fs',
+		'os',
+		'path',
+		'child_process',
 		'spell/shared/build/spawnChildProcess'
 	],
 	function(
 		fs,
+		os,
+		path,
+		child_process,
 		spawnChildProcess
 	) {
 		'use strict'
 
-		var getJavaPath = function() {
-			//jdkPath          = environmentConfig.jdkPath,
+		var getJavaPath = function( environmentConfig ) {
+			return path.join( environmentConfig.jdkPath, 'bin', 'java' + ( os.platform() == 'win32' ? '.exe': '' ) )
 		}
 
-
-		var hasJava = function( next ) {
-			var child = spawnChildProcess(
-				'java',
-				[ '-version' ],
-				{},
-				false,
-				function( error, status ) {
-					if( error ) {
-						next( 'Missing a Java Runtime Environment. Please install one.' )
-					}
-
-					next()
+		var getProcessEnv = function( environmentConfig, cwd ) {
+			return {
+				cwd : cwd,
+				env : {
+					JAVA_HOME : environmentConfig.jdkPath
 				}
-			)
+			}
 		}
-
 
 		return {
 			checkPrerequisite: function( environmentConfig, successCb, failCb ) {
-				successCb();
-			},
+				var javaPath = getJavaPath( environmentConfig )
 
-			getProcessEnv: function( environmentConfig, cwd ) {
-				return {
-					cwd : cwd,
-					env : { JAVA_HOME : environmentConfig.jdkPath }
+				if( !fs.existsSync( javaPath ) ) {
+					failCb( 'Could not find java (jre/jdk) in ' + javaPath )
+					return
 				}
+
+				successCb()
 			},
 
-			run: function( environmentConfig, argv, next, cwd ) {
+			getProcessEnv: getProcessEnv,
 
+			run: function( environmentConfig, argv, cwd, next ) {
 				spawnChildProcess(
-					'java',
+					getJavaPath( environmentConfig ),
 					argv,
-					javaChildProcessOptions,
+					getProcessEnv( environmentConfig ),
 					true,
 					next
 				)
