@@ -2,15 +2,20 @@ define(
 	'spell/shared/build/external/xsltproc',
 	[
 		'fs',
+		'os',
 		'spell/shared/build/spawnChildProcess'
 	],
-	function( fs, spawnChildProcess ) {
+	function(
+		fs,
+		os,
+		spawnChildProcess
+	) {
 		'use strict'
 
-		var getXsltProcPath = function() {
+		var getXsltProcPath = function( environmentConfig ) {
 
-			if( process.platform == "win32" ) {
-				return 'xsltproc.exe'
+			if( os.platform() == "win32" ) {
+				return path.join( environmentConfig.spellCliPath, 'xsltproc.exe' )
 			} else {
 				return '/usr/bin/xsltproc'
 			}
