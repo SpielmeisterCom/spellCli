@@ -13,6 +13,14 @@ define(
 		'spell/shared/util/createModuleId',
 		'spell/shared/util/hashModuleId',
 
+		'spell/shared/build/external/java',
+		'spell/shared/build/external/javac',
+		'spell/shared/build/external/android',
+		'spell/shared/build/external/xsltproc',
+		'spell/shared/build/external/jarsigner',
+		'spell/shared/build/external/ant',
+		'spell/shared/build/external/zipalign',
+
 		'amd-helper',
 		'child_process',
 		'ff',
@@ -35,6 +43,14 @@ define(
 		createModuleId,
 		hashModuleId,
 
+		java,
+		javac,
+		android,
+		xsltproc,
+		jarsigner,
+		ant,
+		zipalign,
+
 		amdHelper,
 		child_process,
 		ff,
@@ -45,7 +61,6 @@ define(
 		wrench
 	) {
 		'use strict'
-
 
 		var ANDROID_TARGET = 'android-15'
 
@@ -69,24 +84,6 @@ define(
 			)
 		}
 
-
-		var createXsltProcCliParams = function( XslFile, sourceXmlFile, destinationXmlFile, buildOptions ) {
-			var cliParams = []
-
-			for( var key in buildOptions ) {
-				cliParams.push( '--stringparam' )
-				cliParams.push( key )
-				cliParams.push( buildOptions[ key ] )
-			}
-
-			cliParams.push( '--output' )
-			cliParams.push( destinationXmlFile )
-
-			cliParams.push( XslFile )
-			cliParams.push( sourceXmlFile )
-
-			return cliParams
-		}
 
 		var createBuildOptions = function( debug, projectId, androidBuildSettings ) {
 			return {
@@ -135,15 +132,11 @@ define(
 				environmentConfig.spellCorePath :
 				path.resolve( '../spellCore/build' )
 
-			var spellAndroidPath = environmentConfig.spellAndroidPath,
-				jdkPath          = environmentConfig.jdkPath,
-				androidSdkPath   = environmentConfig.androidSdkPath
+			var spellAndroidPath = environmentConfig.spellAndroidPath
 
 			var launchClientFile   = path.resolve( spellAndroidPath, 'launchClient.js' ),
 				tealeafDebugPath   = path.resolve( spellAndroidPath, 'debug', 'TeaLeaf' ),
-				tealeafReleasePath = path.resolve( spellAndroidPath, 'release', 'TeaLeaf' ),
-				androidTool        = path.resolve( androidSdkPath, 'tools', 'android' ),
-				zipalignTool       = path.resolve( androidSdkPath, 'tools', 'zipalign' )
+				tealeafReleasePath = path.resolve( spellAndroidPath, 'release', 'TeaLeaf' )
 
 			var buildOptions = createBuildOptions( debug, projectId, androidBuildSettings ),
 				name         = buildOptions.shortname,
@@ -171,54 +164,42 @@ define(
 				xslFile                 = path.join( spellAndroidPath, 'AndroidManifest.xsl' ),
 				androidManifestFile     = path.resolve( debug ? tealeafDebugPath : tealeafReleasePath, 'AndroidManifest.xml' )
 
-
-
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
 			emptyDirectory( tmpProjectPath )
 
 			console.log( '[spellcli] Cleaning ' + androidOutputPath )
 			emptyDirectory( androidOutputPath )
 
-			var javaChildProcessOptions = {
-				cwd : tmpProjectPath,
-				env : { JAVA_HOME : jdkPath }
-			}
-
 			var f = ff(
 				function() {
-					console.log( '[spellcli] Checking prerequisite: jdk6 installed' )
-					// TODO
+					console.log( '[spellcli] Checking prerequisite: java' )
+					java.checkPrerequisite( environmentConfig, f.next, f.fail )
 				},
 				function() {
-					console.log( '[spellcli] Checking prerequisite: android tool and android api level 15' )
-
-					if( fs.existsSync( androidTool ) ) {
-						var nextff = f.wait()
-
-						child_process.exec(
-							androidTool + ' list',
-							function( error, stdout, stderr ) {
-								if( error !== null ) {
-									f.fail( error )
-								}
-
-								if( stdout.toString().match( /android-15/g ) ) {
-									nextff( error, stdout.toString() )
-
-								} else {
-									nextff(
-										'Android API level 15 is not installed in your local android sdk. Please run the android tool manually and install it.',
-										stdout.toString()
-									)
-								}
-							}
-						)
-
-					} else {
-						f.fail( 'Could not find android tool in ' + androidTool + '. Please check your androidSdkPath settings.' )
-					}
+					console.log( '[spellcli] Checking prerequisite: javac' )
+					javac.checkPrerequisite( environmentConfig, f.next, f.fail )
 				},
-                function() {
+				function() {
+					console.log( '[spellcli] Checking prerequisite: android-sdk' )
+					android.checkPrerequisite( environmentConfig, f.next, f.fail )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: xsltproc' )
+					xsltproc.checkPrerequisite( environmentConfig, f.next, f.fail )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: jarsigner' )
+					jarsigner.checkPrerequisite( environmentConfig, f.next, f.fail )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: ant' )
+					ant.checkPrerequisite( environmentConfig, f.next, f.fail )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: zipalign' )
+					zipalign.checkPrerequisite( environmentConfig, f.next, f.fail )
+				},
+				function() {
                     console.log( '[spellcli] Checking prerequisite: spellCore build' )
 
                     if( !fs.existsSync( spellEngineFile ) ) {
@@ -254,56 +235,39 @@ define(
 				function() {
 					console.log( '[spellcli] Creating temporary android project in ' + tmpProjectPath + ' [name=' + name + ', package=' + buildOptions.package + ', activity=' + activity + ']' )
 
-					spawnChildProcess(
-						androidTool,
-						[
-							'create',     'project',
-							'--target',   ANDROID_TARGET,
-							'--name',     name,
-							'--path',     tmpProjectPath,
-							'--activity', activity,
-							'--package',  buildOptions.package
-						],
-						javaChildProcessOptions,
-						true,
-						f.wait()
-					)
+					android.run( environmentConfig, [
+						'create',     'project',
+						'--target',   ANDROID_TARGET,
+						'--name',     name,
+						'--path',     tmpProjectPath,
+						'--activity', activity,
+						'--package',  buildOptions.package
+					], tmpProjectPath, f.wait() )
+
 				},
 				function() {
 					console.log( '[spellcli] Adding libtealeaf as dependency for the android project' )
 
-					spawnChildProcess(
-						androidTool,
-						[
-							'update',    'project',
-							'--target',  ANDROID_TARGET,
-							'--path',    tmpProjectPath,
-							'--library', '../TeaLeaf'
-						],
-						javaChildProcessOptions,
-						true,
-						f.wait()
-					)
+					android.run( environmentConfig, [
+						'update',    'project',
+						'--target',  ANDROID_TARGET,
+						'--path',    tmpProjectPath,
+						'--library', '../TeaLeaf'
+					], tmpProjectPath, f.wait() )
+
 				},
 				function() {
 					console.log( '[spellcli] Patching AndroidManifest.xml file' )
 
-					var xsltprocParameters = createXsltProcCliParams(
+					var xsltprocParameters = xsltproc.createXsltProcCliParams(
 						xslFile,
 						path.resolve( tmpProjectTealeafPath, 'AndroidManifest.xml' ),
 						path.resolve( tmpProjectPath, 'AndroidManifest.xml' ),
 						buildOptions
 					)
 
-					spawnChildProcess(
-						'xsltproc',
-						xsltprocParameters,
-						{
-							cwd : tmpProjectPath
-						},
-						true,
-						f.wait()
-					)
+					xsltproc.run( environmentConfig, xsltprocParameters, tmpProjectPath, f.wait() )
+
 				},
 				function() {
 					console.log( '[spellcli] Patching ' + activity + '.java' )
@@ -368,7 +332,6 @@ define(
 				function() {
 					console.log( '[spellcli] Populating the android project with SpellJS project resources' )
 
-
 					// copy project library directory
 					var libraryResourcesPath = path.join( resourcesPath, 'library' ),
 						spelljsResourcesPath = path.join( resourcesPath, 'spelljs' )
@@ -399,15 +362,8 @@ define(
 				},
 				function() {
 					console.log( '[spellcli] Running ant in ' + tmpProjectPath + ' to build the android project' )
+					ant.run( environmentConfig, [ debug ? 'debug' : 'release' ], tmpProjectPath, f.wait() )
 
-					// build the android project
-					spawnChildProcess(
-						'ant',
-						[ debug ? 'debug' : 'release' ],
-						javaChildProcessOptions,
-						true,
-						f.wait()
-					)
 				},
 				function() {
 					if( !debug && hasSigningSettings ) {
@@ -415,37 +371,26 @@ define(
 
 						console.log( '[spellcli] Signing ' + unsignedReleaseApkFile + ' with key ' + androidBuildSettings.signingKeyAlias + ' from keyStore ' + keyStorePath )
 
-						spawnChildProcess(
-							'jarsigner',
-							[
-								'-sigalg',    'MD5withRSA',
-								'-digestalg', 'SHA1',
-								'-keystore',  keyStorePath,
-								'-storepass', androidBuildSettings.signingKeyStorePass,
-								'-keypass',   androidBuildSettings.signingKeyPass,
-								'-signedjar', unalignedReleaseApkFile,
-								unsignedReleaseApkFile,
-								androidBuildSettings.signingKeyAlias
-							],
-							javaChildProcessOptions,
-							true,
-							f.wait()
-						)
+						jarsigner.run( environmentConfig, [
+							'-sigalg',    'MD5withRSA',
+							'-digestalg', 'SHA1',
+							'-keystore',  keyStorePath,
+							'-storepass', androidBuildSettings.signingKeyStorePass,
+							'-keypass',   androidBuildSettings.signingKeyPass,
+							'-signedjar', unalignedReleaseApkFile,
+							unsignedReleaseApkFile,
+							androidBuildSettings.signingKeyAlias
+						], tmpProjectPath, f.wait());
+
 					}
 				},
 				function() {
 					if( !debug && hasSigningSettings ) {
 						console.log( '[spellcli] Aligning signed unaligned apk file ' + unalignedReleaseApkFile + ' and save it as ' + signedReleaseApkFile )
 
-						spawnChildProcess(
-							zipalignTool,
-							[
-								'-f', '-v', '4', unalignedReleaseApkFile, signedReleaseApkFile
-							],
-							javaChildProcessOptions,
-							true,
-							f.wait()
-						)
+						zipalign.run( environmentConfig, [
+							'-f', '-v', '4', unalignedReleaseApkFile, signedReleaseApkFile
+						], tmpProjectPath, f.wait())
 					}
 				},
 				function() {
