@@ -45,7 +45,7 @@ define(
 					"The current androidSdkPath is: " + environmentConfig.androidSdkPath + "\r\n\r\n" +
 					"Please download the android sdk from\r\n\r\n" +
 					"http://developer.android.com/sdk/index.html\r\n\r\n" +
-					"Scroll down to 'Download for other platforms' and download the SDK Tools Only bundle. You don't need the ADT bundle.\r\n\r\n" +
+					"Scroll down to 'Download for other platforms' and download the \"SDK Tools Only\" bundle. You don't need the ADT bundle.\r\n\r\n" +
 					"Also check that the path to the android sdk is set correctly in the spellConfig.json (or via SpellEd)\r\n"
 
 				)
