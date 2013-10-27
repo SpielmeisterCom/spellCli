@@ -26,9 +26,11 @@ define(
 				var cliParams = []
 
 				for( var key in buildOptions ) {
-					cliParams.push( '--stringparam' )
-					cliParams.push( key )
-					cliParams.push( buildOptions[ key ] )
+					if( buildOptions[ key ] ) {
+						cliParams.push( '--stringparam' )
+						cliParams.push( key  )
+						cliParams.push( buildOptions[ key ] )
+					}
 				}
 
 				cliParams.push( '--output' )
@@ -36,6 +38,8 @@ define(
 
 				cliParams.push( XslFile )
 				cliParams.push( sourceXmlFile )
+
+				console.log(cliParams.join(" "));
 
 				return cliParams
 			},
