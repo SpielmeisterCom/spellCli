@@ -27,7 +27,7 @@ define(
 			}
 
 			var androidPath = path.resolve(
-				environmentConfig.androidSdkPath + 'X',
+				environmentConfig.androidSdkPath,
 				'tools',
 				os.platform() == 'win32' ? 'android.bat' : 'android'
 			)
