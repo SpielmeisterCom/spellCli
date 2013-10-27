@@ -22,8 +22,12 @@ define(
 		'use strict'
 
 		var getAndroidToolPath = function( environmentConfig ) {
+			if(!environmentConfig.androidSdkPath) {
+				return "";
+			}
+
 			var androidPath = path.resolve(
-				environmentConfig.androidSdkPath,
+				environmentConfig.androidSdkPath + 'X',
 				'tools',
 				os.platform() == 'win32' ? 'android.bat' : 'android'
 			)
@@ -34,8 +38,17 @@ define(
 		var checkPrerequisite = function( environmentConfig, successCb, failCb ) {
 			var androidToolPath = getAndroidToolPath( environmentConfig )
 
-			if( !fs.existsSync( androidToolPath ) ) {
-				failCb( 'Could not find android-sdk/tools/android in ' + androidToolPath )
+			if( !androidToolPath || !fs.existsSync( androidToolPath ) ) {
+				failCb(
+					"\r\n" +
+					"Could not find a installed android-sdk\r\n" +
+					"The current androidSdkPath is: " + environmentConfig.androidSdkPath + "\r\n\r\n" +
+					"Please download the android sdk from\r\n\r\n" +
+					"http://developer.android.com/sdk/index.html\r\n\r\n" +
+					"Scroll down to 'Download for other platforms' and download the SDK Tools Only bundle. You don't need the ADT bundle.\r\n\r\n" +
+					"Also check that the path to the android sdk is set correctly in the spellConfig.json (or via SpellEd)\r\n"
+
+				)
 				return
 			}
 
