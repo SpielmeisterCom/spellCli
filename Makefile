@@ -61,6 +61,10 @@ cli: $(NODE_SRC)/lib/_third_party_main.js
 ifeq ($(WINDOWS_ENV),true)
 	cd $(NODE_SRC) && chmod +x vcbuild.bat && ./vcbuild.bat
 	cp $(NODE_SRC)/Release/node.exe $(SPELL_CLI_OUT_DIR)/spellcli.exe
+
+	#integrate xmltools on windows build
+	cp -aR xmltools $(SPELL_CLI_OUT_DIR)
+
 else
 	cd $(NODE_SRC) && ./configure $(NODEJS_CONFIGURE_OPTS) && make -j4
 	cp $(NODE_SRC)/out/Release/node $(SPELL_CLI_OUT_DIR)/spellcli
