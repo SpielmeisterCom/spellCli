@@ -369,8 +369,13 @@ define(
 					)
 				},
 				function() {
-					console.log( '[spellcli] Running ant in ' + tmpProjectPath + ' to build the android project' )
-					ant.run( environmentConfig, [ debug ? 'debug' : 'release' ], tmpProjectPath, f.wait() )
+					var antParameters = [
+						debug ? 'debug' : 'release',
+						'-Dsdk.dir=' + environmentConfig.androidSdkPath
+					]
+
+					console.log( '[spellcli] Running ant ' + antParameters.join(' ') + ' in ' + tmpProjectPath )
+					ant.run( environmentConfig, antParameters, tmpProjectPath, f.wait() )
 
 				},
 				function() {
