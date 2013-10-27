@@ -172,6 +172,10 @@ define(
 
 			var f = ff(
 				function() {
+					//Set timeout for prerequisite check to 2s
+					f.timeout( 2000 )
+				},
+				function() {
 					console.log( '[spellcli] Checking prerequisite: java' )
 					java.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
@@ -219,6 +223,10 @@ define(
 							f.fail( '[spellcli] Missing file ' + file )
 						}
 					})
+				},
+				function() {
+					//Set timeout to 5 min
+					f.timeout( 5 * 60 * 1000 )
 				},
 				function() {
 					// copy the prebuild Tealeaf library into our temp directory
@@ -402,7 +410,10 @@ define(
 					fsUtil.copyFile( apkFileName, outputFile )
 				},
 				next
-			)
+
+			).onError( function( message ) {
+					console.log( message )
+			})
 		}
 
 		var TARGET_NAME    = 'android',
