@@ -35,7 +35,16 @@ define(
 				var javaPath = getJavaPath( environmentConfig )
 
 				if( !fs.existsSync( javaPath ) ) {
-					failCb( 'Could not find java (jre/jdk) in ' + javaPath )
+					failCb(
+						"\r\n" +
+						"Could not find an installed Java Development Kit (JDK)\r\n\r\n" +
+						"The current jdkPath is: " + environmentConfig.jdkPath + "\r\n\r\n" +
+						"Please download and install a recent JDK from\r\n\r\n" +
+						"  http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html\r\n\r\n" +
+						"Also check that the path to the JDK is set correctly to your JAVA_HOME in the spellConfig.json (or via SpellEd)\r\n"
+					)
+
+
 					return
 				}
 
