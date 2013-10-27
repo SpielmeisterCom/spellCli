@@ -50,7 +50,7 @@ define(
 
 						if( autoFail ) {
 							failCb(
-								'Android API level 15 is not installed in your local android sdk. Please run the android tool and install it.',
+								'Android API level 15 is not installed in your local android sdk. Please run the android-sdk/tools/android tool manually and install android api level 15, platform-tools and build-tools.',
 								stdout.toString()
 							)
 							return
