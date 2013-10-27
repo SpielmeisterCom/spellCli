@@ -24,7 +24,8 @@ define(
 			return {
 				cwd : cwd,
 				env : {
-					JAVA_HOME : environmentConfig.jdkPath
+					JAVA_HOME : environmentConfig.jdkPath,
+					PATH: process.env.PATH + path.delimiter + path.join( environmentConfig.jdkPath, 'bin' )
 				}
 			}
 		}
