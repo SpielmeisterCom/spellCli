@@ -15,7 +15,7 @@ define(
 		var getXsltProcPath = function( environmentConfig ) {
 
 			if( os.platform() == "win32" ) {
-				return path.join( environmentConfig.spellCliPath, 'xsltproc.exe' )
+				return path.join( environmentConfig.spellCliPath, 'xmltools', 'xsltproc.exe' )
 			} else {
 				return '/usr/bin/xsltproc'
 			}
