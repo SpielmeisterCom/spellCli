@@ -67,3 +67,6 @@ else
 	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli
 endif
 
+	#copy the bundled ant into the build directory
+	cp -aR ant $(SPELL_CLI_OUT_DIR)
+
