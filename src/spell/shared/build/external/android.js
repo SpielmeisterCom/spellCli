@@ -53,7 +53,7 @@ define(
 			}
 
 			child_process.exec(
-				androidToolPath + ' list',
+				'"' + androidToolPath + '" list',
 				function( error, stdout, stderr ) {
 					if( error !== null ) {
 						failCb( stderr.toString() )
