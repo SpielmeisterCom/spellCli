@@ -172,8 +172,8 @@ define(
 
 			var f = ff(
 				function() {
-					//Set timeout for prerequisite check to 2s
-					f.timeout( 2000 )
+					//Set timeout for prerequisite check to 5s
+					f.timeout( 5000 )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: java' )
