@@ -52,7 +52,7 @@ define(
 
 			run: function(environmentConfig, argv, cwd, next) {
 				spawnChildProcess(
-					getXsltProcPath(),
+					getXsltProcPath( environmentConfig ),
 					argv,
 					{ },
 					true,
