@@ -38,7 +38,7 @@ define(
 				androidToolPath + ' list',
 				function( error, stdout, stderr ) {
 					if( error !== null ) {
-						failCb( error )
+						failCb( stderr )
 						return
 					}
 
