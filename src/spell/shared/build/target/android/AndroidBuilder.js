@@ -173,31 +173,31 @@ define(
 			var f = ff(
 				function() {
 					console.log( '[spellcli] Checking prerequisite: java' )
-					java.checkPrerequisite( environmentConfig, f.next, f.fail )
+					java.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: javac' )
-					javac.checkPrerequisite( environmentConfig, f.next, f.fail )
+					javac.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: android-sdk' )
-					android.checkPrerequisite( environmentConfig, f.next, f.fail )
+					android.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: xsltproc' )
-					xsltproc.checkPrerequisite( environmentConfig, f.next, f.fail )
+					xsltproc.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: jarsigner' )
-					jarsigner.checkPrerequisite( environmentConfig, f.next, f.fail )
+					jarsigner.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: ant' )
-					ant.checkPrerequisite( environmentConfig, f.next, f.fail )
+					ant.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: zipalign' )
-					zipalign.checkPrerequisite( environmentConfig, f.next, f.fail )
+					zipalign.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
                     console.log( '[spellcli] Checking prerequisite: spellCore build' )

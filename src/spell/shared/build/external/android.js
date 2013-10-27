@@ -5,6 +5,7 @@ define(
 
 		'fs',
 		'path',
+		'os',
 		'child_process',
 
 		'spell/shared/build/spawnChildProcess'
@@ -13,46 +14,64 @@ define(
 		java,
 		fs,
 		path,
+		os,
+
 		child_process,
 		spawnChildProcess
 	) {
 		'use strict'
 
 		var getAndroidToolPath = function( environmentConfig ) {
-			var androidPath = path.resolve( environmentConfig.androidSdkPath, 'tools', 'android' )
+			var androidPath = path.resolve( environmentConfig.androidSdkPath, 'tools', os.platform() == 'win32' ? 'android.bat' : 'android' )
 			return androidPath
+		}
+
+		var checkPrerequisite = function( environmentConfig, successCb, failCb, autoFail) {
+			var androidToolPath = getAndroidToolPath( environmentConfig )
+
+			if( !fs.existsSync( androidToolPath ) ) {
+				failCb( 'Could not find android-sdk/tools/android in ' + androidToolPath )
+				return
+			}
+
+			child_process.exec(
+				androidToolPath + ' list',
+				function( error, stdout, stderr ) {
+					if( error !== null ) {
+						failCb( error )
+						return
+					}
+
+					if( stdout.toString().match( /android-15/g ) ) {
+						successCb( error, stdout.toString() )
+						return
+
+					} else {
+
+						if( autoFail ) {
+							failCb(
+								'Android API level 15 is not installed in your local android sdk. Please run the android tool and install it.',
+								stdout.toString()
+							)
+							return
+
+						} else {
+							console.log( '[spellcli] android sdk installed, but missing api level 15. Installing it now...' )
+
+							child_process.exec(
+								'echo y | ' + androidToolPath + ' update sdk -u -a --filter android-15,platform-tools,build-tools-18.1.1',
+								function( error, stdout, stderr ) {
+									checkPrerequisite( environmentConfig, successCb, failCb, true)
+								})
+						}
+					}
+				}
+			)
 		}
 
 
 		return {
-			checkPrerequisite: function( environmentConfig, successCb, failCb ) {
-				if( !environmentConfig || !environmentConfig.androidSdkPath ) {
-					failCb(
-						'Could not find androidSdk. Check your Android SDK path.'
-					)
-
-					return
-				}
-
-				child_process.exec(
-					getAndroidToolPath( environmentConfig ) + ' list',
-					function( error, stdout, stderr ) {
-						if( error !== null ) {
-							failCb( error )
-						}
-
-						if( stdout.toString().match( /android-15/g ) ) {
-							successCb( error, stdout.toString() )
-
-						} else {
-							failCb(
-								'Android API level 15 is not installed in your local android sdk. Please run the android tool manually and install it.',
-								stdout.toString()
-							)
-						}
-					}
-				)
-			},
+			checkPrerequisite: checkPrerequisite,
 
 			run: function( environmentConfig, argv, cwd, next) {
 				spawnChildProcess(

@@ -483,11 +483,11 @@ define(
 					this,
 					function() {
 						console.log( '[spellcli] Checking prerequisite: java' )
-						java.checkPrerequisite( this.environmentConfig, f.next, f.fail )
+						java.checkPrerequisite( this.environmentConfig, f.wait(), f.fail )
 					},
 					function() {
 						console.log( '[spellcli] Checking prerequisite: mxmlc' )
-						mxmlc.checkPrerequisite( this.environmentConfig, f.next, f.fail )
+						mxmlc.checkPrerequisite( this.environmentConfig, f.wait(), f.fail )
 					},
 					function() {
 						build(
