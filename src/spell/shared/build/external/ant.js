@@ -45,6 +45,8 @@ define(
 				if( os.platform() == "win32" ) {
 
 					resolveWindowsShortName( antPath, function( resolvedAntPath ) {
+						console.log('[spellcli] Using resolved windows short path ' + resolvedAntPath )
+
 						spawnChildProcess(
 							resolvedAntPath,
 							argv,
