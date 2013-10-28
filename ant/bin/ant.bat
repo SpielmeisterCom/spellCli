@@ -1,5 +1,8 @@
 @echo off
 
+REM  Fix: Rewrite JAVA_HOME Path on Windows (use shortpath)
+for %%x in ("%JAVA_HOME%") do set JAVA_HOME=%%~sx
+
 REM  Licensed to the Apache Software Foundation (ASF) under one or more
 REM  contributor license agreements.  See the NOTICE file distributed with
 REM  this work for additional information regarding copyright ownership.
