@@ -371,13 +371,25 @@ define(
 				function() {
 					var sdkDir = environmentConfig.androidSdkPath || ""
 
-					var antParameters = [
-						debug ? 'debug' : 'release',
-						'-Dsdk.dir="' + sdkDir + '"'
-					]
+					var runAnt = function ( dir ) {
+						var antParameters = [
+							debug ? 'debug' : 'release',
+							'-Dsdk.dir=' + dir
+						]
 
-					console.log( '[spellcli] Running ant ' + antParameters.join(' ') + ' in ' + tmpProjectPath )
-					ant.run( environmentConfig, antParameters, tmpProjectPath, f.wait() )
+						console.log( '[spellcli] ant ' + antParameters.join(' ') )
+
+						ant.run( environmentConfig, antParameters, tmpProjectPath, f.wait() )
+					}
+
+					if( os.platform() == "win32" ) {
+						resolveWindowsShortDirectoryName( sdkDir, function( resolvedSdkDir ) {
+							runAnt( resolvedSdkDir )
+						})
+
+					} else {
+						runAnt( sdkDir )
+					}
 
 				},
 				function() {
