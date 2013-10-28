@@ -39,7 +39,7 @@ define(
 			run: function( environmentConfig, argv, cwd, next ) {
 				// build the android project
 				spawnChildProcess(
-					getAntPath( environmentConfig ),
+					'"' + getAntPath( environmentConfig ) + '"',
 					argv,
 					java.getProcessEnv( environmentConfig, cwd ),
 					true,
