@@ -12,6 +12,7 @@ define(
 		'spell/shared/build/spawnChildProcess',
 		'spell/shared/util/createModuleId',
 		'spell/shared/util/hashModuleId',
+		'spell/shared/build/resolveWindowsShortDirectoryName',
 
 		'spell/shared/build/external/java',
 		'spell/shared/build/external/javac',
@@ -42,6 +43,7 @@ define(
 		spawnChildProcess,
 		createModuleId,
 		hashModuleId,
+		resolveWindowsShortDirectoryName,
 
 		java,
 		javac,
