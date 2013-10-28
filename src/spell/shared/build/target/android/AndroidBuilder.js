@@ -371,7 +371,7 @@ define(
 				function() {
 					var antParameters = [
 						debug ? 'debug' : 'release',
-						'-Dsdk.dir=' + environmentConfig.androidSdkPath
+						'-Dsdk.dir="' + environmentConfig.androidSdkPath + '"'
 					]
 
 					console.log( '[spellcli] Running ant ' + antParameters.join(' ') + ' in ' + tmpProjectPath )
