@@ -37,16 +37,16 @@ define(
 			},
 
 			run: function( environmentConfig, argv, cwd, next ) {
-				var env = java.getProcessEnv( environmentConfig, cwd )
+				var processEnv = java.getProcessEnv( environmentConfig, cwd )
 
 				//add ant directory to path
-				env.PATH = env.PATH + path.delimiter + '"' + path.join( environmentConfig.spellCliPath, 'ant', 'bin' ) + '"'
+				processEnv.env.PATH = processEnv.env.PATH + path.delimiter + '"' + path.join( environmentConfig.spellCliPath, 'ant', 'bin' ) + '"'
 
 				// build the android project
 				spawnChildProcess(
 					os.platform() == "win32" ? 'ant.bat' : 'ant',
 					argv,
-					env,
+					processEnv,
 					true,
 					next
 				)
