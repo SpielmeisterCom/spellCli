@@ -375,28 +375,25 @@ define(
 					)
 				},
 				function() {
+					//resolve sdk directory
 					var sdkDir = environmentConfig.androidSdkPath || ""
 
-					var runAnt = function ( dir ) {
-						var antParameters = [
-							debug ? 'debug' : 'release',
-							'-Dsdk.dir=' + dir
-						]
-
-						console.log( '[spellcli] ant ' + antParameters.join(' ') )
-
-						ant.run( environmentConfig, antParameters, tmpProjectPath, f.wait() )
-					}
-
 					if( os.platform() == "win32" ) {
-						resolveWindowsShortDirectoryName( sdkDir, function( resolvedSdkDir ) {
-							runAnt( resolvedSdkDir )
-						})
-
+						resolveWindowsShortDirectoryName( sdkDir, f.slotPlain() )
 					} else {
-						runAnt( sdkDir )
+						f.pass( sdkDir )
 					}
 
+				},
+				function( sdkDir ) {
+					var antParameters = [
+						debug ? 'debug' : 'release',
+						'-Dsdk.dir=' + sdkDir
+					]
+
+					console.log( '[spellcli] ant ' + antParameters.join(' ') )
+
+					ant.run( environmentConfig, antParameters, tmpProjectPath, f.wait() )
 				},
 				function() {
 					if( !debug && hasSigningSettings ) {
