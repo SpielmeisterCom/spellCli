@@ -15,8 +15,7 @@ define(
 
 			if(  command.match( /\.bat$/ ) && os.platform() == "win32" ) {
 				//we need to run the shell on windows in order to run the batch file
-
-				args.unshift( '"' + command + '"' )
+				args.unshift( command )
 				args.unshift( '/c' )
 
 				command = process.env.COMSPEC

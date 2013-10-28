@@ -6,6 +6,7 @@ define(
 		'fs',
 		'os',
 		'path',
+		'spell/shared/build/resolveWindowsShortName',
 		'spell/shared/build/spawnChildProcess'
 	],
 	function(
@@ -13,6 +14,7 @@ define(
 		fs,
 		os,
 		path,
+		resolveWindowsShortName,
 		spawnChildProcess
 	) {
 		'use strict'
@@ -37,16 +39,30 @@ define(
 			},
 
 			run: function( environmentConfig, argv, cwd, next ) {
-				var processEnv = java.getProcessEnv( environmentConfig, cwd )
+				var processEnv = java.getProcessEnv( environmentConfig, cwd ),
+					antPath    = getAntPath( environmentConfig )
 
-				// build the android project
-				spawnChildProcess(
-					getAntPath( environmentConfig ),
-					argv,
-					processEnv,
-					true,
-					next
-				)
+				if( os.platform() == "win32" ) {
+
+					resolveWindowsShortName( antPath, function( resolvedAntPath ) {
+						spawnChildProcess(
+							resolvedAntPath,
+							argv,
+							processEnv,
+							true,
+							next
+						)
+					})
+
+				} else {
+					spawnChildProcess(
+						antPath,
+						argv,
+						processEnv,
+						true,
+						next
+					)
+				}
 
 			}
 		}
