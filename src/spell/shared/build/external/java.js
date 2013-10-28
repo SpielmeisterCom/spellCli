@@ -27,7 +27,7 @@ define(
 					JAVA_HOME : environmentConfig.jdkPath,
 					PATH:
 						process.env.PATH + path.delimiter +
-						path.join( environmentConfig.jdkPath, 'bin' )
+						'"' + path.join( environmentConfig.jdkPath, 'bin' ) + '"'
 				}
 			}
 		}
