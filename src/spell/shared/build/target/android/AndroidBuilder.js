@@ -396,38 +396,61 @@ define(
 					ant.run( environmentConfig, antParameters, tmpProjectPath, f.wait() )
 				},
 				function() {
-					if( !debug && hasSigningSettings ) {
-						var keyStorePath = path.resolve( projectPath, androidBuildSettings.signingKeyStore )
+					if( !debug ) {
+						if ( hasSigningSettings ) {
+							var keyStorePath = path.resolve( projectPath, androidBuildSettings.signingKeyStore),
+								parameters   = [
+									'-sigalg',    'MD5withRSA',
+									'-digestalg', 'SHA1',
+									'-keystore',  keyStorePath,
+									'-storepass', androidBuildSettings.signingKeyStorePass,
+									'-keypass',   androidBuildSettings.signingKeyPass,
+									'-signedjar', unalignedReleaseApkFile,
+									unsignedReleaseApkFile,
+									androidBuildSettings.signingKeyAlias
+							]
 
-						console.log( '[spellcli] Signing ' + unsignedReleaseApkFile + ' with key ' + androidBuildSettings.signingKeyAlias + ' from keyStore ' + keyStorePath )
+							console.log( '[spellcli] jarsigner ' + parameters.join(' ') )
 
-						jarsigner.run( environmentConfig, [
-							'-sigalg',    'MD5withRSA',
-							'-digestalg', 'SHA1',
-							'-keystore',  keyStorePath,
-							'-storepass', androidBuildSettings.signingKeyStorePass,
-							'-keypass',   androidBuildSettings.signingKeyPass,
-							'-signedjar', unalignedReleaseApkFile,
-							unsignedReleaseApkFile,
-							androidBuildSettings.signingKeyAlias
-						], tmpProjectPath, f.wait());
+							jarsigner.run( environmentConfig, parameters, tmpProjectPath, f.wait());
 
+						} else {
+							console.log( '[spellcli] missing signingSettings; skipping jarsigner step' )
+						}
 					}
 				},
 				function() {
-					if( !debug && hasSigningSettings ) {
-						console.log( '[spellcli] Aligning signed unaligned apk file ' + unalignedReleaseApkFile + ' and save it as ' + signedReleaseApkFile )
+					if( !debug ) {
+						if( hasSigningSettings ) {
+							var parameters = [
+								'-f', '-v', '4', unalignedReleaseApkFile, signedReleaseApkFile
+							]
 
-						zipalign.run( environmentConfig, [
-							'-f', '-v', '4', unalignedReleaseApkFile, signedReleaseApkFile
-						], tmpProjectPath, f.wait())
+							console.log( '[spellcli] zipalign ' + parameters.join( ' ' ) )
+
+							zipalign.run( environmentConfig, parameters, tmpProjectPath, f.wait())
+
+						} else {
+							console.log( '[spellcli] missing signingSettings; skipping zipalign step' )
+						}
 					}
 				},
 				function() {
-					var apkFileName = debug ? unsignedDebugApkFile : signedReleaseApkFile,
-						outputFile  = path.join( androidOutputPath, path.basename( apkFileName ) )
+					var apkFileName = ''
 
-					console.log( '[spellcli] Copying ' + apkFileName + ' into ' + outputFile )
+					if ( debug || hasSigningSettings ) {
+						apkFileName = debug ? unsignedDebugApkFile : signedReleaseApkFile
+					} else {
+						apkFileName = unsignedReleaseApkFile
+					}
+
+					var outputFile  = path.join( androidOutputPath, path.basename( apkFileName ) )
+
+					console.log( '[spellcli] cp ' + apkFileName + ' ' + outputFile )
+
+					if( !debug && !hasSigningSettings ) {
+						console.log( '[spellcli] No signing settings found, please sign ' + outputFile + ' manually' )
+					}
 
 					fsUtil.copyFile( apkFileName, outputFile )
 				},
