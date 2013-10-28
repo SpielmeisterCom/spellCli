@@ -39,7 +39,7 @@ define(
 			run: function( environmentConfig, argv, cwd, next ) {
 				// build the android project
 				spawnChildProcess(
-					os.platform() == "win32" ? 'ant.bat' : 'ant',
+					'ant',
 					argv,
 					java.getProcessEnv( environmentConfig, cwd ), //This will also set the path to ant
 					true,
