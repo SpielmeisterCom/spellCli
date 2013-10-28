@@ -48,8 +48,11 @@ define(
 				if( os.platform() == "win32" ) {
 
 					resolveWindowsShortDirectoryName( antPath, function( resolvedAntPath ) {
+						var windowsPath = path.join( resolvedAntPath, getAntExecutable( ) )
+
+						console.log('[spellcli] resolved ant path to ' + windowsPath)
 						spawnChildProcess(
-							path.join( resolvedAntPath, getAntExecutable( ) ),
+							windowsPath,
 							argv,
 							processEnv,
 							true,
