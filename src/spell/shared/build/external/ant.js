@@ -40,7 +40,7 @@ define(
 				var processEnv = java.getProcessEnv( environmentConfig, cwd )
 
 				//add ant directory to path
-				processEnv.env.PATH = processEnv.env.PATH + path.delimiter + '"' + path.join( environmentConfig.spellCliPath, 'ant', 'bin' ) + '"'
+				processEnv.env.PATH = processEnv.env.PATH + path.delimiter + path.join( environmentConfig.spellCliPath, 'ant', 'bin' )
 
 				// build the android project
 				spawnChildProcess(
