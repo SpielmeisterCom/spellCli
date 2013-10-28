@@ -18,7 +18,7 @@ define(
 				function( error, stdout, stderr ) {
 
 					if( error !== null ) {
-						callback( null )
+						callback( directoryName )
 						return
 					}
 
