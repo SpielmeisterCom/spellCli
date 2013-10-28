@@ -1,10 +1,12 @@
 define(
 	'spell/shared/build/spawnChildProcess',
 	[
-		'child_process'
+		'child_process',
+		'os'
 	],
 	function(
-		child_process
+		child_process,
+	    os
 	) {
 		'use strict'
 
