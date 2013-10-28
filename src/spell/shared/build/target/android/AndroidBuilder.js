@@ -369,9 +369,12 @@ define(
 					)
 				},
 				function() {
+					var sdkDir = environmentConfig.androidSdkPath || ""
+					sdkDir = sdkDir.replace(/ /g, "\\ ")
+
 					var antParameters = [
 						debug ? 'debug' : 'release',
-						'-Dsdk.dir="' + environmentConfig.androidSdkPath + '"'
+						'-Dsdk.dir=' + sdkDir + ''
 					]
 
 					console.log( '[spellcli] Running ant ' + antParameters.join(' ') + ' in ' + tmpProjectPath )
