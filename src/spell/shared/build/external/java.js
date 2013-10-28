@@ -25,7 +25,10 @@ define(
 				cwd : cwd,
 				env : {
 					JAVA_HOME : environmentConfig.jdkPath,
-					PATH: process.env.PATH + path.delimiter + '"' + path.join( environmentConfig.jdkPath, 'bin' ) + '"'
+					PATH:
+						process.env.PATH + path.delimiter +
+						'"' + path.join( environmentConfig.jdkPath, 'bin' ) + '"' + path.delimiter +
+						'"' + path.join( environmentConfig.spellCliPath, 'ant', 'bin' ) + '"'
 				}
 			}
 		}
