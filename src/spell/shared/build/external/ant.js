@@ -6,7 +6,7 @@ define(
 		'fs',
 		'os',
 		'path',
-		'spell/shared/build/resolveWindowsShortName',
+		'spell/shared/build/resolveWindowsShortDirectoryName',
 		'spell/shared/build/spawnChildProcess'
 	],
 	function(
@@ -14,24 +14,27 @@ define(
 		fs,
 		os,
 		path,
-		resolveWindowsShortName,
+		resolveWindowsShortDirectoryName,
 		spawnChildProcess
 	) {
 		'use strict'
 
 		var getAntPath = function( environmentConfig ) {
+			return path.join( environmentConfig.spellCliPath, 'ant', 'bin' )
+		}
 
-			return path.join( environmentConfig.spellCliPath, 'ant', 'bin', os.platform() == "win32" ? 'ant.bat' : 'ant' )
+		var getAntExecutable = function() {
+			return os.platform() == "win32" ? 'ant.bat' : 'ant'
 		}
 
 
 		return {
 
 			checkPrerequisite: function( environmentConfig, successCb, failCb ) {
-				var antPath = getAntPath( environmentConfig )
+				var antExecutable = path.join( getAntPath( environmentConfig ), getAntExecutable( ) )
 
-				if( !fs.existsSync( antPath ) ) {
-					failCb( 'Could not find ant in ' + antPath )
+				if( !fs.existsSync( antExecutable ) ) {
+					failCb( 'Could not find ant in ' + antExecutable )
 					return
 				}
 
@@ -44,11 +47,9 @@ define(
 
 				if( os.platform() == "win32" ) {
 
-					resolveWindowsShortName( antPath, function( resolvedAntPath ) {
-						console.log('[spellcli] Using resolved windows short path ' + resolvedAntPath )
-
+					resolveWindowsShortDirectoryName( antPath, function( resolvedAntPath ) {
 						spawnChildProcess(
-							resolvedAntPath,
+							path.join( resolvedAntPath, getAntExecutable( ) ),
 							argv,
 							processEnv,
 							true,
@@ -58,7 +59,7 @@ define(
 
 				} else {
 					spawnChildProcess(
-						antPath,
+						path.join( antPath, getAntExecutable( ) ),
 						argv,
 						processEnv,
 						true,
