@@ -11,7 +11,7 @@ define(
 
 		return function( directoryName, callback ) {
 			child_process.exec(
-				process.env.COMSPEC + '/c for %x in (.) do @echo %~sx',
+				process.env.COMSPEC + ' /c for %x in (.) do @echo %~sx',
 				{
 					cwd: directoryName
 				},
