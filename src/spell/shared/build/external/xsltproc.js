@@ -39,8 +39,6 @@ define(
 				cliParams.push( XslFile )
 				cliParams.push( sourceXmlFile )
 
-				console.log(cliParams.join(" "));
-
 				return cliParams
 			},
 

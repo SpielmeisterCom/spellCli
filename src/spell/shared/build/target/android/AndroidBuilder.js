@@ -243,38 +243,42 @@ define(
 					)
 				},
 				function() {
-					console.log( '[spellcli] Creating temporary android project in ' + tmpProjectPath + ' [name=' + name + ', package=' + buildOptions.package + ', activity=' + activity + ']' )
-
-					android.run( environmentConfig, [
+					var parameters = [
 						'create',     'project',
 						'--target',   ANDROID_TARGET,
 						'--name',     name,
 						'--path',     tmpProjectPath,
 						'--activity', activity,
 						'--package',  buildOptions.package
-					], tmpProjectPath, f.wait() )
+					]
+
+					console.log( '[spellcli] android ' + parameters.join(' ') )
+
+					android.run( environmentConfig, parameters, tmpProjectPath, f.wait() )
 
 				},
 				function() {
-					console.log( '[spellcli] Adding libtealeaf as dependency for the android project' )
-
-					android.run( environmentConfig, [
+					var parameters = [
 						'update',    'project',
 						'--target',  ANDROID_TARGET,
 						'--path',    tmpProjectPath,
 						'--library', '../TeaLeaf'
-					], tmpProjectPath, f.wait() )
+					]
+
+					console.log( '[spellcli] android ' + parameters.join(' ') )
+
+					android.run( environmentConfig, parameters, tmpProjectPath, f.wait() )
 
 				},
 				function() {
-					console.log( '[spellcli] Patching AndroidManifest.xml file' )
-
 					var xsltprocParameters = xsltproc.createXsltProcCliParams(
 						xslFile,
 						path.resolve( tmpProjectTealeafPath, 'AndroidManifest.xml' ),
 						path.resolve( tmpProjectPath, 'AndroidManifest.xml' ),
 						buildOptions
 					)
+
+					console.log( '[spellcli] xsltproc ' + xsltprocParameters.join( ' ' ) )
 
 					xsltproc.run( environmentConfig, xsltprocParameters, tmpProjectPath, f.wait() )
 
