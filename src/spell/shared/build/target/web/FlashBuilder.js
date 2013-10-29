@@ -422,7 +422,7 @@ define(
 
 			var componentScripts = loadAssociatedScriptModules( projectLibraryPath, library.component )
 
-			console.log( '[spellcli]  generating AS3 classes...' )
+			console.log( '[spellcli] generating AS3 classes...' )
 
 			var componentTypeDefinitions = createComponentTypeDefinitions( componentScripts )
 
