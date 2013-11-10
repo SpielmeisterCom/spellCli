@@ -13,6 +13,9 @@ define(
 		'spell/shared/util/createModuleId',
 		'spell/shared/util/hashModuleId',
 
+		'spell/shared/build/external/xcodebuild',
+		'spell/shared/build/external/xcrun',
+
 		'amd-helper',
 		'child_process',
 		'ff',
@@ -35,6 +38,9 @@ define(
 		createModuleId,
 		hashModuleId,
 
+		xcodebuild,
+		xcrun,
+
 		amdHelper,
 		child_process,
 		ff,
@@ -46,9 +52,27 @@ define(
 	)
 	{
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
+			var spellCorePath           = environmentConfig.spellCorePath,
+				spellAndroidPath        = environmentConfig.spelliOSPath,
+				iOSBuildSettings        = projectConfig.config.ios || {}
 
 
-			console.log('Building ios')
+			var f = ff(
+				function() {
+					//Set timeout for prerequisite check to 5s
+					f.timeout( 5000 )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: xcodebuild' )
+					xcodebuild.checkPrerequisite( environmentConfig, f.wait(), f.fail )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: xcrun' )
+					xcrun.checkPrerequisite( environmentConfig, f.wait(), f.fail )
+				}
+			).onError( function( message ) {
+				console.log( message )
+			})
 
 		}
 
