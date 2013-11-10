@@ -76,6 +76,46 @@ define(
 				},
 				function( SDKs ) {
 					console.log( SDKs )
+				},
+
+				//build app
+				function () {
+					var configurationName = debug ? 'Debug' : 'Release',
+						sdk = 'iphoneos6.1'
+
+					var params = [
+						'-target',
+						iOSBuildSettings.bundleID,
+						'-sdk',
+						sdk,
+						'-configuration',
+						configurationName,
+						'-jobs',
+						8
+					]
+
+					//xcodebuild.run( environmentConfig, params, '', f.wait() )
+
+				},
+
+
+				//sign app
+				function () {
+					/*var args = [
+						'-sdk', 'iphoneos',
+						'PackageApplication',
+						'-v',
+						path.resolve(path.join(projectPath, 'build/'+configurationName+'-iphoneos/'+appName+'.app')),
+						'-o',
+						path.resolve(outputIPAPath),
+						'--sign',
+						'iPhone Developer: ' + developerName,
+						'--embed',
+						path.resolve(provisionPath)
+					]*/
+
+					//xcrun.run( environmentConfig, params, '', f.wait() )
+
 				}
 
 			).onError( function( message ) {
