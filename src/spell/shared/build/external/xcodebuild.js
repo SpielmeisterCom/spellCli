@@ -4,12 +4,14 @@ define(
 		'fs',
 		'path',
 		'os',
+		'child_process',
 		'spell/shared/build/spawnChildProcess'
 	],
 	function(
 		fs,
 		path,
 		os,
+		child_process,
 		spawnChildProcess
 		) {
 		'use strict'
@@ -26,6 +28,32 @@ define(
 				}
 
 				successCb()
+			},
+
+			getInstalledSdks: function( environmentConfig, successCb, failCb ) {
+				child_process.exec(
+					getXcodeBuildPath() + ' -version -sdk',
+					function( error, stdout, stderr ) {
+						var SDKs     = []
+
+						if( error !== null ) {
+							failCb()
+						}
+
+						var sdkstart = stdout.indexOf('iphoneos');
+
+						while (sdkstart != -1) {
+							var sdkend = stdout.indexOf(')', sdkstart);
+							var sdkstr = stdout.slice(sdkstart, sdkend);
+							SDKs.push(sdkstr);
+
+							sdkstart = stdout.indexOf('iphoneos', sdkend);
+						}
+						SDKs.sort().reverse();
+
+						successCb( SDKs )
+					}
+				)
 			},
 
 			run: function( environmentConfig, argv, cwd, next ) {

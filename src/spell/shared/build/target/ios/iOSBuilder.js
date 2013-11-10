@@ -69,7 +69,15 @@ define(
 				function() {
 					console.log( '[spellcli] Checking prerequisite: xcrun' )
 					xcrun.checkPrerequisite( environmentConfig, f.wait(), f.fail )
+				},
+				function() {
+					console.log( '[spellcli] Checking prerequisite: installed iphone sdk' )
+					xcodebuild.getInstalledSdks( environmentConfig, f.slot(), f.fail )
+				},
+				function( SDKs ) {
+					console.log( SDKs )
 				}
+
 			).onError( function( message ) {
 				console.log( message )
 			})
