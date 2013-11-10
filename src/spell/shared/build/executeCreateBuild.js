@@ -6,7 +6,9 @@ define(
 		'spell/shared/util/createModuleId',
 		'spell/shared/build/processSource',
 		'spell/shared/build/loadAssociatedScriptModules',
+		'spell/shared/build/target/ios/iOSBuilder',
 		'spell/shared/build/target/android/AndroidBuilder',
+		'spell/shared/build/target/tizen/TizenBuilder',
 		'spell/shared/build/target/web/WebBuilder',
 		'spell/shared/util/createCacheContent',
 		'spell/shared/util/createIdFromLibraryFilePath',
@@ -25,7 +27,9 @@ define(
 		createModuleId,
 		processSource,
 		loadAssociatedScriptModules,
+		iOSBuilder,
 		AndroidBuilder,
+		TizenBuilder,
 		WebBuilder,
 		createCacheContent,
 		createIdFromLibraryFilePath,
@@ -217,7 +221,7 @@ define(
 				)
 			)
 
-			var builderTypes = [ AndroidBuilder, WebBuilder ]
+			var builderTypes = [ AndroidBuilder, TizenBuilder, iOSBuilder, WebBuilder ]
 
 			//check project web build settings
 			if( target === 'web' && projectConfig.config.web ) {

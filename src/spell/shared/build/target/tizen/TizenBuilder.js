@@ -1,5 +1,5 @@
 define(
-	'spell/shared/build/target/ios/TizenBuilder',
+	'spell/shared/build/target/tizen/TizenBuilder',
 	[
 		'spell/shared/build/createBuilderType',
 		'spell/shared/build/createDataFileContent',
@@ -85,6 +85,6 @@ define(
 			}
 		}
 
-		return
+		return TizenBuilder
 	}
 )
