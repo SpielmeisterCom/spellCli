@@ -136,9 +136,8 @@ define(
 
 			var spellAndroidPath = environmentConfig.spellAndroidPath
 
-			var launchClientFile   = path.resolve( spellAndroidPath, 'launchClient.js' ),
-				tealeafDebugPath   = path.resolve( spellAndroidPath, 'debug', 'TeaLeaf' ),
-				tealeafReleasePath = path.resolve( spellAndroidPath, 'release', 'TeaLeaf' )
+			var launchClientFile = path.resolve( spellAndroidPath, 'launchClient.js' ),
+				tealeafPath      = path.resolve( spellAndroidPath, debug ? 'debug' : 'release', 'TeaLeaf' )
 
 			var buildOptions = createBuildOptions( debug, projectId, androidBuildSettings ),
 				name         = buildOptions.shortname,
@@ -164,7 +163,7 @@ define(
 				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
 				xslFile                 = path.join( spellAndroidPath, 'AndroidManifest.xsl' ),
-				androidManifestFile     = path.resolve( debug ? tealeafDebugPath : tealeafReleasePath, 'AndroidManifest.xml' )
+				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' )
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
 			emptyDirectory( tmpProjectPath )
@@ -233,7 +232,7 @@ define(
 				function() {
 					// copy the prebuild Tealeaf library into our temp directory
 					wrench.copyDirSyncRecursive(
-						debug ? tealeafDebugPath : tealeafReleasePath,
+						tealeafPath,
 						tmpProjectTealeafPath,
 						{
 							forceDelete : true,
