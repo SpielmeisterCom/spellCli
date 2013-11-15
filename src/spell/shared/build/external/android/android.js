@@ -1,5 +1,5 @@
 define(
-	'spell/shared/build/external/android',
+	'spell/shared/build/external/android/android',
 	[
 		'spell/shared/build/external/java',
 

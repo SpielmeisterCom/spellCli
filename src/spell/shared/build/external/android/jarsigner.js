@@ -1,5 +1,5 @@
 define(
-	'spell/shared/build/external/jarsigner',
+	'spell/shared/build/external/android/jarsigner',
 	[
 		'spell/shared/build/external/java',
 

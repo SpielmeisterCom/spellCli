@@ -16,11 +16,11 @@ define(
 
 		'spell/shared/build/external/java',
 		'spell/shared/build/external/javac',
-		'spell/shared/build/external/android',
+		'spell/shared/build/external/android/android',
 		'spell/shared/build/external/xsltproc',
-		'spell/shared/build/external/jarsigner',
+		'spell/shared/build/external/android/jarsigner',
 		'spell/shared/build/external/ant',
-		'spell/shared/build/external/zipalign',
+		'spell/shared/build/external/android/zipalign',
 
 		'amd-helper',
 		'child_process',

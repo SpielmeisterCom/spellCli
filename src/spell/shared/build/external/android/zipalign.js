@@ -1,5 +1,5 @@
 define(
-	'spell/shared/build/external/zipalign',
+	'spell/shared/build/external/android/zipalign',
 	[
 		'spell/shared/build/external/java',
 
