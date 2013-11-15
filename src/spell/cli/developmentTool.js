@@ -143,7 +143,7 @@ define(
 				process.exit( 1 )
 			}
 
-			var configKeys = [ 'androidSdkPath', 'jdkPath', 'spellAndroidPath', 'spelliOSPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
+			var configKeys = [ 'androidSdkPath', 'tizenSdkPath', 'jdkPath', 'spellAndroidPath', 'spelliOSPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
 
 			var result = {}
 
