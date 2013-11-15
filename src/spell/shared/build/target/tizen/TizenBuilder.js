@@ -13,6 +13,8 @@ define(
 		'spell/shared/util/createModuleId',
 		'spell/shared/util/hashModuleId',
 
+		'xmlbuilder',
+
 		'spell/shared/build/target/web/WebBuilder',
 
 		'spell/shared/build/external/tizen/web-packaging',
@@ -39,6 +41,8 @@ define(
 		spawnChildProcess,
 		createModuleId,
 		hashModuleId,
+
+		xmlbuilder,
 
 		WebBuilder,
 
@@ -103,12 +107,83 @@ define(
 						debug
 					)
 
+					builder.init()
 					builder.build( f.wait() )
 
 				},
 				function() {
+					console.log( '[spellcli] writing tizen config file' )
+
+					var features = [
+						'http://tizen.org/feature/screen.size.normal.720.1280',
+						'http://tizen.org/feature/screen.size.normal.480,800'
+					]
+
+					var privileges = [
+						'http://tizen.org/privilege/application.launch' //needed for openURL
+					]
+
+
+					var root = xmlbuilder.create()
+
+					var node = root.ele( 'widget', {
+						'xmlns'         : 'http://www.w3.org/ns/widgets',
+						'xmlns:tizen'   : 'http://tizen.org/ns/widgets',
+						'id'            : 'http://kaisergames.com',
+						'version'       : '1.0.1',
+						'viewmodes'     : 'fullscreen'
+					})
+					.ele( 'tizen:application', {
+						'id'                : 'M89SDclCRb.JungleChaos',
+						'package'           : 'M89SDclCRb',
+						'required_version'  : '2.2'
+
+					})
+					.up( )
+					.ele( 'author' ).txt( 'Kaisergames' )
+					.up( )
+					.ele( 'content', {
+						'src': 'index.html'
+					})
+					.up()
+					.ele( 'icon', {
+						'src': 'icon.png'
+					})
+					.up()
+					.ele( 'name').txt('Jungle Chaos')
+					.up()
+					.ele('tizen:setting', {
+						'screen-orientation'    :   'portrait',
+						'context-menu'          :   'enable',
+						'background-support'    :   'disable',
+						'encryption'            :   'disable',
+						'install-location'      :   'auto',
+						'hwkey-event'           :   'enable'
+					})
+					.up()
+
+					features.forEach( function( featureName ) {
+						node.ele( 'feature', {
+							'name': featureName
+						})
+					} )
+
+					privileges.forEach( function( privilegeName ) {
+						node.ele( 'tizen:privilege', {
+							'name': privilegeName
+						})
+					} )
+
+
+					var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+						xmlContent += root.toString( { pretty : true } )
+
+					fs.writeFileSync( path.join( tmpProjectPath, 'web', 'config.xml'), xmlContent )
+
+				},
+				function() {
 					//build wgt package
-					var cwd = path.resolve( tmpProjectPath, 'web' )
+					var cwd = path.join( tmpProjectPath, 'web' )
 
 					var argv = [
 						'-n',
@@ -122,8 +197,51 @@ define(
 					webPackaging.run( environmentConfig, argv, cwd,  f.wait() )
 				},
 				function() {
-					//sign wgt package
+					if( !debug ) {
+						var root = xmlbuilder.create()
 
+						var node = root.ele( 'profiles' )
+							.ele( 'profile', {
+								'name': 'release'
+							})
+							.ele( 'profileitem', {
+								'author'    : 'true',
+								'ca'        : 'path/to/ca.cer',
+								'key'       : 'path/to/key.p12',
+								'password'  : '',
+								'rootca'    : ''
+							})
+
+
+					}
+
+						//create signing profile
+					/*
+					<?xml version="1.0" encoding="UTF-8"?>
+						<profiles version="version">
+							<profile name="test">
+								<profileitem ca="C:\tizen-sdk\tools\certificate-generator\certificates\developer\tizen-developer-ca.cer"
+								distributor="0"
+								key="C:\tizen-sdk\tools\certificate-generator\test.p12"
+								password="t2wTorkLaeg=" rootca=""/>
+								<profileitem ca="C:\tizen-sdk\tools\certificate-generator\certificates\distributor\tizen-distributor-ca.cer"
+								distributor="1"
+								key="C:\tizen-sdk\tools\certificate-generator\certificates\distributor\tizen-distributor-signer.p12"
+								password="Vy63flx5JBMc5GA4iEf8oFy+8aKE7FX/+arrDcO4I5k=" rootca=""/>
+								<profileitem ca="" distributor="2" key="" password="xmEcrXPl1ss=" rootca=""/>
+							</profile>
+						</profiles>
+					*/
+				},
+				function() {
+					//sign wgt package
+					var cwd = path.join( tmpProjectPath, 'web' )
+
+					//var argv = [
+					//		'--profile',
+					//	'release:profiles.xml'
+					//]
+					//webSigning.run( environmentConfig, argv, cwd, f.wait() )
 				}
 
 			).onError( function( message ) {
