@@ -150,10 +150,10 @@ define(
 						'src': 'icon.png'
 					})
 					.up()
-					.ele( 'name').txt('Jungle Chaos')
+					.ele( 'name').txt( projectId ) //TODO: insert real name here
 					.up()
 					.ele('tizen:setting', {
-						'screen-orientation'    :   'portrait',
+						'screen-orientation'    :   'landscape', //portrait, auto-rotate
 						'context-menu'          :   'enable',
 						'background-support'    :   'disable',
 						'encryption'            :   'disable',
@@ -180,6 +180,19 @@ define(
 
 					fs.writeFileSync( path.join( tmpProjectPath, 'web', 'config.xml'), xmlContent )
 
+				},
+				function() {
+					//Copy icon
+					var srcPath = path.join( projectPath, 'resources', 'tizen', 'icon.png' ),
+						dstPath = path.join( tmpProjectPath, 'web', 'icon.png')
+
+					if( fs.existsSync( srcPath ) ) {
+						console.log( '[spellcli] cp ' + srcPath + ' ' + dstPath )
+						fsUtil.copyFile( srcPath, dstPath )
+
+					} else {
+						console.log( '[spellcli] WARN did not find icon in ' + srcPath )
+					}
 				},
 				function() {
 					//build wgt package
