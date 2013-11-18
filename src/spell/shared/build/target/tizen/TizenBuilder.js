@@ -63,8 +63,9 @@ define(
 
 			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
 				tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'tizen'),
-				unsignedDebugWgtFile    = path.join( tmpProjectPath, 'bin', projectId + '-debug-unsigned.wgt' ),
-				unsignedReleaseWgtFile  = path.join( tmpProjectPath, 'bin', projectId + '-release-unsigned.wgt'),
+				unsignedDebugWgtFile    = path.join( tmpProjectPath, projectId + '-debug-unsigned.wgt' ),
+				signedReleaseWgtFile    = path.join( tmpProjectPath, projectId + '-release-signed.wgt'),
+				tizenOutputPath         = path.join( outputPath, 'tizen' ),
 				tizenBuildSettings      = projectConfig.config.tizen || {}
 
 
@@ -84,6 +85,10 @@ define(
 				function() {
 					console.log( '[spellcli] Cleaning ' + tmpProjectPath )
 					emptyDirectory( tmpProjectPath )
+				},
+				function() {
+					console.log( '[spellcli] Cleaning ' + tizenOutputPath )
+					emptyDirectory( tizenOutputPath )
 				},
 				function() {
 					//Set timeout to 5 min
@@ -245,21 +250,6 @@ define(
 					}
 				},
 				function() {
-					//build wgt package
-					var cwd = path.join( tmpProjectPath, 'web' )
-
-					var argv = [
-						'-n',
-						'-o',
-						debug ? unsignedDebugWgtFile : unsignedReleaseWgtFile,
-						cwd
-					]
-
-					console.log( '[spellcli] web-package ' + argv.join(' ') )
-
-					webPackaging.run( environmentConfig, argv, cwd,  f.wait() )
-				},
-				function() {
 					if( !debug ) {
 						var root = xmlbuilder.create()
 
@@ -302,24 +292,54 @@ define(
 
 				},
 				function() {
-					//sign wgt package
-					var cwd             = path.join( tmpProjectPath, 'web'),
-						profilesPath    = path.join( tmpProjectPath, 'profiles.xml')
+					if( !debug ) {
 
-					var argv = [
+						//sign wgt package
+						var cwd             = path.join( tmpProjectPath, 'web'),
+							profilesPath    = path.join( tmpProjectPath, 'profiles.xml')
+
+						var argv = [
+							'--log',
+							'info',
 							'--nocheck',
 							'--profile',
-							'release:' + profilesPath
+							'release:' + profilesPath,
+							cwd
+						]
+
+						console.log( '[spellcli] web-signing ' + argv.join(' ') )
+
+						webSigning.run(
+							environmentConfig,
+							argv,
+							cwd,
+							f.wait()
+						)
+					}
+				},
+				function() {
+					//build wgt package
+					var cwd = path.join( tmpProjectPath, 'web' )
+
+					var argv = [
+						'-n',
+						'-o',
+						debug ? unsignedDebugWgtFile : signedReleaseWgtFile,
+						cwd
 					]
 
-					console.log( '[spellcli] web-signing ' + argv.join(' ') )
+					console.log( '[spellcli] web-packaging ' + argv.join(' ') )
 
-					webSigning.run(
-						environmentConfig,
-						argv,
-						cwd,
-						f.wait()
-					)
+					webPackaging.run( environmentConfig, argv, cwd,  f.wait() )
+				},
+				function() {
+					var wgtFile = debug ? unsignedDebugWgtFile : signedReleaseWgtFile
+
+					var outputFile  = path.join( tizenOutputPath, path.basename( wgtFile ) )
+
+					console.log( '[spellcli] cp ' + wgtFile + ' ' + outputFile )
+
+					fsUtil.copyFile( wgtFile, outputFile )
 				}
 
 			).onError( function( message ) {
