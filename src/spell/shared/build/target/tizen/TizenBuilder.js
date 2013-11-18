@@ -263,48 +263,63 @@ define(
 					if( !debug ) {
 						var root = xmlbuilder.create()
 
-						var node = root.ele( 'profiles' )
+						var node = root.ele( 'profiles', {
+								'version': '2.2'
+							} )
 							.ele( 'profile', {
 								'name': 'release'
 							})
 							.ele( 'profileitem', {
-								'author'    : 'true',
-								'ca'        : 'path/to/ca.cer',
-								'key'       : 'path/to/key.p12',
-								'password'  : '',
-								'rootca'    : ''
+								'ca'            : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/developer/tizen-developer-ca.cer',
+								'distributor'   : '0',
+								'key'           : '/srv/tizen-sdk-data/keystore/author/kaisergames.p12',
+								'password'      : 'gKlviz/O6bC8ovlo/PRRlw==',
+								'rootca'        : ''
+							})
+							.up( )
+							.ele( 'profileitem', {
+								'ca'            : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/distributor/tizen-distributor-ca.cer',
+								'distributor'   : '1',
+								'key'           : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/distributor/tizen-distributor-signer.p12',
+								'password'      : 'Vy63flx5JBMc5GA4iEf8oFy+8aKE7FX/+arrDcO4I5k=',
+								'rootca'        : ''
+							})
+							.up( )
+							.ele( 'profileitem', {
+								'ca'            : '',
+								'distributor'   : '2',
+								'key'           : '',
+								'password'      : 'xmEcrXPl1ss',
+								'rootca'        : ''
 							})
 
 
+						var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+						xmlContent += root.toString( { pretty : true } )
+
+						fs.writeFileSync( path.join( tmpProjectPath, 'profiles.xml'), xmlContent )
 					}
 
-						//create signing profile
-					/*
-					<?xml version="1.0" encoding="UTF-8"?>
-						<profiles version="version">
-							<profile name="test">
-								<profileitem ca="C:\tizen-sdk\tools\certificate-generator\certificates\developer\tizen-developer-ca.cer"
-								distributor="0"
-								key="C:\tizen-sdk\tools\certificate-generator\test.p12"
-								password="t2wTorkLaeg=" rootca=""/>
-								<profileitem ca="C:\tizen-sdk\tools\certificate-generator\certificates\distributor\tizen-distributor-ca.cer"
-								distributor="1"
-								key="C:\tizen-sdk\tools\certificate-generator\certificates\distributor\tizen-distributor-signer.p12"
-								password="Vy63flx5JBMc5GA4iEf8oFy+8aKE7FX/+arrDcO4I5k=" rootca=""/>
-								<profileitem ca="" distributor="2" key="" password="xmEcrXPl1ss=" rootca=""/>
-							</profile>
-						</profiles>
-					*/
 				},
 				function() {
 					//sign wgt package
-					var cwd = path.join( tmpProjectPath, 'web' )
+					var cwd             = path.join( tmpProjectPath, 'web'),
+						profilesPath    = path.join( tmpProjectPath, 'profiles.xml')
 
-					//var argv = [
-					//		'--profile',
-					//	'release:profiles.xml'
-					//]
-					//webSigning.run( environmentConfig, argv, cwd, f.wait() )
+					var argv = [
+							'--nocheck',
+							'--profile',
+							'release:' + profilesPath
+					]
+
+					console.log( '[spellcli] web-signing ' + argv.join(' ') )
+
+					webSigning.run(
+						environmentConfig,
+						argv,
+						cwd,
+						f.wait()
+					)
 				}
 
 			).onError( function( message ) {
