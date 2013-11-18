@@ -64,8 +64,8 @@ define(
 			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
 				tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'tizen'),
 				unsignedDebugWgtFile    = path.join( tmpProjectPath, 'bin', projectId + '-debug-unsigned.wgt' ),
-				unsignedReleaseWgtFile  = path.join( tmpProjectPath, 'bin', projectId + '-release-unsigned.wgt' )
-
+				unsignedReleaseWgtFile  = path.join( tmpProjectPath, 'bin', projectId + '-release-unsigned.wgt'),
+				tizenBuildSettings      = projectConfig.config.tizen || {}
 
 
 			var f = ff(
@@ -123,44 +123,94 @@ define(
 						'http://tizen.org/privilege/application.launch' //needed for openURL
 					]
 
+					var appId               = tizenBuildSettings.appId || 'M89SDclCRb.' + projectId ,
+						version             = tizenBuildSettings.version || '1.0.0',
+						name                = tizenBuildSettings.name || projectId,
+						screenOrientation   = projectConfig.config.orientation || 'auto-rotation',
+						identifier          = tizenBuildSettings.identifier || 'http://spelljs.com/' + projectId,
+						authorName          = '',
+						authorEmail         = '',
+						authorHref          = '',
+						description         = '',
+						licenseName         = '',
+						licenseHref         = ''
+
+
 
 					var root = xmlbuilder.create()
 
 					var node = root.ele( 'widget', {
 						'xmlns'         : 'http://www.w3.org/ns/widgets',
 						'xmlns:tizen'   : 'http://tizen.org/ns/widgets',
-						'id'            : 'http://kaisergames.com',
-						'version'       : '1.0.1',
+						'id'            : identifier,
+						'version'       : version,
 						'viewmodes'     : 'fullscreen'
 					})
+
 					.ele( 'tizen:application', {
-						'id'                : 'M89SDclCRb.JungleChaos',
-						'package'           : 'M89SDclCRb',
+						'id'                : appId,
+						'package'           : appId.split('.')[ 0 ],
 						'required_version'  : '2.2'
 
 					})
 					.up( )
-					.ele( 'author' ).txt( 'Kaisergames' )
-					.up( )
+
 					.ele( 'content', {
 						'src': 'index.html'
 					})
 					.up()
+
 					.ele( 'icon', {
 						'src': 'icon.png'
 					})
 					.up()
-					.ele( 'name').txt( projectId ) //TODO: insert real name here
+
+					.ele( 'name').txt( name )
 					.up()
+
 					.ele('tizen:setting', {
-						'screen-orientation'    :   'landscape', //portrait, auto-rotate
+						//Optional; viewport orientation lock (available values: portrait (default), landscape), auto-rotation
+						//If the system auto rotation setting is on, the Web application viewport orientation is changed accordingly by default.
+						'screen-orientation'    :   screenOrientation,
+
+						//Optional; context menu is displayed when the user clicks, for example, an image, text, or link (available values: enable (default), disable)
 						'context-menu'          :   'enable',
+
+						//Optional; application execution continues when it is moved to the background (available values enable, disable (default))
 						'background-support'    :   'disable',
+
+						//Optional; Web application resources (HTML, JavaScript, and CSS files) are stored encrypted (available values: enable, disable (default))
 						'encryption'            :   'disable',
+
+						//Optional; application installation location (available values: auto (default), internal-only, prefer-external)
 						'install-location'      :   'auto',
+
+						//Optional; a hardware key event is sent to the Web application when the user presses the hardware key (available values: enable (default), disable)
+						//If this option is enabled, the tizenhwkey custom event is sent to the Web application. The tizenhwkey event object has a keyName attribute
+						//(available values: menu and back).
 						'hwkey-event'           :   'enable'
 					})
 					.up()
+
+					if( authorName ) {
+						node = node.ele( 'author', {
+							'href': authorHref,
+							'email': authorEmail
+						} ).txt( authorName )
+						.up( )
+					}
+
+					if( description ) {
+						node = node.ele( 'description' ).txt( description )
+						.up( )
+					}
+
+					if( licenseName ) {
+						node = node.ele( 'license', {
+							'href': licenseHref
+						} ).txt( licenseName )
+						.up( )
+					}
 
 					features.forEach( function( featureName ) {
 						node.ele( 'feature', {
