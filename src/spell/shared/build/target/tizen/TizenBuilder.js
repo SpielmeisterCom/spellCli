@@ -63,8 +63,8 @@ define(
 
 			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
 				tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'tizen'),
-				unsignedDebugWgtFile    = path.join( tmpProjectPath, projectId + '-debug-unsigned.wgt' ),
-				signedReleaseWgtFile    = path.join( tmpProjectPath, projectId + '-release-signed.wgt'),
+				unsignedDebugWgtFile    = path.join( tmpProjectPath, projectId + '_debug_unsigned.wgt' ),
+				signedReleaseWgtFile    = path.join( tmpProjectPath, projectId + '_release_signed.wgt'),
 				tizenOutputPath         = path.join( outputPath, 'tizen' ),
 				tizenBuildSettings      = projectConfig.config.tizen || {}
 
