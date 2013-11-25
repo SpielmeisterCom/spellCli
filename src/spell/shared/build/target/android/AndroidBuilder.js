@@ -155,13 +155,13 @@ define(
 			// set up temporary android project
 			var tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'android', projectId ),
 				resourcesPath           = path.join( tmpProjectPath, 'assets', 'resources' ),
-				tmpProjectTealeafPath   = path.join( tmpProjectPath, '..', 'TeaLeaf'),
+				tmpProjectTealeafPath   = path.join( tmpProjectPath, '..', 'TeaLeaf' ),
 				androidOutputPath       = path.join( outputPath, 'android' ),
 				unsignedDebugApkFile    = path.join( tmpProjectPath, 'bin', name + '-debug.apk' ),
 				unsignedReleaseApkFile  = path.join( tmpProjectPath, 'bin', name + '-release-unsigned.apk' ),
 				unalignedReleaseApkFile = path.join( tmpProjectPath, 'bin', name + '-release-signed-unaligned.apk' ),
-				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk'),
-                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
+				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk' ),
+                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
 				xslFile                 = path.join( spellAndroidPath, 'AndroidManifest.xsl' ),
 				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' )
 
@@ -173,7 +173,7 @@ define(
 
 			var f = ff(
 				function() {
-					//Set timeout for prerequisite check to 5s
+					// set timeout for prerequisite check to 5s
 					f.timeout( 5000 )
 				},
 				function() {
@@ -212,7 +212,7 @@ define(
                     }
                 },
 				function() {
-					//check for all required files
+					// check for all required files
 					var requiredFiles = [
 						xslFile,
 						androidManifestFile,
@@ -226,7 +226,7 @@ define(
 					})
 				},
 				function() {
-					//Set timeout to 5 min
+					// set timeout to 5 min
 					f.timeout( 5 * 60 * 1000 )
 				},
 				function() {
@@ -267,7 +267,6 @@ define(
 					console.log( '[spellcli] android ' + parameters.join(' ') )
 
 					android.run( environmentConfig, parameters, tmpProjectPath, f.wait() )
-
 				},
 				function() {
 					var xsltprocParameters = xsltproc.createXsltProcCliParams(
@@ -280,7 +279,6 @@ define(
 					console.log( '[spellcli] xsltproc ' + xsltprocParameters.join( ' ' ) )
 
 					xsltproc.run( environmentConfig, xsltprocParameters, tmpProjectPath, f.wait() )
-
 				},
 				function() {
 					console.log( '[spellcli] Patching ' + activity + '.java' )
@@ -314,9 +312,8 @@ define(
 							)
 
 						} else {
-							console.log('[spellcli] WARN did not find icons in ' + srcPath )
+							console.log( '[spellcli] WARN did not find icons in ' + srcPath )
 						}
-
 					}
 				},
 				function() {
@@ -374,7 +371,7 @@ define(
 					)
 				},
 				function() {
-					//resolve sdk directory
+					// resolve sdk directory
 					var sdkDir = environmentConfig.androidSdkPath || ""
 
 					if( os.platform() == "win32" ) {
@@ -457,7 +454,7 @@ define(
 
 			).onError( function( message ) {
 					console.log( message )
-			})
+			} )
 		}
 
 		var TARGET_NAME    = 'android',
