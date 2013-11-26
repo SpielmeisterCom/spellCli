@@ -134,9 +134,9 @@ define(
 			console.log( 'Working on project directory "' + projectPath + '".' )
 		}
 
-		var createEnvironmentConfig = function( basePath, data ) {
+		var createEnvironmentConfig = function( basePath, environmentConfigFilePath ) {
 			try {
-				var rawConfig = JSON.parse( data )
+				var rawConfig = JSON.parse( fs.readFileSync( environmentConfigFilePath, 'utf8' ) )
 
 			} catch( e ) {
 				printErrors( 'Error: Parsing spell configuration file failed.' )
@@ -153,7 +153,7 @@ define(
 					var value = rawConfig[ key ]
 
 					if( value === undefined ) {
-						printErrors( 'Error: Invalid spell configuration file. Configuration option "' + key + '" is missing.' )
+						printErrors( 'Error: Invalid spell configuration file "' + environmentConfigFilePath + '". Configuration option "' + key + '" is missing.' )
 						process.exit( 1 )
 					}
 
@@ -347,9 +347,9 @@ define(
 				process.exit( 1 )
 			}
 
-			var environmentConfig = createEnvironmentConfig( basePath, fs.readFileSync( environmentConfigFilePath, 'utf8' ) ),
-				spellCorePath     = environmentConfig.spellCorePath,
-				licenseFilePath   = pathUtil.createConfigFilePath( basePath, APP_NAME, 'license.txt' )
+			var environmentConfig = createEnvironmentConfig( basePath, environmentConfigFilePath ),
+				spellCorePath   = environmentConfig.spellCorePath,
+				licenseFilePath = pathUtil.createConfigFilePath( basePath, APP_NAME, 'license.txt' )
 
 			// prepare argv array
 			if( argv.length < 3 ) {
