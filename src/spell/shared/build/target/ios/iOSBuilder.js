@@ -15,6 +15,7 @@ define(
 
 		'spell/shared/build/external/xcodebuild',
 		'spell/shared/build/external/xcrun',
+		'spell/shared/build/target/ios/XCodeProjectHelper',
 
 		'amd-helper',
 		'child_process',
@@ -41,6 +42,8 @@ define(
 		xcodebuild,
 		xcrun,
 
+		XcodeProjectHelper,
+
 		amdHelper,
 		child_process,
 		ff,
@@ -51,6 +54,9 @@ define(
 		wrench
 	)
 	{
+
+
+
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
             var projectId               = projectConfig.config.projectId || 'defaultProjectId',
                 spellCorePath           = environmentConfig.spellCorePath,
@@ -59,8 +65,12 @@ define(
                 iOSBuildSettings        = projectConfig.config.ios || {},
                 iOSBundleId             = iOSBuildSettings.bundleId ? iOSBuildSettings.bundleId : 'com.spelljs.' + projectId,
                 tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'iOS', projectId ),
+				projectFile             = path.join( tmpProjectPath, 'tealeaf', 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
+				plistFile               = path.join( tmpProjectPath, 'tealeaf', 'TeaLeafIOS-Info.plist'),
                 resourcesPath           = path.join( tmpProjectPath, 'assets', 'resources' ),
-                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ))
+                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
+	            iOSBuildSettings        = projectConfig.config.ios || {}
+
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
             emptyDirectory( tmpProjectPath )
@@ -99,7 +109,7 @@ define(
                     f.timeout( 5 * 60 * 1000 )
                 },
                 function() {
-                    // copy the prebuild Tealeaf library into our temp directory
+	                console.log( '[spellcli] cp -aR ' + tealeafPath + ' ' + tmpProjectPath )
                     wrench.copyDirSyncRecursive(
                         tealeafPath,
                         tmpProjectPath,
@@ -110,8 +120,23 @@ define(
                         }
                     )
                 },
+	            function() {
+		            var bundleId            = iOSBuildSettings.bundleId         || projectId
+
+		            console.log( '[spellcli] Patching Xcode project file ' + projectFile )
+		            XcodeProjectHelper.updateIOSProjectFile( projectFile, bundleId, f.wait() )
+	            },
+	            function() {
+		            var bundleId            = iOSBuildSettings.bundleId         || projectId,
+			            title               = iOSBuildSettings.title            || projectId,
+			            version             = iOSBuildSettings.version          || '1.0.0',
+			            screenOrientation   = projectConfig.config.orientation  || 'auto-rotation'
+
+			        console.log( '[spellcli] Patching plist file ' + plistFile )
+		            XcodeProjectHelper.updatePListFile( plistFile, bundleId, title, version, screenOrientation, f.wait() )
+	            },
                 function () {
-                    var params = [
+                    /*var params = [
                         '-target',
                         iOSBundleId,
 
@@ -131,7 +156,7 @@ define(
                         tmpProjectPath,
                         f.wait()
                     )
-
+*/
                 }
 
 
