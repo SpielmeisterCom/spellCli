@@ -1,8 +1,10 @@
 {
 	"androidSdkPath": "",
+	"tizenSdkPath": "",
 	"spellAndroidPath": "",
 	"jdkPath": "",
 	"spellCliPath": ".",
 	"spellCorePath": "../spellCore/build",
-	"spellFlashPath": "../spellFlash/build"
+	"spellFlashPath": "../spellFlash/build",
+	"spelliOSPath": "../spelliOS/build"
 }
