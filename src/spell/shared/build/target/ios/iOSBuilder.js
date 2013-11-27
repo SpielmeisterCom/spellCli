@@ -64,9 +64,10 @@ define(
                 tealeafPath             = path.resolve( spelliOSPath, debug ? 'debug' : 'release', 'tealeaf' ),
                 iOSBuildSettings        = projectConfig.config.ios || {},
                 iOSBundleId             = iOSBuildSettings.bundleId ? iOSBuildSettings.bundleId : 'com.spelljs.' + projectId,
-                tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'iOS', projectId ),
+                tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'ios', projectId ),
 				projectFile             = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
 				plistFile               = path.join( tmpProjectPath, 'TeaLeafIOS-Info.plist'),
+                configFile              = path.join( tmpProjectPath, 'resources', 'config.plist'),
                 resourcesPath           = path.join( tmpProjectPath, 'assets', 'resources' ),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ))
 
@@ -77,7 +78,7 @@ define(
             var f = ff(
                 function() {
                     //Set timeout for prerequisite check to 5s
-                    f.timeout( 5000 )
+                    f.timeout( 10000 )
                 },
                 function() {
                     console.log( '[spellcli] Checking prerequisite: spellCore build' )
@@ -131,6 +132,34 @@ define(
 			        console.log( '[spellcli] Patching plist file ' + plistFile )
 		            XcodeProjectHelper.updatePListFile( plistFile, iOSBundleId, title, version, screenOrientation, f.wait() )
 	            },
+                function() {
+                    console.log( '[spellcli] Writing config file ' + configFile )
+                    XcodeProjectHelper.createConfigFile(
+                        configFile,
+                        {
+                            remote_loading: 'false',
+                            tcp_port: 4747,
+                            code_port: 9201,
+                            screen_width: 480,
+                            screen_height: 800,
+                            code_host: 'localhost',
+                            entry_point: 'gc.native.launchClient',
+                            app_id: "example.appid",
+                            tcp_host: 'localhost',
+                            source_dir: '/',
+                            game_hash: "ios",
+                            sdk_hash: "ios",
+                            native_hash: "ios",
+                            code_path: 'native.js',
+                            studio_name: "example.studio",
+
+                            apple_id: "example.appleid",
+                            bundle_id: "example.bundle",
+                            version: "1.0"
+                        },
+                        f.wait()
+                   )
+                },
                 function () {
                     var params = [
                         '-target',

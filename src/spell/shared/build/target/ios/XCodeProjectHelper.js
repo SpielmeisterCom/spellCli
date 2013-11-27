@@ -143,9 +143,18 @@ define(
             })
         }
 
+        var createConfigFile = function( configPath, configOptions, next ) {
+            fs.writeFile(
+                configPath,
+                plist.build( configOptions ).toString(),
+                next
+            )
+        }
+
 		return {
-			updateIOSProjectFile: updateIOSProjectFile,
-			updatePListFile: updatePListFile
+			updateIOSProjectFile:   updateIOSProjectFile,
+			updatePListFile:        updatePListFile,
+            createConfigFile:       createConfigFile
 		}
 
 	}
