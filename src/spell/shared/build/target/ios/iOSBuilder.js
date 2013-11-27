@@ -13,8 +13,8 @@ define(
 		'spell/shared/util/createModuleId',
 		'spell/shared/util/hashModuleId',
 
-		'spell/shared/build/external/xcodebuild',
-		'spell/shared/build/external/xcrun',
+		'spell/shared/build/external/ios/xcodebuild',
+		'spell/shared/build/external/ios/xcrun',
 		'spell/shared/build/target/ios/XCodeProjectHelper',
 
 		'amd-helper',
@@ -65,11 +65,10 @@ define(
                 iOSBuildSettings        = projectConfig.config.ios || {},
                 iOSBundleId             = iOSBuildSettings.bundleId ? iOSBuildSettings.bundleId : 'com.spelljs.' + projectId,
                 tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'iOS', projectId ),
-				projectFile             = path.join( tmpProjectPath, 'tealeaf', 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
-				plistFile               = path.join( tmpProjectPath, 'tealeaf', 'TeaLeafIOS-Info.plist'),
+				projectFile             = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
+				plistFile               = path.join( tmpProjectPath, 'TeaLeafIOS-Info.plist'),
                 resourcesPath           = path.join( tmpProjectPath, 'assets', 'resources' ),
-                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
-	            iOSBuildSettings        = projectConfig.config.ios || {}
+                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ))
 
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
@@ -121,22 +120,19 @@ define(
                     )
                 },
 	            function() {
-		            var bundleId            = iOSBuildSettings.bundleId         || projectId
-
 		            console.log( '[spellcli] Patching Xcode project file ' + projectFile )
-		            XcodeProjectHelper.updateIOSProjectFile( projectFile, bundleId, f.wait() )
+		            XcodeProjectHelper.updateIOSProjectFile( projectFile, iOSBundleId, f.wait() )
 	            },
 	            function() {
-		            var bundleId            = iOSBuildSettings.bundleId         || projectId,
-			            title               = iOSBuildSettings.title            || projectId,
+		            var title               = iOSBuildSettings.title            || projectId,
 			            version             = iOSBuildSettings.version          || '1.0.0',
 			            screenOrientation   = projectConfig.config.orientation  || 'auto-rotation'
 
 			        console.log( '[spellcli] Patching plist file ' + plistFile )
-		            XcodeProjectHelper.updatePListFile( plistFile, bundleId, title, version, screenOrientation, f.wait() )
+		            XcodeProjectHelper.updatePListFile( plistFile, iOSBundleId, title, version, screenOrientation, f.wait() )
 	            },
                 function () {
-                    /*var params = [
+                    var params = [
                         '-target',
                         iOSBundleId,
 
@@ -156,7 +152,6 @@ define(
                         tmpProjectPath,
                         f.wait()
                     )
-*/
                 }
 
 

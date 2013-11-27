@@ -14,7 +14,24 @@ define(
 		var DEFAULT_IOS_PRODUCT = 'TeaLeafIOS';
 		var NAMES_TO_REPLACE = /(PRODUCT_NAME)|(name = )|(productName = )/;
 
-		var updateIOSProjectFile = function( projectFile, supportedOrientations, next ) {
+        var removeKeysForObjects = function(parentObject, objects, keys) {
+            for (var ii = 0; ii < objects.length; ++ii) {
+                var objectName = objects[ii];
+                var obj = parentObject[objectName];
+
+                for (var jj = 0; jj < keys.length; ++jj) {
+                    var key = keys[jj];
+
+                    var index = obj.indexOf(key);
+
+                    if (index !== -1) {
+                        obj.splice(index, 1);
+                    }
+                }
+            }
+        }
+
+		var updateIOSProjectFile = function( projectFile, bundleID , next ) {
 
 			fs.readFile( projectFile, 'utf8', function(err, data) {
 
@@ -54,80 +71,77 @@ define(
 
 		var updatePListFile = function( plistFilePath, bundleID, title, version, supportedOrientations, next ) {
 
-			var f = ff(this, function() {
-				fs.readFile( plistFilePath, 'utf8', f() )
+            fs.readFile( plistFilePath, 'utf8', function(err, data) {
 
-			}, function( data ) {
+                if (err) {
+                    next(err)
 
-				var contents = plist.parseStringSync( data )
+                } else {
 
-				// Remove unsupported modes
-				if( supportedOrientations.indexOf("landscape") == -1 ) {
-					removeKeysForObjects(contents, ["UISupportedInterfaceOrientations", "UISupportedInterfaceOrientations~ipad"],
-						["UIInterfaceOrientationLandscapeRight", "UIInterfaceOrientationLandscapeLeft"]);
-				}
+                    var contents = plist.parseStringSync( data )
 
-				if ( supportedOrientations.indexOf("portrait") == -1 ) {
-					removeKeysForObjects(contents, ["UISupportedInterfaceOrientations", "UISupportedInterfaceOrientations~ipad"],
-						["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown"]);
-				}
+                    // Remove unsupported modes
+                    if( supportedOrientations.indexOf("landscape") == -1 ) {
+                        removeKeysForObjects(contents, ["UISupportedInterfaceOrientations", "UISupportedInterfaceOrientations~ipad"],
+                            ["UIInterfaceOrientationLandscapeRight", "UIInterfaceOrientationLandscapeLeft"]);
+                    }
 
-				contents.CFBundleShortVersionString = version
+                    if ( supportedOrientations.indexOf("portrait") == -1 ) {
+                        removeKeysForObjects(contents, ["UISupportedInterfaceOrientations", "UISupportedInterfaceOrientations~ipad"],
+                            ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown"]);
+                    }
 
-				// If RenderGloss enabled,
-				/*if (manifest.ios.icons && manifest.ios.icons.renderGloss) {
-					// Note: Default is for Xcode to render it for you
-					logger.log("RenderGloss: Removing pre-rendered icon flag");
-					delete contents.UIPrerenderedIcon;
-					//delete contents.CFBundleIcons.CFBundlePrimaryIcon.UIPrerenderedIcon;
-				}*/
+                    contents.CFBundleShortVersionString = version
 
-				contents.CFBundleDisplayName    = title
-				contents.CFBundleIdentifier     = bundleID
-				contents.CFBundleName           = bundleID
+                    // If RenderGloss enabled,
+                    /*if (manifest.ios.icons && manifest.ios.icons.renderGloss) {
+                        // Note: Default is for Xcode to render it for you
+                        logger.log("RenderGloss: Removing pre-rendered icon flag");
+                        delete contents.UIPrerenderedIcon;
+                        //delete contents.CFBundleIcons.CFBundlePrimaryIcon.UIPrerenderedIcon;
+                    }*/
 
-				// For each URLTypes array entry,
-				var found = 0;
-				for (var ii = 0; ii < contents.CFBundleURLTypes.length; ++ii) {
-					var obj = contents.CFBundleURLTypes[ii];
+                    contents.CFBundleDisplayName    = title
+                    contents.CFBundleIdentifier     = bundleID
+                    contents.CFBundleName           = bundleID
 
-					// If it's the URLName one,
-					if (obj.CFBundleURLName) {
-						obj.CFBundleURLName = bundleID
-						++found
-					}
+                    // For each URLTypes array entry,
+                    var found = 0;
+                    for (var ii = 0; ii < contents.CFBundleURLTypes.length; ++ii) {
+                        var obj = contents.CFBundleURLTypes[ii];
 
-					// If it's the URLSchemes one,
-					if (obj.CFBundleURLSchemes) {
-						// Note this blows away all the array entries
-						obj.CFBundleURLSchemes = [bundleID]
-						++found
-					}
-				}
+                        // If it's the URLName one,
+                        if (obj.CFBundleURLName) {
+                            obj.CFBundleURLName = bundleID
+                            ++found
+                        }
 
-				if( found != 2 ) {
-					throw new Error("Unable to update URLTypes")
-				}
+                        // If it's the URLSchemes one,
+                        if (obj.CFBundleURLSchemes) {
+                            // Note this blows away all the array entries
+                            obj.CFBundleURLSchemes = [bundleID]
+                            ++found
+                        }
+                    }
 
-				/*installAddonsPList(builder, {
-					contents: contents,
-					addonConfig: opts.addonConfig,
-					manifest: opts.manifest
-				}, f())
-				*/
+                    if( found != 2 ) {
+                        throw new Error("Unable to update URLTypes")
+                    }
 
-			}, function(contents) {
+                    /*installAddonsPList(builder, {
+                        contents: contents,
+                        addonConfig: opts.addonConfig,
+                        manifest: opts.manifest
+                    }, f())
+                    */
 
-				fs.writeFile(plistFilePath, plist.build(contents).toString(), f());
 
-			}).error(function(err) {
-
-					console.log("[spellcli] Failure while updating PList file:", err, err.stack);
-					process.exit(1)
-
-			}).cb(next)
-		}
-
+                    fs.writeFile( plistFilePath, plist.build(contents).toString(), 'utf8', function(err) {
+                        next(err)
+                    })
+                }
+            })
+        }
 
 		return {
 			updateIOSProjectFile: updateIOSProjectFile,
