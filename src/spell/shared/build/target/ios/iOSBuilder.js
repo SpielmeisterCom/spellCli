@@ -68,9 +68,9 @@ define(
 				projectFile             = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
 				plistFile               = path.join( tmpProjectPath, 'TeaLeafIOS-Info.plist'),
                 configFile              = path.join( tmpProjectPath, 'resources', 'config.plist'),
-                resourcesPath           = path.join( tmpProjectPath, 'assets', 'resources' ),
-                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ))
-
+                resourcesPath           = path.join( tmpProjectPath, 'resources', 'resources.bundle' ),
+                spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
+                launchClientFile        = path.resolve( spelliOSPath, 'launchClient.js' )
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
             emptyDirectory( tmpProjectPath )
@@ -159,6 +159,37 @@ define(
                         },
                         f.wait()
                    )
+                },
+                function() {
+                    console.log( '[spellcli] Populating ' + resourcesPath + ' with SpellJS project resources' )
+
+                    // copy project library directory
+                    var libraryResourcesPath = path.join( resourcesPath, 'library' ),
+                        spelljsResourcesPath = path.join( resourcesPath, 'spelljs' )
+
+                    fsUtil.copyFile(
+                        launchClientFile,
+                        path.join( resourcesPath, 'native.js' )
+                    )
+
+                    // create application module and engine library file
+                    wrench.mkdirSyncRecursive( spelljsResourcesPath )
+
+                    writeFile(
+                        path.join( spelljsResourcesPath, 'data.js.mp3' ),
+                        createDataFileContent( scriptSource, cacheContent, projectConfig )
+                    )
+
+                    fsUtil.copyFile(
+                        spellEngineFile,
+                        path.join( spelljsResourcesPath, 'spell.js.mp3' )
+                    )
+
+                    fsUtil.copyFiles(
+                        projectLibraryPath,
+                        libraryResourcesPath,
+                        createProjectLibraryFilePaths( projectLibraryPath, true )
+                    )
                 },
                 function () {
                     var params = [
