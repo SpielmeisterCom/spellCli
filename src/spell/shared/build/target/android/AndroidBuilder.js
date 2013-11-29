@@ -86,8 +86,7 @@ define(
 			)
 		}
 
-
-		var createBuildOptions = function( debug, projectId, androidBuildSettings ) {
+		var createBuildOptions = function( debug, projectId, projectConfig, androidBuildSettings ) {
 			return {
 				/**
 				 * A package name must be constitued of two Java identifiers.
@@ -105,7 +104,7 @@ define(
 				'debuggable'      : debug ? 'true' : 'false',
 				'develop'         : debug ? 'true' : 'false',
 
-				'orientation'     : androidBuildSettings.orientation ? androidBuildSettings.orientation : 'landscape',
+				'orientation'     : projectConfig.config.orientation ? projectConfig.config.orientation : 'landscape',
 
 				// unused parameters
 				'appid'           : '',
@@ -125,6 +124,116 @@ define(
 			}
 		}
 
+		var createAddonDescriptions = function( addonBasePath, platform ) {
+			return _.reduce(
+				fs.readdirSync( addonBasePath ),
+				function( memo, addonName ) {
+					var addonPath           = path.join( addonBasePath, addonName, platform ),
+						addonConfigFilePath = path.join( addonPath, 'config.json' )
+
+					if( !fs.existsSync( addonConfigFilePath ) ) return
+
+					var configData = fs.readFileSync( addonConfigFilePath, 'utf-8' )
+
+					var addonDescription = {
+						config : JSON.parse( configData ),
+						name : addonName,
+						path : addonPath
+					}
+
+					return memo.concat( addonDescription )
+				},
+				[]
+			)
+		}
+
+		var getTextBetween = function( text, startToken, endToken ) {
+			var start = text.indexOf( startToken ),
+				end   = text.indexOf( endToken )
+
+			if( start == -1 || end == -1 ) {
+				return ''
+			}
+
+			var offset     = text.substring( start ).indexOf( '\n' ),
+				afterStart = start + offset
+
+			return text.substring( afterStart, end )
+		}
+
+		var appendBetween = function( startToken, endToken, targetXmlData, injectionXmlData ) {
+			var startIndex = targetXmlData.indexOf( startToken ),
+				endIndex   = targetXmlData.indexOf( endToken )
+
+			if( startIndex == -1 || endIndex == -1 ) {
+				return targetXmlData
+			}
+
+			var prefixEndIndex    = startIndex + startToken.length,
+				postfixStartIndex = endIndex,
+				infixStartIndex   = prefixEndIndex + 1,
+				infixEndIndex     = postfixStartIndex - 1,
+				x                 = getTextBetween( injectionXmlData, startToken, endToken )
+
+			if( x.length == 0 ) {
+				return targetXmlData
+			}
+
+			return targetXmlData.substring( 0, prefixEndIndex ) +
+				targetXmlData.substring( infixStartIndex, infixEndIndex ) +
+				x +
+				targetXmlData.substring( postfixStartIndex )
+		}
+
+		var injectAddonXml = function( targetXmlData, injectionXmlData ) {
+			var tmp = appendBetween(
+				'<!--START_PLUGINS_MANIFEST-->',
+				'<!--END_PLUGINS_MANIFEST-->',
+				targetXmlData,
+				injectionXmlData
+			)
+
+			tmp = appendBetween(
+				'<!--START_PLUGINS_ACTIVITY-->',
+				'<!--END_PLUGINS_ACTIVITY-->',
+				tmp,
+				injectionXmlData
+			)
+
+			return appendBetween(
+				'<!--START_PLUGINS_APPLICATION-->',
+				'<!--END_PLUGINS_APPLICATION-->',
+				tmp,
+				injectionXmlData
+			)
+		}
+
+		var applyAddonConfig = function( environmentConfig, tmpProjectPath, projectManifestXmlFilePath, addonXmlFilePath, addonXslFilePath, next ) {
+			if( fs.existsSync( addonXmlFilePath ) ) {
+				var projectManifestXmlData = fs.readFileSync( projectManifestXmlFilePath, 'utf-8' ),
+					injectionXmlData       = fs.readFileSync( addonXmlFilePath, 'utf-8' )
+
+				fs.writeFileSync(
+					projectManifestXmlFilePath,
+					injectAddonXml( projectManifestXmlData, injectionXmlData )
+				)
+			}
+
+			if( fs.existsSync( addonXslFilePath ) ) {
+				// apply xsl transformation
+				var xsltprocParameters = xsltproc.createXsltProcCliParams(
+					addonXslFilePath,
+					projectManifestXmlFilePath,
+					projectManifestXmlFilePath,
+					{ adMobPublisherId : 'a151b1b2c8eaa9d' }
+				)
+
+				console.log( '[spellcli] xsltproc ' + xsltprocParameters.join( ' ' ) )
+
+				xsltproc.run( environmentConfig, xsltprocParameters, tmpProjectPath, next )
+			}
+		}
+
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
 			var projectId            = projectConfig.config.projectId || 'defaultProjectId',
 				androidBuildSettings = projectConfig.config.android || {},
@@ -139,7 +248,7 @@ define(
 			var launchClientFile = path.resolve( spellAndroidPath, 'launchClient.js' ),
 				tealeafPath      = path.resolve( spellAndroidPath, debug ? 'debug' : 'release', 'TeaLeaf' )
 
-			var buildOptions = createBuildOptions( debug, projectId, androidBuildSettings ),
+			var buildOptions = createBuildOptions( debug, projectId, projectConfig, androidBuildSettings ),
 				name         = buildOptions.shortname,
 				activity     = ( buildOptions.activity.substring( 0, 1 ) == '.' ) ? buildOptions.activity.substring( 1 ) : buildOptions.activity
 
@@ -163,7 +272,8 @@ define(
 				signedReleaseApkFile    = path.join( tmpProjectPath, 'bin', name + '-release-signed.apk' ),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
 				xslFile                 = path.join( spellAndroidPath, 'AndroidManifest.xsl' ),
-				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' )
+				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' ),
+				projectManifestFilePath = path.resolve( tmpProjectPath, 'AndroidManifest.xml' )
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
 			emptyDirectory( tmpProjectPath )
@@ -272,7 +382,7 @@ define(
 					var xsltprocParameters = xsltproc.createXsltProcCliParams(
 						xslFile,
 						path.resolve( tmpProjectTealeafPath, 'AndroidManifest.xml' ),
-						path.resolve( tmpProjectPath, 'AndroidManifest.xml' ),
+						projectManifestFilePath,
 						buildOptions
 					)
 
@@ -288,6 +398,37 @@ define(
 						activity,
 						tmpProjectPath,
 						f.wait()
+					)
+				},
+				function() {
+					var addonDescriptions  = createAddonDescriptions( path.join( tmpProjectTealeafPath, 'plugins' ), 'android' ),
+						projectSourcePath  = path.join( tmpProjectPath, 'src' ),
+						projectLibraryPath = path.join( tmpProjectPath, 'libs' )
+
+					// TODO: use project addons config to determine which addons to include in the build
+
+					_.each(
+						addonDescriptions,
+						function( addonDescription ) {
+							console.log( '[spellcli] Applying addon "' + addonDescription.name + '"' )
+
+							var addonConfig = addonDescription.config,
+								addonPath   = addonDescription.path
+
+							fsUtil.copyFiles( addonPath, projectSourcePath, addonConfig.copyFiles )
+							fsUtil.copyFiles( addonPath, projectLibraryPath, addonConfig.jars )
+							fsUtil.copyFiles( addonPath, projectLibraryPath, addonConfig.libraries )
+
+							// update AndroidManifest.xml
+							applyAddonConfig(
+								environmentConfig,
+								tmpProjectPath,
+								projectManifestFilePath,
+								path.join( addonPath, addonConfig.injectionXML ),
+								path.join( addonPath, addonConfig.injectionXSL ),
+								f.wait()
+							)
+						}
 					)
 				},
 				function() {
@@ -372,9 +513,9 @@ define(
 				},
 				function() {
 					// resolve sdk directory
-					var sdkDir = environmentConfig.androidSdkPath || ""
+					var sdkDir = environmentConfig.androidSdkPath || ''
 
-					if( os.platform() == "win32" ) {
+					if( os.platform() == 'win32' ) {
 						resolveWindowsShortDirectoryName( sdkDir, f.slotPlain() )
 					} else {
 						f.pass( sdkDir )
