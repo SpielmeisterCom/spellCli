@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/exportArchive',
+	'spell/cli/exportArchive',
 	[
 		'spell/cli/build/cleanDirectory',
 		'spell/cli/build/executeCreateBuild',
