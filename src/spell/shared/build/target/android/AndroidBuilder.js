@@ -127,8 +127,8 @@ define(
 		var createAddonDescriptions = function( addonBasePath, platform ) {
 			return _.reduce(
 				fs.readdirSync( addonBasePath ),
-				function( memo, addonName ) {
-					var addonPath           = path.join( addonBasePath, addonName, platform ),
+				function( memo, addonId ) {
+					var addonPath           = path.join( addonBasePath, addonId, platform ),
 						addonConfigFilePath = path.join( addonPath, 'config.json' )
 
 					if( !fs.existsSync( addonConfigFilePath ) ) return
@@ -137,13 +137,14 @@ define(
 
 					var addonDescription = {
 						config : JSON.parse( configData ),
-						name : addonName,
 						path : addonPath
 					}
 
-					return memo.concat( addonDescription )
+					memo[ addonId ] = addonDescription
+
+					return memo
 				},
-				[]
+				{}
 			)
 		}
 
@@ -208,7 +209,7 @@ define(
 			)
 		}
 
-		var applyAddonConfig = function( environmentConfig, tmpProjectPath, projectManifestXmlFilePath, addonXmlFilePath, addonXslFilePath, next ) {
+		var applyAddonConfig = function( environmentConfig, tmpProjectPath, projectManifestXmlFilePath, pluginConfig, addonXmlFilePath, addonXslFilePath, next ) {
 			if( fs.existsSync( addonXmlFilePath ) ) {
 				var projectManifestXmlData = fs.readFileSync( projectManifestXmlFilePath, 'utf-8' ),
 					injectionXmlData       = fs.readFileSync( addonXmlFilePath, 'utf-8' )
@@ -225,13 +226,71 @@ define(
 					addonXslFilePath,
 					projectManifestXmlFilePath,
 					projectManifestXmlFilePath,
-					{ adMobPublisherId : 'a151b1b2c8eaa9d' }
+					pluginConfig
 				)
 
 				console.log( '[spellcli] xsltproc ' + xsltprocParameters.join( ' ' ) )
 
 				xsltproc.run( environmentConfig, xsltprocParameters, tmpProjectPath, next )
 			}
+		}
+
+		var createNormalizedPluginsConfig = function( pluginsConfig ) {
+			return _.reduce(
+				pluginsConfig,
+				function( memo, config, label ) {
+					if( !config.active ) {
+						return memo
+					}
+
+					var id = config.id
+
+					delete config.active
+					delete config.id
+					config.label = label
+
+					memo[ id ] = config
+
+					return memo
+				},
+				{}
+			)
+		}
+
+		var createEffectiveKey = function( key, debug ) {
+			var indexDebug   = key.indexOf( 'Debug' ),
+				indexRelease = key.indexOf( 'Release' )
+
+			if( indexDebug < 0 && indexRelease < 0 ) {
+				return key
+			}
+
+			return key.substring( 0, debug ? indexDebug : indexRelease )
+		}
+
+		/**
+		 * Removes attributes which do not fit the current build mode (debug/release).
+		 *
+		 * @param pluginConfig
+		 * @param debug
+		 * @return {*}
+		 */
+		var createEffectivePluginConfig = function( pluginConfig, debug ) {
+			return _.reduce(
+				pluginConfig,
+				function( memo, value, key ) {
+					var effectiveKey = createEffectiveKey( key, debug )
+
+					if( !effectiveKey ) {
+						return memo
+					}
+
+					memo[ effectiveKey ] = value
+
+					return memo
+				},
+				{}
+			)
 		}
 
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
@@ -403,14 +462,21 @@ define(
 				function() {
 					var addonDescriptions  = createAddonDescriptions( path.join( tmpProjectTealeafPath, 'plugins' ), 'android' ),
 						projectSourcePath  = path.join( tmpProjectPath, 'src' ),
-						projectLibraryPath = path.join( tmpProjectPath, 'libs' )
-
-					// TODO: use project addons config to determine which addons to include in the build
+						projectLibraryPath = path.join( tmpProjectPath, 'libs' ),
+						pluginsConfig      = createNormalizedPluginsConfig( projectConfig.config.plugins )
 
 					_.each(
-						addonDescriptions,
-						function( addonDescription ) {
-							console.log( '[spellcli] Applying addon "' + addonDescription.name + '"' )
+						pluginsConfig,
+						function( pluginConfig, pluginId ) {
+							var addonDescription = addonDescriptions[ pluginId ]
+
+							if( !addonDescription ) {
+								console.log( '[spellcli] Addon "' + pluginConfig.label + '" (' + pluginId + ') is not supported' )
+
+								return
+							}
+
+							console.log( '[spellcli] Applying addon "' + pluginConfig.label + '"' )
 
 							var addonConfig = addonDescription.config,
 								addonPath   = addonDescription.path
@@ -424,6 +490,7 @@ define(
 								environmentConfig,
 								tmpProjectPath,
 								projectManifestFilePath,
+								createEffectivePluginConfig( pluginConfig, debug ),
 								path.join( addonPath, addonConfig.injectionXML ),
 								path.join( addonPath, addonConfig.injectionXSL ),
 								f.wait()
