@@ -63,10 +63,12 @@ define(
 	            screenOrientation       = projectConfig.config.orientation  || 'auto-rotation',
 	            iOSBuildSettings        = projectConfig.config.ios || {},
 	            bundleId                = iOSBuildSettings.bundleId || 'com.spelljs.' + projectId,
+	            openXcode               = iOSBuildSettings.openXcode || false,
                 spellCorePath           = environmentConfig.spellCorePath,
 				spelliOSPath            = environmentConfig.spelliOSPath || '../spelliOS/build',
                 tealeafPath             = path.resolve( spelliOSPath, debug ? 'debug' : 'release', 'tealeaf' ),
                 tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'ios', projectId ),
+	            XcodeProjectPath        = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj' ),
 				projectFile             = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
 				plistFile               = path.join( tmpProjectPath, 'TeaLeafIOS-Info.plist'),
                 configFile              = path.join( tmpProjectPath, 'resources', 'config.plist'),
@@ -242,26 +244,33 @@ define(
                     )
                 },
                 function () {
-                    var params = [
-                        '-target',
-                        bundleId,
+	                if( openXcode ) {
+						var child = exec('open ' + XcodeProjectPath + ' &',
+							function (error, stdout, stderr) {
+						})
 
-                        '-sdk',
-                        'iphoneos6.1',
+	                } else {
+		                var params = [
+			                '-target',
+			                bundleId,
 
-                        '-configuration',
-                        debug ? 'Debug' : 'Release',
+			                '-sdk',
+			                'iphoneos6.1',
 
-                        '-jobs',
-                        8
-                    ]
+			                '-configuration',
+			                debug ? 'Debug' : 'Release',
 
-                    xcodebuild.run(
-                        environmentConfig,
-                        params,
-                        tmpProjectPath,
-                        f.wait()
-                    )
+			                '-jobs',
+			                8
+		                ]
+
+		                xcodebuild.run(
+			                environmentConfig,
+			                params,
+			                tmpProjectPath,
+			                f.wait()
+		                )
+	                }
                 }
 
 
