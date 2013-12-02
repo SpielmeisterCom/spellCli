@@ -1,5 +1,5 @@
 define(
-	'spell/shared/build/external/xcodebuild',
+	'spell/shared/build/external/ios/xcodebuild',
 	[
 		'fs',
 		'path',
