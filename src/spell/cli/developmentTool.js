@@ -2,11 +2,11 @@ define(
 	'spell/cli/developmentTool',
 	[
 		'spell/cli/Certificates',
-		'spell/shared/build/cleanDirectory',
-		'spell/shared/build/executeCreateBuild',
-		'spell/shared/build/exportArchive',
-		'spell/shared/build/initializeProjectDirectory',
-		'spell/shared/build/printLicenseInfo',
+		'spell/cli/build/cleanDirectory',
+		'spell/cli/build/executeCreateBuild',
+		'spell/cli/build/exportArchive',
+		'spell/cli/build/initializeProjectDirectory',
+		'spell/cli/build/printLicenseInfo',
 		'spell/BuildInfo',
 
 		'commander',
@@ -287,6 +287,11 @@ define(
 			console.log( 'spell config: ' + environmentConfigFilePath )
 		}
 
+		var certCommand = function( cwd, command ) {
+//			console.log(command);
+		}
+
+
 		var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseFilePath, command ) {
 			var humanReadable = !command.json,
 				stdin         = command.stdin
@@ -387,6 +392,11 @@ define(
 				.option( '-p, --project [directory]', 'The path to the project directory. The default is the current working directory.' )
 				.description( 'Prints information about current environment.' )
 				.action( _.bind( infoCommand, this, spellCorePath, cwd, environmentConfigFilePath ) )
+
+			commander
+				.command( 'cert [command]' )
+				.description( 'Certificate management; Valid commands are: privatekey, csr' )
+				.action( _.bind( certCommand, this ) )
 
 			commander
 				.command( 'init' )

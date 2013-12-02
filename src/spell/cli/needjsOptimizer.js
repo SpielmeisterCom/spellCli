@@ -1,7 +1,7 @@
 define(
 	'spell/cli/needjsOptimizer',
 	[
-		'spell/shared/build/processSource',
+		'spell/cli/build/processSource',
 
 		'amd-helper',
 		'commander',
