@@ -393,7 +393,7 @@ define(
 			commander
 				.command( 'cert [command]' )
 				.description( 'Certificate management; Valid commands are: genprivkey, gencsr' )
-				.action( _.bind( certCommandHandler.handleCommand, this ) )
+				.action( _.bind( certCommandHandler.handleCommand, this, environmentConfig ) )
 
 			commander
 				.command( 'init' )
