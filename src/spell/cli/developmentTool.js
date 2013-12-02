@@ -6,7 +6,7 @@ define(
 		'spell/cli/build/executeCreateBuild',
 		'spell/cli/build/exportArchive',
 		'spell/cli/initializeProjectDirectory',
-		'spell/cli/build/printLicenseInfo',
+		'spell/cli/printLicenseInfo',
 		'spell/BuildInfo',
 
 		'commander',

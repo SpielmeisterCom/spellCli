@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/printLicenseInfo',
+	'spell/cli/printLicenseInfo',
 	[
 		'spell-license'
 	],
