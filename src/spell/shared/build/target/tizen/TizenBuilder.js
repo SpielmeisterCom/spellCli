@@ -129,7 +129,7 @@ define(
 					]
 
 					var appId               = tizenBuildSettings.appId || 'M89SDclCRb.' + projectId ,
-						version             = tizenBuildSettings.version || '1.0.0',
+						version             = projectConfig.config.version || '1.0.0',
 						name                = tizenBuildSettings.name || projectId,
 						screenOrientation   = projectConfig.config.orientation || 'auto-rotation',
 						identifier          = tizenBuildSettings.identifier || 'http://spelljs.com/' + projectId,
