@@ -2,7 +2,7 @@ define(
 	'spell/cli/init/initializeProjectDirectory',
 	[
 		'spell/cli/build/createDebugPath',
-		'spell/cli/build/defaultStartScene',
+		'spell/cli/init/defaultStartScene',
 
 		'fs',
 		'fsUtil',

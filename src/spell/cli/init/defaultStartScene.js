@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/defaultStartScene',
+	'spell/cli/init/defaultStartScene',
 	function() {
 		'use strict'
 
