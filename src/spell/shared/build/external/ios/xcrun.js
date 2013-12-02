@@ -1,5 +1,5 @@
 define(
-	'spell/shared/build/external/xcrun',
+	'spell/shared/build/external/ios/xcrun',
 	[
 		'fs',
 		'path',
