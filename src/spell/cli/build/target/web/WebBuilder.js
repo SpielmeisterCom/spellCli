@@ -6,7 +6,7 @@ define(
 		'spell/cli/build/createBuilderType',
 		'spell/cli/build/createDebugPath',
 		'spell/cli/build/createProjectLibraryFilePaths',
-		'spell/cli/build/writeFile',
+		'spell/cli/util/writeFile',
 
 		'ff',
 		'fsUtil',

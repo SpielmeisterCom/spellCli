@@ -7,7 +7,7 @@ define(
 		'spell/cli/util/createModuleId',
 		'spell/cli/build/processSource',
 		'spell/cli/build/loadAssociatedScriptModules',
-		'spell/cli/build/writeFile',
+		'spell/cli/util/writeFile',
 		'spell/cli/util/hashModuleId',
 
 		'amd-helper',

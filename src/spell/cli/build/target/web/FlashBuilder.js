@@ -8,7 +8,7 @@ define(
 		'spell/cli/util/emptyDirectory',
 		'spell/cli/build/loadAssociatedScriptModules',
 		'spell/cli/build/processSource',
-		'spell/cli/build/writeFile',
+		'spell/cli/util/writeFile',
 		'spell/cli/util/spawnChildProcess',
 
 		'spell/cli/build/external/java',

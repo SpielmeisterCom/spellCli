@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/writeFile',
+	'spell/cli/util/writeFile',
 	[
 		'fs',
 		'fsUtil'
