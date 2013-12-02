@@ -96,7 +96,7 @@ define(
 				'activity'        : '.' + projectId + 'Activity',
 
 				'title'           : androidBuildSettings.title ? androidBuildSettings.title : projectId,
-				'version'         : androidBuildSettings.version ? androidBuildSettings.version : '1.0',
+				'version'         : projectConfig.config.version || '1.0.0',
 				'versionCode'     : '1',
 
 				'shortname'       : projectId,
