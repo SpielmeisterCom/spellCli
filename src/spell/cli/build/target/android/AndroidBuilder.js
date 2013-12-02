@@ -12,7 +12,7 @@ define(
 		'spell/cli/util/spawnChildProcess',
 		'spell/cli/util/createModuleId',
 		'spell/cli/util/hashModuleId',
-		'spell/cli/build/resolveWindowsShortDirectoryName',
+		'spell/cli/util/resolveWindowsShortDirectoryName',
 
 		'spell/cli/build/external/java',
 		'spell/cli/build/external/javac',

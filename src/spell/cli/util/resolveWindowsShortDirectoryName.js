@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/resolveWindowsShortDirectoryName',
+	'spell/cli/util/resolveWindowsShortDirectoryName',
 	[
 		'child_process'
 	],

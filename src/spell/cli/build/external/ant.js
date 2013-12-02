@@ -6,7 +6,7 @@ define(
 		'fs',
 		'os',
 		'path',
-		'spell/cli/build/resolveWindowsShortDirectoryName',
+		'spell/cli/util/resolveWindowsShortDirectoryName',
 		'spell/cli/util/spawnChildProcess'
 	],
 	function(
