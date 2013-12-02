@@ -5,7 +5,7 @@ define(
 		'spell/cli/build/cleanDirectory',
 		'spell/cli/build/executeCreateBuild',
 		'spell/cli/build/exportArchive',
-		'spell/cli/initializeProjectDirectory',
+		'spell/cli/init/initializeProjectDirectory',
 		'spell/cli/printLicenseInfo',
 		'spell/BuildInfo',
 
