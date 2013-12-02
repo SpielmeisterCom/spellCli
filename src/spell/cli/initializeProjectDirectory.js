@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/initializeProjectDirectory',
+	'spell/cli/initializeProjectDirectory',
 	[
 		'spell/cli/build/createDebugPath',
 		'spell/cli/build/defaultStartScene',
