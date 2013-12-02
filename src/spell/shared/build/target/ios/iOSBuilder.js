@@ -74,8 +74,11 @@ define(
                 configFile              = path.join( tmpProjectPath, 'resources', 'config.plist'),
                 resourcesPath           = path.join( tmpProjectPath, 'resources', 'resources.bundle' ),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
-                launchClientFile        = path.resolve( spelliOSPath, 'launchClient.js')
-
+                launchClientFile        = path.resolve( spelliOSPath, 'launchClient.js'),
+	            appPath                 = path.join( tmpProjectPath, 'build', (debug ? 'Debug' : 'Release') + '-iphoneos', bundleId + '.app'),
+	            ipaFile                 = path.join( tmpProjectPath, 'bin', projectId + '-' + (debug?'debug':'release') + '.ipa'),
+	            provisionFile           = '',
+	            developerName           = ''
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
             emptyDirectory( tmpProjectPath )
@@ -252,6 +255,7 @@ define(
 						})
 
 	                } else {
+
 		                var params = [
 			                '-target',
 			                bundleId,
@@ -266,6 +270,7 @@ define(
 			                8
 		                ]
 
+		                console.log( '[spellcli] xcodebuild '  + params.join(' ') )
 		                xcodebuild.run(
 			                environmentConfig,
 			                params,
@@ -273,27 +278,31 @@ define(
 			                f.wait()
 		                )
 	                }
-                }
-
-
-                //sign app
-            /*function () {
-                    var args = [
-                     '-sdk', 'iphoneos',
-                     'PackageApplication',
-                     '-v',
-                     path.resolve(path.join(projectPath, 'build/'+configurationName+'-iphoneos/'+appName+'.app')),
-                     '-o',
-                     path.resolve(outputIPAPath),
-                     '--sign',
-                     'iPhone Developer: ' + developerName,
-                     '--embed',
-                     path.resolve(provisionPath)
+            },
+            function () {
+	            if( !openXcode ) {
+	                var params = [
+	                     '-sdk', 'iphoneos',
+	                     'PackageApplication',
+	                     '-v',
+		                appPath,
+	                     '-o',
+		                ipaFile,
+	                     '--sign',
+	                     'iPhone Developer: ' + developerName,
+	                     '--embed',
+		                provisionFile
                      ]
 
-                    //xcrun.run( environmentConfig, params, '', f.wait() )
-
-                }*/
+		            console.log( '[spellcli] xcrun '  + params.join(' ') )
+                    xcrun.run(
+	                    environmentConfig,
+	                    params,
+	                    tmpProjectPath,
+	                    f.wait()
+                    )
+	            }
+            }
 
 			).onError( function( message ) {
 				console.log( message )
