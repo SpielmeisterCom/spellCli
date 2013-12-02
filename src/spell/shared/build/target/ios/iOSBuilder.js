@@ -245,7 +245,9 @@ define(
                 },
                 function () {
 	                if( openXcode ) {
-						var child = exec('open ' + XcodeProjectPath + ' &',
+                        console.log( '[spellcli] Opening Xcode project in ' + XcodeProjectPath )
+
+                        var child = child_process.exec('open ' + XcodeProjectPath + ' &',
 							function (error, stdout, stderr) {
 						})
 
