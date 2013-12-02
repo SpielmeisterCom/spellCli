@@ -59,18 +59,21 @@ define(
 
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
             var projectId               = projectConfig.config.projectId || 'defaultProjectId',
+	            version                 = projectConfig.config.version      || '1.0.0',
+	            screenOrientation       = projectConfig.config.orientation  || 'auto-rotation',
+	            iOSBuildSettings        = projectConfig.config.ios || {},
+	            bundleId                = iOSBuildSettings.bundleId || 'com.spelljs.' + projectId,
                 spellCorePath           = environmentConfig.spellCorePath,
 				spelliOSPath            = environmentConfig.spelliOSPath || '../spelliOS/build',
                 tealeafPath             = path.resolve( spelliOSPath, debug ? 'debug' : 'release', 'tealeaf' ),
-                iOSBuildSettings        = projectConfig.config.ios || {},
-                iOSBundleId             = iOSBuildSettings.bundleId ? iOSBuildSettings.bundleId : 'com.spelljs.' + projectId,
                 tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'ios', projectId ),
 				projectFile             = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
 				plistFile               = path.join( tmpProjectPath, 'TeaLeafIOS-Info.plist'),
                 configFile              = path.join( tmpProjectPath, 'resources', 'config.plist'),
                 resourcesPath           = path.join( tmpProjectPath, 'resources', 'resources.bundle' ),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
-                launchClientFile        = path.resolve( spelliOSPath, 'launchClient.js' )
+                launchClientFile        = path.resolve( spelliOSPath, 'launchClient.js')
+
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
             emptyDirectory( tmpProjectPath )
@@ -122,15 +125,62 @@ define(
                 },
 	            function() {
 		            console.log( '[spellcli] Patching Xcode project file ' + projectFile )
-		            XcodeProjectHelper.updateIOSProjectFile( projectFile, iOSBundleId, f.wait() )
+		            XcodeProjectHelper.updateIOSProjectFile( projectFile, bundleId, f.wait() )
 	            },
 	            function() {
-		            var title               = iOSBuildSettings.title            || projectId,
-			            version             = iOSBuildSettings.version          || '1.0.0',
-			            screenOrientation   = projectConfig.config.orientation  || 'auto-rotation'
+		            var title               = iOSBuildSettings.title            || projectId
 
 			        console.log( '[spellcli] Patching plist file ' + plistFile )
-		            XcodeProjectHelper.updatePListFile( plistFile, iOSBundleId, title, version, screenOrientation, f.wait() )
+		            XcodeProjectHelper.updatePListFile( plistFile, bundleId, title, version, screenOrientation, f.wait() )
+	            },
+	            function() {
+		            console.log( '[spellcli] Copying icon resources into XCode project' )
+
+		            var icons = ['57', '72', '76', '114', '120', '144', '152']
+
+		            for( var i = 0; i< icons.length; i++ ) {
+			            var size    = icons[ i ],
+				            srcPath = path.join( projectPath, 'resources', 'ios', 'icon', 'icon' + size + '.png' ),
+				            dstPath = path.join( tmpProjectPath, 'Images.xcassets', 'AppIcon.appiconset', 'icon' + size + '.png' )
+
+			            if( fs.existsSync( srcPath ) ) {
+				            fsUtil.copyFile(
+					            srcPath,
+					            dstPath
+				            )
+			            } else {
+				            console.log( '[spellcli] WARN did not find icon ' + srcPath )
+			            }
+		            }
+	            },
+	            function() {
+		            console.log( '[spellcli] Copying launchimage resources into XCode project' )
+
+		            var splashes = [
+			            { key: "portrait480", outFile: "Default.png", outSize: "320x480" },
+			            { key: "portrait960", outFile: "Default@2x.png", outSize: "640x960"},
+			            { key: "portrait1024", outFile: "Default-Portrait~ipad.png", outSize: "768x1024"},
+			            { key: "portrait1136", outFile: "Default-568h@2x.png", outSize: "640x1136"},
+			            { key: "portrait2048", outFile: "Default-Portrait@2x~ipad.png", outSize: "1536x2048"},
+			            { key: "landscape768", outFile: "Default-Landscape~ipad.png", outSize: "1024x768"},
+			            { key: "landscape1536", outFile: "Default-Landscape@2x~ipad.png", outSize: "2048x1536"}
+		            ]
+
+		            for( var i = 0; i< splashes.length; i++ ) {
+			            var splash  = splashes[ i ],
+				            srcPath = path.join( projectPath, 'resources', 'ios', 'launchimage', splash.outFile ),
+				            dstPath = path.join( tmpProjectPath, 'Images.xcassets', 'LaunchImage.launchimage', splash.outFile)
+
+			            if( fs.existsSync( srcPath ) ) {
+				            fsUtil.copyFile(
+					            srcPath,
+					            dstPath
+				            )
+			            } else {
+				            console.log( '[spellcli] WARN did not find launchimage ' + srcPath )
+			            }
+
+		            }
 	            },
                 function() {
                     console.log( '[spellcli] Writing config file ' + configFile )
@@ -154,8 +204,8 @@ define(
                             studio_name: "example.studio",
 
                             apple_id: "example.appleid",
-                            bundle_id: "example.bundle",
-                            version: "1.0"
+                            bundle_id: bundleId,
+                            version: version
                         },
                         f.wait()
                    )
@@ -194,7 +244,7 @@ define(
                 function () {
                     var params = [
                         '-target',
-                        iOSBundleId,
+                        bundleId,
 
                         '-sdk',
                         'iphoneos6.1',
