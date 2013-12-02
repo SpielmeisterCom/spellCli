@@ -9,7 +9,7 @@ define(
 		'spell/cli/build/loadAssociatedScriptModules',
 		'spell/cli/build/processSource',
 		'spell/cli/build/writeFile',
-		'spell/cli/build/spawnChildProcess',
+		'spell/cli/spawnChildProcess',
 
 		'spell/cli/build/external/java',
 		'spell/cli/build/external/mxmlc',

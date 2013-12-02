@@ -7,7 +7,7 @@ define(
 		'os',
 		'path',
 		'spell/cli/build/resolveWindowsShortDirectoryName',
-		'spell/cli/build/spawnChildProcess'
+		'spell/cli/spawnChildProcess'
 	],
 	function(
 		java,

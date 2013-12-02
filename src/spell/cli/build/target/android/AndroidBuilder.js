@@ -9,7 +9,7 @@ define(
 		'spell/cli/build/processSource',
 		'spell/cli/build/loadAssociatedScriptModules',
 		'spell/cli/build/writeFile',
-		'spell/cli/build/spawnChildProcess',
+		'spell/cli/spawnChildProcess',
 		'spell/cli/util/createModuleId',
 		'spell/cli/util/hashModuleId',
 		'spell/cli/build/resolveWindowsShortDirectoryName',

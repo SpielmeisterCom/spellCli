@@ -6,7 +6,7 @@ define(
 		'fs',
 		'path',
 		'os',
-		'spell/cli/build/spawnChildProcess'
+		'spell/cli/spawnChildProcess'
 	],
 	function(
 		java,
