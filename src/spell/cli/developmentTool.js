@@ -7,6 +7,7 @@ define(
 		'spell/cli/exportArchive',
 		'spell/cli/init/initializeProjectDirectory',
 		'spell/cli/printLicenseInfo',
+		'spell/cli/cert/certCommandHandler',
 		'spell/BuildInfo',
 
 		'commander',
@@ -24,6 +25,7 @@ define(
 		exportArchive,
 		initializeProjectDirectory,
 		printLicenseInfo,
+		certCommandHandler,
 		BuildInfo,
 
 		commander,
@@ -287,11 +289,6 @@ define(
 			console.log( 'spell config: ' + environmentConfigFilePath )
 		}
 
-		var certCommand = function( cwd, command ) {
-//			console.log(command);
-		}
-
-
 		var licenseCommand = function( spellCorePath, cwd, isDevEnv, licenseFilePath, command ) {
 			var humanReadable = !command.json,
 				stdin         = command.stdin
@@ -395,8 +392,8 @@ define(
 
 			commander
 				.command( 'cert [command]' )
-				.description( 'Certificate management; Valid commands are: privatekey, csr' )
-				.action( _.bind( certCommand, this ) )
+				.description( 'Certificate management; Valid commands are: genprivkey, gencsr' )
+				.action( _.bind( certCommandHandler.handleCommand, this ) )
 
 			commander
 				.command( 'init' )
