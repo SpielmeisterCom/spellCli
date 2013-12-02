@@ -139,7 +139,7 @@ define(
 				var rawConfig = JSON.parse( fs.readFileSync( environmentConfigFilePath, 'utf8' ) )
 
 			} catch( e ) {
-				printErrors( 'Error: Parsing spell configuration file failed.' )
+				printErrors( 'Error: Parsing spell configuration file "' + environmentConfigFilePath + '" failed with: ' + e )
 				process.exit( 1 )
 			}
 
