@@ -70,6 +70,9 @@ cp node_modules/xmlbuilder/lib/XMLFragment.js $NODE_SRC/lib/xmlbuilder_XMLFragme
 $SED 's/.\/XMLBuilder/xmlbuilder_XMLBuilder/g' $NODE_SRC/lib/xmlbuilder*.js
 $SED 's/.\/XMLFragment/xmlbuilder_XMLFragment/g' $NODE_SRC/lib/xmlbuilder*.js
 
+# integrate plist
+cp node_modules/plist/lib/plist.js $NODE_SRC/lib/plist.js
+
 # integrate zipstream
 cp node_modules/zipstream/zipstream.js $NODE_SRC/lib/zipstream.js
 cp node_modules/zipstream/crc32.js $NODE_SRC/lib/zipstream_crc32.js
