@@ -3,7 +3,7 @@ define(
 	[
 		'fs',
 		'os',
-		'spell/cli/spawnChildProcess'
+		'spell/cli/util/spawnChildProcess'
 	],
 	function(
 		fs,

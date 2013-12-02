@@ -1,7 +1,7 @@
 define(
 	'spell/cli/build/cleanDirectory',
 	[
-		'spell/cli/build/emptyDirectory'
+		'spell/cli/util/emptyDirectory'
 	],
 	function(
 		emptyDirectory

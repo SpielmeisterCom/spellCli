@@ -5,7 +5,7 @@ define(
 		'path',
 		'os',
 		'child_process',
-		'spell/cli/spawnChildProcess'
+		'spell/cli/util/spawnChildProcess'
 	],
 	function(
 		fs,

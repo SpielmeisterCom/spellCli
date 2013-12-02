@@ -1,5 +1,5 @@
 define(
-	'spell/cli/spawnChildProcess',
+	'spell/cli/util/spawnChildProcess',
 	[
 		'child_process',
 		'os'

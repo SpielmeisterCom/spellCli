@@ -5,11 +5,11 @@ define(
 		'spell/cli/build/createLibraryPath',
 		'spell/cli/build/ast/createComponentTypeDefinition',
 		'spell/cli/build/createDebugPath',
-		'spell/cli/build/emptyDirectory',
+		'spell/cli/util/emptyDirectory',
 		'spell/cli/build/loadAssociatedScriptModules',
 		'spell/cli/build/processSource',
 		'spell/cli/build/writeFile',
-		'spell/cli/spawnChildProcess',
+		'spell/cli/util/spawnChildProcess',
 
 		'spell/cli/build/external/java',
 		'spell/cli/build/external/mxmlc',

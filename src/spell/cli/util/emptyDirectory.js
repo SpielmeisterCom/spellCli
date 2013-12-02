@@ -1,5 +1,5 @@
 define(
-	'spell/cli/build/emptyDirectory',
+	'spell/cli/util/emptyDirectory',
 	[
 		'wrench'
 	],

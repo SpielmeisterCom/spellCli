@@ -8,7 +8,7 @@ define(
 		'os',
 		'child_process',
 
-		'spell/cli/spawnChildProcess'
+		'spell/cli/util/spawnChildProcess'
 	],
 	function(
 		java,
