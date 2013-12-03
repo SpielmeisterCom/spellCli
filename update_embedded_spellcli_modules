@@ -70,6 +70,9 @@ cp node_modules/xmlbuilder/lib/XMLFragment.js $NODE_SRC/lib/xmlbuilder_XMLFragme
 $SED 's/.\/XMLBuilder/xmlbuilder_XMLBuilder/g' $NODE_SRC/lib/xmlbuilder*.js
 $SED 's/.\/XMLFragment/xmlbuilder_XMLFragment/g' $NODE_SRC/lib/xmlbuilder*.js
 
+# integrate xmldom
+cp node_modules/plist/node_modules/xmldom/dom.js $NODE_SRC/lib/xmldom.js
+
 # integrate plist
 cp node_modules/plist/lib/plist.js $NODE_SRC/lib/plist.js
 
