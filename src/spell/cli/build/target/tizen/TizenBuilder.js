@@ -13,6 +13,8 @@ define(
 		'spell/cli/util/createModuleId',
 		'spell/cli/util/hashModuleId',
 
+		'spell/cli/util/crypto',
+
 		'xmlbuilder',
 
 		'spell/cli/build/target/web/WebBuilder',
@@ -42,6 +44,7 @@ define(
 		createModuleId,
 		hashModuleId,
 
+		crypto,
 		xmlbuilder,
 
 		WebBuilder,
@@ -59,6 +62,24 @@ define(
 		wrench
 		)
 	{
+		//extracted from org.tizen.common.util.CipherUtil
+		var PROFILES_XML_PASSWORD_KEY = 'KYANINYLhijklmnopqrstuvwx'
+
+		var createProfilesXmlCryptedPassword = function( clearTextPassword ) {
+			var cryptedBuffer = new Buffer(
+				crypto.des (
+					PROFILES_XML_PASSWORD_KEY,
+					clearTextPassword,
+					1,
+					0,
+					"\0\0\0\0\0\0\0\0",
+					1
+				),
+				'ascii'
+			)
+			return cryptedBuffer.toString('base64')
+		}
+
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
 
 			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
@@ -67,7 +88,6 @@ define(
 				signedReleaseWgtFile    = path.join( tmpProjectPath, projectId + '_release_signed.wgt'),
 				tizenOutputPath         = path.join( outputPath, 'tizen' ),
 				tizenBuildSettings      = projectConfig.config.tizen || {}
-
 
 			var f = ff(
 				function() {
@@ -120,8 +140,9 @@ define(
 					console.log( '[spellcli] writing tizen config file' )
 
 					var features = [
-						'http://tizen.org/feature/screen.size.normal.720.1280',
-						'http://tizen.org/feature/screen.size.normal.480,800'
+						'http://tizen.org/feature/screen.size.normal'
+						//'http://tizen.org/feature/screen.size.normal.720.1280',
+						//'http://tizen.org/feature/screen.size.normal.480,800'
 					]
 
 					var privileges = [
@@ -271,7 +292,7 @@ define(
 								'ca'            : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/distributor/tizen-distributor-ca.cer',
 								'distributor'   : '1',
 								'key'           : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/distributor/tizen-distributor-signer.p12',
-								'password'      : 'Vy63flx5JBMc5GA4iEf8oFy+8aKE7FX/+arrDcO4I5k=',
+								'password'      : createProfilesXmlCryptedPassword( 'tizenpkcs12passfordsigner' ),
 								'rootca'        : ''
 							})
 							.up( )
