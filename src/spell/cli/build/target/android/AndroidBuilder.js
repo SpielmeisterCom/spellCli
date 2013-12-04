@@ -238,16 +238,12 @@ define(
 		var createNormalizedPluginsConfig = function( pluginsConfig ) {
 			return _.reduce(
 				pluginsConfig,
-				function( memo, config, label ) {
+				function( memo, config, id ) {
 					if( !config.active ) {
 						return memo
 					}
 
-					var id = config.id
-
 					delete config.active
-					delete config.id
-					config.label = label
 
 					memo[ id ] = config
 
@@ -257,15 +253,13 @@ define(
 			)
 		}
 
-		var createEffectiveKey = function( key, debug ) {
-			var indexDebug   = key.indexOf( 'Debug' ),
-				indexRelease = key.indexOf( 'Release' )
+		var createEffectiveValue = function( value, debug ) {
+			if( _.isObject( value ) ) {
+				return value[ debug ? 'debug' : 'release' ]
 
-			if( indexDebug < 0 && indexRelease < 0 ) {
-				return key
+			} else {
+				return value
 			}
-
-			return key.substring( 0, debug ? indexDebug : indexRelease )
 		}
 
 		/**
@@ -279,13 +273,7 @@ define(
 			return _.reduce(
 				pluginConfig,
 				function( memo, value, key ) {
-					var effectiveKey = createEffectiveKey( key, debug )
-
-					if( !effectiveKey ) {
-						return memo
-					}
-
-					memo[ effectiveKey ] = value
+					memo[ key ] = createEffectiveValue( value, debug )
 
 					return memo
 				},
@@ -471,12 +459,12 @@ define(
 							var addonDescription = addonDescriptions[ pluginId ]
 
 							if( !addonDescription ) {
-								console.log( '[spellcli] Addon "' + pluginConfig.label + '" (' + pluginId + ') is not supported' )
+								console.log( '[spellcli] Addon "' + pluginId + '" is not supported' )
 
 								return
 							}
 
-							console.log( '[spellcli] Applying addon "' + pluginConfig.label + '"' )
+							console.log( '[spellcli] Applying addon "' + pluginId + '"' )
 
 							var addonConfig = addonDescription.config,
 								addonPath   = addonDescription.path
