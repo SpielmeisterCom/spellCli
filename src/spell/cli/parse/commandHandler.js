@@ -1,10 +1,12 @@
 define(
 	'spell/cli/parse/commandHandler',
 	[
-		'spell/cli/parse/parseMobileProvisionFile'
+		'spell/cli/parse/parseMobileProvisionFile',
+		'spell/cli/parse/parseX509Certificate'
 	],
 	function(
-		parseMobileProvisionFile
+		parseMobileProvisionFile,
+		parseX509Certificate
 		) {
 		'use strict'
 
@@ -15,7 +17,8 @@ define(
 		return function( environmentConfig, command, file ) {
 
 			var commandMap = {
-				'mobileprovision'     : parseMobileProvisionFile
+				'mobileprovision'     : parseMobileProvisionFile,
+				'x509'				  : parseX509Certificate
 			}
 
 			if( command && commandMap[ command ] ) {

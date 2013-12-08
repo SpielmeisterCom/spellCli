@@ -396,7 +396,7 @@ define(
 			commander
 				.command( 'cert [command]' )
 				.description( 'Certificate management; Valid commands are: genprivkey, gencsr' )
-				.action( _.bind( certCommandHandler.handleCommand, this, environmentConfig ) )
+				.action( _.bind( certCommandHandler, this, environmentConfig ) )
 
 			commander
 				.command( 'parse [type] [file]' )
