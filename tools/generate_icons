@@ -2,14 +2,21 @@
 
 SOURCE_ICON=$1
 
-#generate ios app icons
+#generate ios6 app icons
 convert -resize 57x57 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon57.png
 convert -resize 72x72 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon72.png
-convert -resize 76x76 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon76.png
 convert -resize 114x114 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon114.png
-convert -resize 120x120 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon120.png
 convert -resize 144x144 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon144.png
+
+#generate ios7 app icons
+convert -resize 60x60 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon60.png
+convert -resize 76x76 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon76.png
+convert -resize 120x120 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon120.png
 convert -resize 152x152 $SOURCE_ICON resources/ios/Images.xcassets/AppIcon.appiconset/icon152.png
+
+#appstore icons
+convert -resize 512x512 $SOURCE_ICON resources/ios/Images.xcassets/iTunesArtwork.png
+convert -resize 1024x1024 $SOURCE_ICON resources/ios/Images.xcassets/iTunesArtwork@2x.png
 
 
 #generate tizen app icon
