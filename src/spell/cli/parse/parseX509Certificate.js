@@ -28,7 +28,7 @@ define(
 				certData[ key ] = value
 			})
 
-			console.log( certData )
+			next( certData )
 		}
 
 		return function( environmentConfig, filename, next ) {
