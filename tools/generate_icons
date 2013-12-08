@@ -2,7 +2,12 @@
 
 SOURCE_ICON=$1
 
-#generate tizen icon
+#generate tizen app icon
 convert -resize 117x117 $SOURCE_ICON tmp.png
-convert -size 117x117 xc:none -fill tmp.png -draw "circle 58.5,58.5 58.5,0" resources/tizen/icon.png
+convert -size 117x117 xc:none -fill tmp.png -draw "circle 58.5,58.5 58.5,2" resources/tizen/app-icon.png
+rm tmp.png
+
+#generate tizen store icon
+convert -resize 512x512 $SOURCE_ICON tmp.png
+convert -size 512x512 xc:none -fill tmp.png -draw "circle 256,256 256,2" resources/tizen/store-icon.png
 rm tmp.png
