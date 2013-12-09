@@ -61,8 +61,7 @@ define(
 			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
 				tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'windows'),
 				windowsOutputPath       = path.join( outputPath, 'windows' ),
-				unsignedAppxFile        = path.join( windowsOutputPath, projectId + '_unsigned.appx' ),
-				signedReleaseAppxFile   = path.join( windowsOutputPath, projectId + '_release_signed.wgt'),
+				appxFile                = path.join( windowsOutputPath, projectId + '.appx' ),
 				windowsBuildSettings    = projectConfig.config.windows || {}
 
 			var copyFile = function( fileName ) {
@@ -129,7 +128,9 @@ define(
 						language             = '' || "en-us",
 						displayName          = name,
 						description          = '' || 'A Windows Store App created with SpellJS',
-						publisherDisplayName = 'Spielmeister GmbH',
+						publisherDisplayName = windowsBuildSettings.publisherDisplayName,
+						publisher            = windowsBuildSettings.publisher,
+						storeLogo            = 'images\\storelogo.png',
 						logo                 = 'images\\logo.png',
 						smallLogo            = 'images\\smallLogo.png',
 						foregroundText       = 'dark',
@@ -145,13 +146,13 @@ define(
 						.ele( 'Identity', {
 							'Name'      : name,
 							'Version'   : version,
-							'Publisher' : "CN=MyCompany, O=MyCompany, L=MyCity, S=MyState, C=MyCountry"
+							'Publisher' : publisher
 
 						}).up()
 						.ele( 'Properties' )
 						.ele( 'DisplayName' ).txt( displayName ).up()
 						.ele( 'PublisherDisplayName' ).txt( publisherDisplayName).up()
-						.ele( 'Logo' ).txt( logo ).up()
+						.ele( 'Logo' ).txt( storeLogo ).up()
 						.up()
 						.ele( 'Prerequisites' )
 						.ele( 'OSMinVersion' ).txt( '6.2.1' ).up()
@@ -178,6 +179,11 @@ define(
 						.ele( 'SplashScreen', {
 							Image: splashScreen
 						} )
+						.up().up().up().up()
+						.ele( 'Capabilities' )
+						.ele( 'Capability', {
+							Name: 'internetClient'
+						})
 
 					var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 					xmlContent += root.toString( { pretty : true } )
@@ -189,6 +195,7 @@ define(
 					copyFile( 'logo.png' )
 					copyFile( 'smallLogo.png' )
 					copyFile( 'splash.png' )
+					copyFile( 'storelogo.png' )
 				},
 				function() {
 					var cwd = path.join( tmpProjectPath, 'web' )
@@ -199,7 +206,7 @@ define(
 						'/d',
 						cwd,
 						'/p',
-						unsignedAppxFile
+						appxFile
 					]
 
 					console.log( '[spellcli] Pack: ' + argv.join(' ') )
@@ -207,7 +214,9 @@ define(
 					appPackager.run( environmentConfig, argv, cwd,  f.wait() )
 				},
 				function() {
-					var cwd = path.join( tmpProjectPath, 'web' )
+					var cwd                 = path.join( tmpProjectPath, 'web' ),
+						certificatePath     = windowsBuildSettings.certificatePath,
+						certificatePassword = windowsBuildSettings.certificatePassword
 
 					var argv = [
 						'sign',
@@ -215,9 +224,11 @@ define(
 						'/v',
 						'/fd',
 						'SHA256',
+						'/p',
+						certificatePassword,
 						'/f',
-						'',
-						unsignedAppxFile
+						certificatePath,
+						appxFile
 					]
 
 					console.log( '[spellcli] Sign: ' + argv.join(' ') )
