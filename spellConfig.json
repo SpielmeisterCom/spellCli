@@ -1,10 +1,11 @@
 {
 	"androidSdkPath": "",
 	"tizenSdkPath": "",
+	"windowsSdkPath": "C:/Program Files (x86)/Windows Kits/8.0/bin/",
 	"spellAndroidPath": "",
 	"jdkPath": "",
 	"spellCliPath": ".",
-	"spellCorePath": "/home/julian/workspace/spellCore/build",
-	"spellFlashPath": "/home/julian/workspace/spellFlash/build",
+	"spellCorePath": "../spellCore/build",
+	"spellFlashPath": "../spellCore/build",
 	"spelliOSPath": "."
 }

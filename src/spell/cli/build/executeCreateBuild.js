@@ -10,6 +10,7 @@ define(
 		'spell/cli/build/target/android/AndroidBuilder',
 		'spell/cli/build/target/tizen/TizenBuilder',
 		'spell/cli/build/target/web/WebBuilder',
+		'spell/cli/build/target/windows/WindowsStoreBuilder',
 		'spell/cli/util/createCacheContent',
 		'spell/cli/util/createIdFromLibraryFilePath',
 		'spell/cli/util/hashModuleId',
@@ -31,6 +32,7 @@ define(
 		AndroidBuilder,
 		TizenBuilder,
 		WebBuilder,
+		WindowsStoreBuilder,
 		createCacheContent,
 		createIdFromLibraryFilePath,
 		hashModuleId,
@@ -221,7 +223,7 @@ define(
 				)
 			)
 
-			var builderTypes = [ AndroidBuilder, TizenBuilder, iOSBuilder, WebBuilder ]
+			var builderTypes = [ AndroidBuilder, TizenBuilder, iOSBuilder, WebBuilder, WindowsStoreBuilder ]
 
 			//check project web build settings
 			if( target === 'web' && projectConfig.config.web ) {
