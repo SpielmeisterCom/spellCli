@@ -215,8 +215,8 @@ define(
 				},
 				function() {
 					var cwd                 = path.join( tmpProjectPath, 'web' ),
-						certificatePath     = windowsBuildSettings.certificatePath,
-						certificatePassword = windowsBuildSettings.certificatePassword
+						certificatePath     = path.join( projectPath, 'resources', 'windows', 'certificates','windows-store.pfx' ),
+						certificatePassword = windowsBuildSettings.signing.certificatePassword
 
 					var argv = [
 						'sign',
