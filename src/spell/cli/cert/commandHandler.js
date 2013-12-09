@@ -1,5 +1,5 @@
 define(
-	'spell/cli/cert/certCommandHandler',
+	'spell/cli/cert/commandHandler',
 	[
 		'spell/cli/cert/external/openssl',
 		'spell/cli/cert/external/keytool'
@@ -70,19 +70,17 @@ define(
 
 		}
 
-		return {
-			handleCommand: function( environmentConfig, command ) {
-				var commandMap = {
-					'geniosprivkey'     : genIosPrivKey,
-					'genioscsr'         : genIosCsr,
-					'genandroidprivkey' : genAndroidPrivKey
-				}
+		return function( environmentConfig, command ) {
+			var commandMap = {
+				'geniosprivkey'     : genIosPrivKey,
+				'genioscsr'         : genIosCsr,
+				'genandroidprivkey' : genAndroidPrivKey
+			}
 
-				if( command && commandMap[ command ] ) {
-					commandMap[ command ].call( this, environmentConfig )
-				} else {
-					console.log( 'unknown command: ' + command )
-				}
+			if( command && commandMap[ command ] ) {
+				commandMap[ command ].call( this, environmentConfig )
+			} else {
+				console.log( 'unknown command: ' + command )
 			}
 		}
 	}

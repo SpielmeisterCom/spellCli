@@ -3,12 +3,11 @@ define(
 	[
 		'fs',
 		'os',
-		'spell/cli/util/spawnChildProcess'
-	],
-	function(
+		'child_process'
+	], function(
 		fs,
 		os,
-		spawnChildProcess
+		child_process
 	) {
 		'use strict'
 
@@ -33,12 +32,16 @@ define(
 			},
 
 			run: function(environmentConfig, argv, cwd, next) {
-				spawnChildProcess(
-					getOpenSSLPath( environmentConfig ),
-					argv,
-					{ },
-					true,
-					next
+				child_process.exec(
+					getOpenSSLPath( environmentConfig ) + ' ' + argv.join(" "),
+					function( error, stdout, stderr ) {
+						if( error !== null ) {
+							next( stderr.toString() )
+							return
+						}
+
+						next( stdout.toString() )
+					}
 				)
 			}
 		}

@@ -7,7 +7,9 @@ define(
 		'spell/cli/exportArchive',
 		'spell/cli/init/initializeProjectDirectory',
 		'spell/cli/printLicenseInfo',
-		'spell/cli/cert/certCommandHandler',
+		'spell/cli/cert/commandHandler',
+		'spell/cli/parse/commandHandler',
+
 		'spell/BuildInfo',
 
 		'commander',
@@ -26,6 +28,7 @@ define(
 		initializeProjectDirectory,
 		printLicenseInfo,
 		certCommandHandler,
+		parseCommandHandler,
 		BuildInfo,
 
 		commander,
@@ -393,7 +396,11 @@ define(
 			commander
 				.command( 'cert [command]' )
 				.description( 'Certificate management; Valid commands are: genprivkey, gencsr' )
-				.action( _.bind( certCommandHandler.handleCommand, this, environmentConfig ) )
+				.action( _.bind( certCommandHandler, this, environmentConfig ) )
+
+			commander
+				.command( 'parse [type] [file]' )
+				.action( _.bind( parseCommandHandler, this, environmentConfig ) )
 
 			commander
 				.command( 'init' )
