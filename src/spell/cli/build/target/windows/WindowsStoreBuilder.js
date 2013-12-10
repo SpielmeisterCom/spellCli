@@ -127,14 +127,14 @@ define(
 						startPage            = 'index.html',
 						language             = '' || "en-us",
 						displayName          = name,
-						description          = '' || 'A Windows Store App created with SpellJS',
+						description          = windowsBuildSettings.description || 'A Windows Store App created with SpellJS',
 						publisherDisplayName = windowsBuildSettings.publisherDisplayName,
 						publisher            = windowsBuildSettings.publisher,
 						storeLogo            = 'images\\storelogo.png',
 						logo                 = 'images\\logo.png',
 						smallLogo            = 'images\\smallLogo.png',
-						foregroundText       = 'dark',
-						backgroundColor      = '#FFFFFF',
+						foregroundText       = windowsBuildSettings.foregroundText,
+						backgroundColor      = '#' + windowsBuildSettings.backgroundColor,
 						splashScreen         = "images\\splash.png"
 
 					var root = xmlbuilder.create()
@@ -178,8 +178,13 @@ define(
 						} )
 						.ele( 'SplashScreen', {
 							Image: splashScreen
-						} )
-						.up().up().up().up()
+						}).up()
+
+					if( screenOrientation != 'auto-rotation' ) {
+						node.ele( 'InitialRotationPreference').ele( 'Rotation', { Preference: screenOrientation } )
+					}
+
+					node.up().up().up()
 						.ele( 'Capabilities' )
 						.ele( 'Capability', {
 							Name: 'internetClient'
