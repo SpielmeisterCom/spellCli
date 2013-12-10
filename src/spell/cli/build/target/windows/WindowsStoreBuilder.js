@@ -123,7 +123,6 @@ define(
 						version              = projectConfig.config.version || '1.0.0.0',
 						name                 = windowsBuildSettings.name || projectId.replace( "_", '' ),
 						screenOrientation    = projectConfig.config.orientation || 'auto-rotation',
-						identifier           = windowsBuildSettings.identifier || 'http://spelljs.com/' + projectId,
 						startPage            = 'index.html',
 						language             = '' || "en-us",
 						displayName          = name,
