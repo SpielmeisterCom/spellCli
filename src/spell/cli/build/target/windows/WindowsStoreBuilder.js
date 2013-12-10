@@ -59,14 +59,14 @@ define(
 
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
 			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
-				tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'windows'),
-				windowsOutputPath       = path.join( outputPath, 'windows' ),
+				tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'winstore'),
+				windowsOutputPath       = path.join( outputPath, 'winstore' ),
 				appxFile                = path.join( windowsOutputPath, projectId + '.appx' ),
-				windowsBuildSettings    = projectConfig.config.windows || {}
+				windowsBuildSettings    = projectConfig.config.winstore || {}
 
 			var copyFile = function( fileName ) {
 				//Copy icons
-				var srcPath = path.join( projectPath, 'resources', 'windows', fileName ),
+				var srcPath = path.join( projectPath, 'resources', 'winstore', fileName ),
 					dstPath = path.join( tmpProjectPath, 'web', 'images', fileName )
 
 				if( fs.existsSync( srcPath ) ) {
@@ -119,13 +119,13 @@ define(
 				},function() {
 					console.log( '[spellcli] writing AppxManifest file' )
 
-					var appId                = windowsBuildSettings.appId || projectId.replace( "_", '' ) ,
+					var packageName          = projectId.replace( "_", '' ) ,
 						version              = projectConfig.config.version || '1.0.0.0',
-						name                 = windowsBuildSettings.name || projectId.replace( "_", '' ),
+						packageDisplayName   = windowsBuildSettings.packageDisplayName || packageName,
 						screenOrientation    = projectConfig.config.orientation || 'auto-rotation',
 						startPage            = 'index.html',
 						language             = '' || "en-us",
-						displayName          = name,
+						displayName          = windowsBuildSettings.displayName,
 						description          = windowsBuildSettings.description || 'A Windows Store App created with SpellJS',
 						publisherDisplayName = windowsBuildSettings.publisherDisplayName,
 						publisher            = windowsBuildSettings.publisher,
@@ -143,13 +143,13 @@ define(
 						})
 
 						.ele( 'Identity', {
-							'Name'      : name,
+							'Name'      : packageName,
 							'Version'   : version,
 							'Publisher' : publisher
 
 						}).up()
 						.ele( 'Properties' )
-						.ele( 'DisplayName' ).txt( displayName ).up()
+						.ele( 'DisplayName' ).txt( packageDisplayName ).up()
 						.ele( 'PublisherDisplayName' ).txt( publisherDisplayName).up()
 						.ele( 'Logo' ).txt( storeLogo ).up()
 						.up()
@@ -164,7 +164,7 @@ define(
 						.up()
 						.ele( 'Applications' )
 						.ele( 'Application', {
-							Id: appId,
+							Id: packageName,
 							StartPage: startPage
 						} )
 						.ele( 'VisualElements', {
@@ -219,7 +219,7 @@ define(
 				},
 				function() {
 					var cwd                 = path.join( tmpProjectPath, 'web' ),
-						certificatePath     = path.join( projectPath, 'resources', 'windows', 'certificates','windows-store.pfx' ),
+						certificatePath     = path.join( projectPath, 'resources', 'winstore', 'certificates','windows-store.pfx' ),
 						certificatePassword = windowsBuildSettings.signing.certificatePassword
 
 					var argv = [
@@ -239,10 +239,12 @@ define(
 
 					signing.run( environmentConfig, argv, cwd,  f.wait() )
 				}
-			)
+			).onError( function( message ) {
+				console.log( message )
+			})
 		}
 
-		var TARGET_NAME         = 'windows',
+		var TARGET_NAME         = 'winstore',
 			WindowsStoreBuilder = createBuilderType()
 
 		WindowsStoreBuilder.prototype = {
