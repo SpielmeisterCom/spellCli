@@ -2,16 +2,8 @@ define(
 	'spell/cli/build/target/windows/WindowsStoreBuilder',
 	[
 		'spell/cli/build/createBuilderType',
-		'spell/cli/build/createDataFileContent',
-		'spell/cli/build/createDebugPath',
-		'spell/cli/build/createProjectLibraryFilePaths',
 		'spell/cli/util/emptyDirectory',
-		'spell/cli/build/processSource',
-		'spell/cli/build/loadAssociatedScriptModules',
 		'spell/cli/util/writeFile',
-		'spell/cli/util/spawnChildProcess',
-		'spell/cli/util/createModuleId',
-		'spell/cli/util/hashModuleId',
 
 		'xmlbuilder',
 
@@ -20,8 +12,6 @@ define(
 		'spell/cli/build/external/windows/appPackager',
 		'spell/cli/build/external/windows/signing',
 
-		'amd-helper',
-		'child_process',
 		'ff',
 		'fs',
 		'fsUtil',
@@ -29,16 +19,8 @@ define(
 	],
 	function(
 		createBuilderType,
-		createDataFileContent,
-		createDebugPath,
-		createProjectLibraryFilePaths,
 		emptyDirectory,
-		processSource,
-		loadAssociatedScriptModules,
 		writeFile,
-		spawnChildProcess,
-		createModuleId,
-		hashModuleId,
 
 		xmlbuilder,
 
@@ -47,8 +29,6 @@ define(
 		appPackager,
 		signing,
 
-		amdHelper,
-		child_process,
 		ff,
 		fs,
 		fsUtil,
@@ -192,7 +172,7 @@ define(
 					var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 					xmlContent += root.toString( { pretty : true } )
 
-					fs.writeFileSync( path.join( tmpProjectPath, 'web', 'AppxManifest.xml'), xmlContent )
+					writeFile( path.join( tmpProjectPath, 'web', 'AppxManifest.xml'), xmlContent )
 				},function() {
 					//Copy icons
 					fs.mkdirSync( path.join( tmpProjectPath, 'web', 'images' ) )
