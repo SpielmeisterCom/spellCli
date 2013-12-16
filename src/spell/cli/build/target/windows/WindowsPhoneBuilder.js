@@ -54,9 +54,10 @@ define(
 		}
 
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
-			var projectId      = projectConfig.config.projectId || 'defaultProjectId',
-				tmpProjectPath = path.join( projectPath, 'build', 'tmp', 'winphone'),
-				outputPath     = path.join( outputPath, 'winphone' )
+			var projectId           = projectConfig.config.projectId || 'defaultProjectId',
+				tmpProjectPath      = path.join( projectPath, 'build', 'tmp', 'winphone'),
+				outputPath          = path.join( outputPath, 'winphone'),
+				skeletonProjectPath = environmentConfig.spellWindowsPhone8
 
 			var f = ff(
 				function() {
@@ -74,6 +75,19 @@ define(
 				function() {
 					console.log( '[spellcli] Cleaning ' + outputPath )
 					emptyDirectory( outputPath )
+				},
+				function() {
+					console.log( '[spellcli] cp -aR ' + skeletonProjectPath + ' ' + tmpProjectPath )
+
+					wrench.copyDirSyncRecursive(
+						skeletonProjectPath,
+						tmpProjectPath,
+						{
+							forceDelete: true,
+							preserveFiles : false,
+							inflateSymlinks : false
+						}
+					)
 				},
 				function() {
 					console.log( '[spellcli] Creating web build for the Windows Phone package' )
@@ -101,7 +115,6 @@ define(
 					console.log( '[spellcli] Creating wav files from ogg' )
 					var files = pathUtil.createFilePathsFromDirSync( projectLibraryPath, ['ogg'] )
 
-
 					_.each(
 						files,
 						function( relativeFilePath ) {
@@ -122,6 +135,25 @@ define(
 							)
 						}
 					)
+				},
+				function() {
+					var webBuildPath     = path.join( tmpProjectPath, 'web' ),
+						spellProjectPath = path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'Html' )
+
+					console.log( '[spellcli] cp -aR ' + webBuildPath + ' ' + spellProjectPath )
+
+					wrench.copyDirSyncRecursive(
+						webBuildPath,
+						spellProjectPath,
+						{
+							forceDelete: true,
+							preserveFiles : false,
+							inflateSymlinks : false
+						}
+					)
+
+					console.log( '[spellcli] rm -R ' + webBuildPath )
+					wrench.rmdirSyncRecursive( webBuildPath )
 				}
 			).onError( function( message ) {
 				console.log( message )
