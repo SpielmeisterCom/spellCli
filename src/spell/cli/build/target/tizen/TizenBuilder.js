@@ -87,7 +87,19 @@ define(
 				unsignedDebugWgtFile    = path.join( tmpProjectPath, projectId + '_debug_unsigned.wgt' ),
 				signedReleaseWgtFile    = path.join( tmpProjectPath, projectId + '_release_signed.wgt'),
 				tizenOutputPath         = path.join( outputPath, 'tizen' ),
-				tizenBuildSettings      = projectConfig.config.tizen || {}
+				tizenBuildSettings      = projectConfig.config.tizen || {},
+				tizenSigningSettings    = tizenBuildSettings.signing || {},
+				authorCaFile            = path.join( projectPath, 'resources', 'tizen', 'certificates', 'tizen-developer-ca.cer' ),
+				authorKeyFile           = path.join( projectPath, 'resources', 'tizen', 'certificates', 'tizen-developer-signer.p12' ),
+				dist1CaFile             = path.join( projectPath, 'resources', 'tizen', 'certificates', 'tizen-distributor-1-ca.cer' ),
+				dist1KeyFile            = path.join( projectPath, 'resources', 'tizen', 'certificates', 'tizen-distributor-1-signer.p12' ),
+				dist2CaFile             = path.join( projectPath, 'resources', 'tizen', 'certificates', 'tizen-distributor-2-ca.cer' ),
+				dist2KeyFile            = path.join( projectPath, 'resources', 'tizen', 'certificates', 'tizen-distributor-2-signer.p12'),
+				hasSigningSettings      = fs.existsSync( authorCaFile ) && fs.existsSync( authorKeyFile ) &&
+										  fs.existsSync( dist1CaFile ) && fs.existsSync( dist1KeyFile ) &&
+										  tizenSigningSettings.developerKeyfilePassword && tizenSigningSettings.distributor1KeyfilePassword
+
+
 
 			var f = ff(
 				function() {
@@ -272,70 +284,79 @@ define(
 				},
 				function() {
 					if( !debug ) {
-						var root = xmlbuilder.create()
+						if( hasSigningSettings ) {
+							var root = xmlbuilder.create()
 
-						var node = root.ele( 'profiles', {
+							var node = root.ele( 'profiles', {
 								'version': '2.2'
 							} )
-							.ele( 'profile', {
-								'name': 'release'
-							})
-							.ele( 'profileitem', {
-								'ca'            : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/developer/tizen-developer-ca.cer',
-								'distributor'   : '0',
-								'key'           : '/srv/tizen-sdk-data/keystore/author/kaisergames.p12',
-								'password'      : 'gKlviz/O6bC8ovlo/PRRlw==',
-								'rootca'        : ''
-							})
-							.up( )
-							.ele( 'profileitem', {
-								'ca'            : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/distributor/tizen-distributor-ca.cer',
-								'distributor'   : '1',
-								'key'           : '/home/julian/tizen-sdk/tools/certificate-generator/certificates/distributor/tizen-distributor-signer.p12',
-								'password'      : createProfilesXmlCryptedPassword( 'tizenpkcs12passfordsigner' ),
-								'rootca'        : ''
-							})
-							.up( )
-							.ele( 'profileitem', {
-								'ca'            : '',
-								'distributor'   : '2',
-								'key'           : '',
-								'password'      : 'xmEcrXPl1ss',
-								'rootca'        : ''
-							})
+								.ele( 'profile', {
+									'name': 'release'
+								})
+								.ele( 'profileitem', {
+									'ca'            : authorCaFile,
+									'distributor'   : '0',
+									'key'           : authorKeyFile,
+									'password'      : createProfilesXmlCryptedPassword( tizenSigningSettings.developerKeyfilePassword ),
+									'rootca'        : ''
+								})
+								.up( )
+								.ele( 'profileitem', {
+									'ca'            : dist1CaFile,
+									'distributor'   : '1',
+									'key'           : dist1KeyFile,
+									'password'      : createProfilesXmlCryptedPassword( tizenSigningSettings.distributor1KeyfilePassword ),
+									'rootca'        : ''
+								})
+								.up( )
+								.ele( 'profileitem', {
+									'ca'            : fs.existsSync( dist2CaFile ) ? dist2CaFile : '',
+									'distributor'   : '2',
+									'key'           : fs.existsSync( dist2KeyFile ) ? dist2KeyFile : '',
+									'password'      : tizenSigningSettings.distributor2KeyfilePassword ? tizenSigningSettings.distributor2KeyfilePassword : 'xmEcrXPl1ss',
+									'rootca'        : ''
+								})
 
 
-						var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-						xmlContent += root.toString( { pretty : true } )
+							var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+							xmlContent += root.toString( { pretty : true } )
 
-						fs.writeFileSync( path.join( tmpProjectPath, 'profiles.xml'), xmlContent )
+							fs.writeFileSync( path.join( tmpProjectPath, 'profiles.xml'), xmlContent )
+
+						} else {
+							console.log( '[spellcli] WARNING: missing signing settings or ca/key files; skipping profiles.xml generation' )
+						}
 					}
 
 				},
 				function() {
 					if( !debug ) {
+						if( hasSigningSettings ) {
+							//sign wgt package
+							var cwd             = path.join( tmpProjectPath, 'web'),
+								profilesPath    = path.join( tmpProjectPath, 'profiles.xml')
 
-						//sign wgt package
-						var cwd             = path.join( tmpProjectPath, 'web'),
-							profilesPath    = path.join( tmpProjectPath, 'profiles.xml')
+							var argv = [
+								'--log',
+								'info',
+								'--nocheck',
+								'--profile',
+								'release:' + profilesPath,
+								cwd
+							]
 
-						var argv = [
-							'--log',
-							'info',
-							'--nocheck',
-							'--profile',
-							'release:' + profilesPath,
-							cwd
-						]
+							console.log( '[spellcli] web-signing ' + argv.join(' ') )
 
-						console.log( '[spellcli] web-signing ' + argv.join(' ') )
+							webSigning.run(
+								environmentConfig,
+								argv,
+								cwd,
+								f.wait()
+							)
 
-						webSigning.run(
-							environmentConfig,
-							argv,
-							cwd,
-							f.wait()
-						)
+						} else {
+							console.log( '[spellcli] WARNING missing signing settings or ca/key files; skipping web-signing step' )
+						}
 					}
 				},
 				function() {
