@@ -282,9 +282,10 @@ define(
 		}
 
 		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
-			var projectId            = projectConfig.config.projectId || 'defaultProjectId',
-				androidBuildSettings = projectConfig.config.android || {},
-				hasSigningSettings   = androidBuildSettings.signingKeyStore && androidBuildSettings.signingKeyStorePass && androidBuildSettings.signingKeyAlias && androidBuildSettings.signingKeyPass
+			var projectId               = projectConfig.config.projectId || 'defaultProjectId',
+				androidBuildSettings    = projectConfig.config.android || {},
+				androidSigningSettings  = androidBuildSettings.signing || {}
+
 
 			var spellCorePath = environmentConfig && environmentConfig.spellCorePath ?
 				environmentConfig.spellCorePath :
@@ -320,7 +321,12 @@ define(
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' ) ),
 				xslFile                 = path.join( spellAndroidPath, 'AndroidManifest.xsl' ),
 				androidManifestFile     = path.resolve( tealeafPath, 'AndroidManifest.xml' ),
-				projectManifestFilePath = path.resolve( tmpProjectPath, 'AndroidManifest.xml' )
+				projectManifestFilePath = path.resolve( tmpProjectPath, 'AndroidManifest.xml'),
+				keyStorePath            = path.resolve( projectPath, 'resources', 'android', 'certificates', 'release.keystore'),
+				hasSigningSettings      = fs.existsSync( keyStorePath )             && androidSigningSettings.releaseKeyStorePassword &&
+											androidSigningSettings.releaseKeyAlias  && androidSigningSettings.releaseKeyPassword
+
+
 
             console.log( '[spellcli] Cleaning ' + tmpProjectPath )
 			emptyDirectory( tmpProjectPath )
@@ -590,16 +596,15 @@ define(
 				function() {
 					if( !debug ) {
 						if ( hasSigningSettings ) {
-							var keyStorePath = path.resolve( projectPath, androidBuildSettings.signingKeyStore),
-								parameters   = [
+								var parameters   = [
 									'-sigalg',    'MD5withRSA',
 									'-digestalg', 'SHA1',
 									'-keystore',  keyStorePath,
-									'-storepass', androidBuildSettings.signingKeyStorePass,
-									'-keypass',   androidBuildSettings.signingKeyPass,
+									'-storepass', androidSigningSettings.releaseKeyStorePassword,
+									'-keypass',   androidSigningSettings.releaseKeyPassword,
 									'-signedjar', unalignedReleaseApkFile,
 									unsignedReleaseApkFile,
-									androidBuildSettings.signingKeyAlias
+									androidSigningSettings.releaseKeyAlias
 							]
 
 							console.log( '[spellcli] jarsigner ' + parameters.join(' ') )
@@ -607,7 +612,7 @@ define(
 							jarsigner.run( environmentConfig, parameters, tmpProjectPath, f.wait());
 
 						} else {
-							console.log( '[spellcli] missing signingSettings; skipping jarsigner step' )
+							console.log( '[spellcli] missing signing settings or keystore file; skipping jarsigner step' )
 						}
 					}
 				},
@@ -623,7 +628,7 @@ define(
 							zipalign.run( environmentConfig, parameters, tmpProjectPath, f.wait())
 
 						} else {
-							console.log( '[spellcli] missing signingSettings; skipping zipalign step' )
+							console.log( '[spellcli]  missing signing settings or keystore file; skipping zipalign step' )
 						}
 					}
 				},
