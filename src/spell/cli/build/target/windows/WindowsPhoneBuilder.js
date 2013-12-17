@@ -10,7 +10,7 @@ define(
 
 		'spell/cli/build/target/web/WebBuilder',
 
-		'spell/cli/build/external/windows/appPackager',
+		'spell/cli/build/external/windows/msBuild',
 		'spell/cli/build/external/windows/signing',
 
 		'ff',
@@ -30,7 +30,7 @@ define(
 
 		WebBuilder,
 
-		appPackager,
+		msBuild,
 		signing,
 
 		ff,
@@ -61,8 +61,8 @@ define(
 
 			var f = ff(
 				function() {
-					console.log( '[spellcli] Checking prerequisite: MakeAppx.exe' )
-					appPackager.checkPrerequisite( environmentConfig, f.wait(), f.fail )
+					console.log( '[spellcli] Checking prerequisite: MSBuild.exe' )
+					msBuild.checkPrerequisite( environmentConfig, f.wait(), f.fail )
 				},
 				function() {
 					console.log( '[spellcli] Checking prerequisite: SignTool.exe' )
@@ -154,6 +154,32 @@ define(
 
 					console.log( '[spellcli] rm -R ' + webBuildPath )
 					wrench.rmdirSyncRecursive( webBuildPath )
+				},
+				function() {
+					var xamlFilePath = path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'MainPage.xaml' ),
+						orientation  = projectConfig.config.orientation == 'auto' ? 'PortraitOrLandscape' : projectConfig.config.orientation
+
+					console.log( '[spellcli] Patch the '+ xamlFilePath +' file' )
+
+					var fileContent = fs.readFileSync( xamlFilePath, 'utf-8' )
+
+					fileContent = fileContent.replace( /PortraitOrLandscape/, orientation )
+
+					writeFile(
+						xamlFilePath,
+						fileContent
+					)
+				},
+				function() {
+					var cwd = path.join( tmpProjectPath, 'SpellJSProjectSceleton.sln' )
+
+					var argv = [
+						cwd
+					]
+
+					console.log( '[spellcli] Build: ' + argv.join(' ') )
+
+					msBuild.run( environmentConfig, argv, cwd, f.wait() )
 				}
 			).onError( function( message ) {
 				console.log( message )

@@ -2,6 +2,7 @@
 	"androidSdkPath": "",
 	"tizenSdkPath": "",
 	"windowsSdkPath": "C:/Program Files (x86)/Windows Kits/8.0/bin/",
+	"msBuildPath": "C:/Windows/Microsoft.NET/Framework/v4.0.30319",
 	"spellWindowsPhone8": "C:/Users/Ioannis/Documents/visual studio 2013/Projects/SpellJSProjectSceleton",
 	"spellAndroidPath": "",
 	"jdkPath": "",
