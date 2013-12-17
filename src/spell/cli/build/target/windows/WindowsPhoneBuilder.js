@@ -57,7 +57,8 @@ define(
 			var projectId           = projectConfig.config.projectId || 'defaultProjectId',
 				tmpProjectPath      = path.join( projectPath, 'build', 'tmp', 'winphone'),
 				outputPath          = path.join( outputPath, 'winphone'),
-				skeletonProjectPath = environmentConfig.spellWindowsPhone8
+				skeletonProjectPath = environmentConfig.spellWindowsPhone8,
+				buildTarget         = debug ? 'Debug' : 'Release'
 
 			var f = ff(
 				function() {
@@ -174,12 +175,21 @@ define(
 					var cwd = path.join( tmpProjectPath, 'SpellJSProjectSceleton.sln' )
 
 					var argv = [
-						cwd
+						cwd,
+						'/property:Configuration=' + buildTarget
 					]
 
 					console.log( '[spellcli] Build: ' + argv.join(' ') )
 
 					msBuild.run( environmentConfig, argv, cwd, f.wait() )
+				},
+				function() {
+					var xapFilePath = path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'bin', buildTarget, 'SpellJSProjectSceleton_' + buildTarget + '_AnyCPU.xap'),
+						targetPath  = path.join( outputPath, path.basename( xapFilePath ) )
+
+					console.log( '[spellcli] Copy XAP file to: ' + targetPath )
+
+					fsUtil.copyFile( xapFilePath, targetPath )
 				}
 			).onError( function( message ) {
 				console.log( message )
