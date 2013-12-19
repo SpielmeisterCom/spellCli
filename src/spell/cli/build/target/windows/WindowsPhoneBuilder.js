@@ -83,6 +83,7 @@ define(
 						skeletonProjectPath,
 						tmpProjectPath,
 						{
+							filter: /^.git/,
 							forceDelete: true,
 							preserveFiles : false,
 							inflateSymlinks : false
