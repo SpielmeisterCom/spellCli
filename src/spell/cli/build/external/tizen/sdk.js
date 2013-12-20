@@ -21,13 +21,19 @@ define(
 					return "";
 				}
 
-				var toolPath = path.resolve(
-					environmentConfig.tizenSdkPath,
-					'tools',
-					os.platform() == 'win32' ? toolName + '.bat' : toolName
-				)
+				if( os.platform() == 'win32' ) {
+					return path.resolve(
+						environmentConfig.tizenSdkPath,
+						toolName + '.bat'
+					)
 
-				return toolPath
+				} else {
+					return path.resolve(
+						environmentConfig.tizenSdkPath,
+						'tools',
+						toolName
+					)
+				}
 			},
 
 			checkPrerequisite: function( environmentConfig, toolName, successCb, failCb ) {
