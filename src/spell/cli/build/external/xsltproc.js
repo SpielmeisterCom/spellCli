@@ -3,12 +3,16 @@ define(
 	[
 		'fs',
 		'os',
-		'spell/cli/util/spawnChildProcess'
+		'spell/cli/util/spawnChildProcess',
+
+		'path'
 	],
 	function(
 		fs,
 		os,
-		spawnChildProcess
+		spawnChildProcess,
+
+		path
 	) {
 		'use strict'
 
