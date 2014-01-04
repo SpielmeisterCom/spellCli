@@ -28,6 +28,11 @@ else ifeq ($(UNAME_S),CYGWIN_NT-6.2-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
+
+else ifeq ($(UNAME_S),CYGWIN_NT-6.3-WOW64)
+	SED = sed -i
+	WINDOWS_ENV = true
+	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
 endif
 
 
