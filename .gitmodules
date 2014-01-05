@@ -1,9 +1,3 @@
-[submodule "modules/nodejs"]
-	path = modules/nodejs
-	url = ssh://git@stash.spielmeister.com:7999/spellcommon/nodejs.git
-[submodule "modules/upx"]
-	path = modules/upx
-	url = ssh://git@stash.spielmeister.com:7999/spellcommon/upx.git
 [submodule "node_modules"]
 	path = node_modules
 	url = ssh://git@stash.spielmeister.com:7999/spellcommon/node_modules.git

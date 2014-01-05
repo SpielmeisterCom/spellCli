@@ -1,9 +1,7 @@
 SPELL_CLI_BUILD_DIR = build
 TMP_DIR             = $(SPELL_CLI_BUILD_DIR)/tmp
 SPELL_CLI_LIB       = $(TMP_DIR)/spellcli.js
-NODE                = modules/nodejs/node
 NODE_SRC            = modules/node
-NODE_PATH           = $$(modules/nodejs/node --which)
 
 UNAME_S := $(shell uname -s)
 NODEJS_CONFIGURE_OPTS = 
@@ -13,26 +11,31 @@ ifeq ($(UNAME_S),Darwin)
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/osx-ia32
 	WINDOWS_ENV = false
 	NODEJS_CONFIGURE_OPTS = "--dest-cpu=ia32"
+	NODE = node
 
 else ifeq ($(UNAME_S),Linux)
 	SED = sed -i
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/linux-x64
 	WINDOWS_ENV = false
+	NODE = node
 
 else ifeq ($(UNAME_S),CYGWIN_NT-6.1-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
+	NODE = node.exe
 
 else ifeq ($(UNAME_S),CYGWIN_NT-6.2-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
+	NODE = node.exe
 
 else ifeq ($(UNAME_S),CYGWIN_NT-6.3-WOW64)
 	SED = sed -i
 	WINDOWS_ENV = true
 	SPELL_CLI_OUT_DIR = $(SPELL_CLI_BUILD_DIR)/win-ia32
+	NODE = node.exe
 endif
 
 
@@ -73,7 +76,6 @@ ifeq ($(WINDOWS_ENV),true)
 else
 	cd $(NODE_SRC) && ./configure $(NODEJS_CONFIGURE_OPTS) && make -j4
 	cp $(NODE_SRC)/out/Release/node $(SPELL_CLI_OUT_DIR)/spellcli
-	modules/upx/upx -9 $(SPELL_CLI_OUT_DIR)/spellcli
 endif
 
 	#copy the bundled ant into the build directory
