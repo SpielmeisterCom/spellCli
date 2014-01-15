@@ -506,7 +506,11 @@ define(
 						)
 					}
 
-				).onComplete( next )
+				).onComplete(
+					next
+				).onError( function( message ) {
+					console.log( message )
+				})
 			}
 		}
 
