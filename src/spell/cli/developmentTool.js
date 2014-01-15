@@ -165,8 +165,7 @@ define(
 					var resolvedDirPath = path.resolve( basePath, value )
 
 					if( !fsUtil.isDirectory( resolvedDirPath ) ) {
-						printErrors( 'Error: Parsing spell configuration file "' + environmentConfigFilePath + '" failed. Configuration option "' + key + '" points to non-existing directory "' + resolvedDirPath + '".' )
-						process.exit( 1 )
+						printErrors( 'WARNING: Configuration option "' + key + '" points to non-existing directory "' + resolvedDirPath + '".' )
 					}
 
 					result[ key ] = resolvedDirPath
