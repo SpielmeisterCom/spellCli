@@ -11,7 +11,6 @@ define(
 	    ff
 	)
 	{
-		var DEFAULT_IOS_PRODUCT = 'TeaLeafIOS';
 		var NAMES_TO_REPLACE = /(PRODUCT_NAME)|(name = )|(productName = )/;
 
         var removeKeysForObjects = function(parentObject, objects, keys) {
@@ -45,7 +44,9 @@ define(
 					contents = contents.map(function(line) {
 
 						if (line.match(NAMES_TO_REPLACE)) {
-							line = line.replace(DEFAULT_IOS_PRODUCT, bundleID)
+							line = line.replace('Ejecta', bundleID)
+                            line = line.replace('iOSImpact', bundleID)
+
 						}
 
 						return line
@@ -69,7 +70,7 @@ define(
 			})
 		}
 
-		var updatePListFile = function( plistFilePath, bundleID, title, version, supportedOrientations, next ) {
+		var updatePListFile = function( plistFilePath, bundleID, title, version, supportedOrientation, next ) {
 
             fs.readFile( plistFilePath, 'utf8', function(err, data) {
 
@@ -80,18 +81,31 @@ define(
 
                     var contents = plist.parseStringSync( data )
 
-                    // Remove unsupported modes
-                    if( supportedOrientations.indexOf("landscape") == -1 ) {
-                        removeKeysForObjects(contents, ["UISupportedInterfaceOrientations", "UISupportedInterfaceOrientations~ipad"],
-                            ["UIInterfaceOrientationLandscapeRight", "UIInterfaceOrientationLandscapeLeft"]);
+	                var supportedInterfaceOrientations = [
+		                'UIInterfaceOrientationLandscapeRight', 'UIInterfaceOrientationLandscapeLeft',
+		                'UIInterfaceOrientationPortrait', 'UIInterfaceOrientationPortraitUpsideDown'
+	                ]
+
+                    if( supportedOrientation == 'landscape' ) {
+	                    supportedInterfaceOrientations = [
+		                    'UIInterfaceOrientationLandscapeRight', 'UIInterfaceOrientationLandscapeLeft'
+	                    ]
+
+	                    contents[ 'UIInterfaceOrientation' ]          = 'UIInterfaceOrientationLandscapeRight'
+
+
+                    } else if ( supportedOrientation == 'portrait' ) {
+	                    supportedInterfaceOrientations = [
+		                    'UIInterfaceOrientationPortrait', 'UIInterfaceOrientationPortraitUpsideDown'
+	                    ]
+
+	                    contents[ 'UIInterfaceOrientation' ]          = 'UIInterfaceOrientationPortrait'
+
                     }
 
-                    if ( supportedOrientations.indexOf("portrait") == -1 ) {
-                        removeKeysForObjects(contents, ["UISupportedInterfaceOrientations", "UISupportedInterfaceOrientations~ipad"],
-                            ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown"]);
-                    }
-
-                    contents.CFBundleShortVersionString = version
+	                contents[ 'UISupportedInterfaceOrientations' ]      = supportedInterfaceOrientations
+	                contents[ 'UISupportedInterfaceOrientations~ipad' ] = supportedInterfaceOrientations
+                    contents[ 'CFBundleShortVersionString' ]            = version
 
                     // If RenderGloss enabled,
                     /*if (manifest.ios.icons && manifest.ios.icons.renderGloss) {
@@ -104,29 +118,11 @@ define(
                     contents.CFBundleDisplayName    = title
                     contents.CFBundleIdentifier     = bundleID
                     contents.CFBundleName           = bundleID
+                    contents.CFBundleURLTypes       = [{
+			                CFBundleURLName     : bundleID,
+			                CFBundleURLSchemes  : [ bundleID ]
+		            }]
 
-                    // For each URLTypes array entry,
-                    var found = 0;
-                    for (var ii = 0; ii < contents.CFBundleURLTypes.length; ++ii) {
-                        var obj = contents.CFBundleURLTypes[ii];
-
-                        // If it's the URLName one,
-                        if (obj.CFBundleURLName) {
-                            obj.CFBundleURLName = bundleID
-                            ++found
-                        }
-
-                        // If it's the URLSchemes one,
-                        if (obj.CFBundleURLSchemes) {
-                            // Note this blows away all the array entries
-                            obj.CFBundleURLSchemes = [bundleID]
-                            ++found
-                        }
-                    }
-
-                    if( found != 2 ) {
-                        throw new Error("Unable to update URLTypes")
-                    }
 
                     /*installAddonsPList(builder, {
                         contents: contents,

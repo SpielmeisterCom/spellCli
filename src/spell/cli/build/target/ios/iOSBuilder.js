@@ -66,16 +66,19 @@ define(
 	            openXcode               = iOSBuildSettings.openXcode || false,
                 spellCorePath           = environmentConfig.spellCorePath,
 				spelliOSPath            = environmentConfig.spelliOSPath || '../spelliOS/build',
-                tealeafPath             = path.resolve( spelliOSPath, debug ? 'debug' : 'release', 'tealeaf' ),
                 tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'ios', projectId ),
-	            XcodeProjectPath        = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj' ),
-				projectFile             = path.join( tmpProjectPath, 'TeaLeafIOS.xcodeproj', 'project.pbxproj' ),
-				plistFile               = path.join( tmpProjectPath, 'TeaLeafIOS-Info.plist'),
+
+	            XcodeProjectPath        = path.join( tmpProjectPath, 'Ejecta.xcodeproj' ),
+				projectFile             = path.join( XcodeProjectPath, 'project.pbxproj' ),
+                appPath                 = path.join( tmpProjectPath, 'App'),
+
+                resourcesPath           = path.join( tmpProjectPath, 'Resources'),
+				plistFile               = path.join( resourcesPath, 'Info.plist'),
+
                 configFile              = path.join( tmpProjectPath, 'resources', 'config.plist'),
-                resourcesPath           = path.join( tmpProjectPath, 'resources', 'resources.bundle' ),
                 spellEngineFile         = createDebugPath( debug, 'spell.debug.js', 'spell.release.js', path.join( spellCorePath, 'lib' )),
                 launchClientFile        = path.resolve( spelliOSPath, 'launchClient.js'),
-	            appPath                 = path.join( tmpProjectPath, 'build', (debug ? 'Debug' : 'Release') + '-iphoneos', bundleId + '.app'),
+	          //  appPath                 = path.join( tmpProjectPath, 'build', (debug ? 'Debug' : 'Release') + '-iphoneos', bundleId + '.app'),
 	            ipaFile                 = path.join( tmpProjectPath, 'bin', projectId + '-' + (debug?'debug':'release') + '.ipa'),
 	            provisionFile           = '',
 	            developerName           = ''
@@ -117,9 +120,9 @@ define(
                     f.timeout( 5 * 60 * 1000 )
                 },
                 function() {
-	                console.log( '[spellcli] cp -aR ' + tealeafPath + ' ' + tmpProjectPath )
+	                console.log( '[spellcli] cp -aR ' + spelliOSPath + ' ' + tmpProjectPath )
                     wrench.copyDirSyncRecursive(
-                        tealeafPath,
+                        spelliOSPath,
                         tmpProjectPath,
                         {
                             forceDelete : true,
@@ -141,12 +144,21 @@ define(
 	            function() {
 		            console.log( '[spellcli] Copying icon resources into XCode project' )
 
-		            var icons = ['57', '72', '76', '114', '120', '144', '152']
+		            var icons = [
+                        'Icon.png',         /* 57x57    iOS6 iPhone App Icon */
+                        'Icon-60.png',      /* 60x60    iOS7 iPhone App Icon */
+                        'Icon-72.png',      /* 72x72    iOS6 iPad App Icon */
+                        'Icon-76.png',      /* 76x76    iOS7 iPad App Icon */
+                        'Icon@2x.png',      /* 114x114  iOS6 iPad App Icon for retina display */
+                        'Icon-60@2x.png',   /* 120x120  iOS7 iPhone App Icon for retina display */
+                        'Icon-72@2x.png',   /* 144x144  iOS6 iPhone App Icon for retina display */
+                        'Icon-76@2x.png'    /* 152x152  iOS7 iPad App Icon for retina display */
+                    ]
 
 		            for( var i = 0; i< icons.length; i++ ) {
-			            var size    = icons[ i ],
-				            srcPath = path.join( projectPath, 'resources', 'ios', 'icon', 'icon' + size + '.png' ),
-				            dstPath = path.join( tmpProjectPath, 'Images.xcassets', 'AppIcon.appiconset', 'icon' + size + '.png' )
+			            var fileName    = icons[ i ],
+				            srcPath     = path.join( projectPath, 'resources', 'ios', fileName ),
+				            dstPath     = path.join( resourcesPath, fileName )
 
 			            if( fs.existsSync( srcPath ) ) {
 				            fsUtil.copyFile(
@@ -158,7 +170,7 @@ define(
 			            }
 		            }
 	            },
-	            function() {
+	            /*function() {
 		            console.log( '[spellcli] Copying launchimage resources into XCode project' )
 
 		            var splashes = [
@@ -186,8 +198,8 @@ define(
 			            }
 
 		            }
-	            },
-                function() {
+	            },*/
+                /*function() {
                     console.log( '[spellcli] Writing config file ' + configFile )
                     XcodeProjectHelper.createConfigFile(
                         configFile,
@@ -214,30 +226,34 @@ define(
                         },
                         f.wait()
                    )
-                },
+                },*/
                 function() {
-                    console.log( '[spellcli] Populating ' + resourcesPath + ' with SpellJS project resources' )
+                    console.log( '[spellcli] Populating ' + appPath + ' with SpellJS project resources' )
+
+                    if( !fs.existsSync( appPath ) ) {
+                        wrench.mkdirSyncRecursive( appPath )
+                    }
 
                     // copy project library directory
-                    var libraryResourcesPath = path.join( resourcesPath, 'library' ),
-                        spelljsResourcesPath = path.join( resourcesPath, 'spelljs' )
+                    var libraryResourcesPath = path.join( appPath, 'library' ),
+                        spelljsResourcesPath = path.join( appPath, 'spelljs' )
 
-                    fsUtil.copyFile(
+/*                    fsUtil.copyFile(
                         launchClientFile,
-                        path.join( resourcesPath, 'native.js' )
+                        path.join( appPath, 'native.js' )
                     )
-
+*/
                     // create application module and engine library file
                     wrench.mkdirSyncRecursive( spelljsResourcesPath )
 
                     writeFile(
-                        path.join( spelljsResourcesPath, 'data.js.mp3' ),
+                        path.join( spelljsResourcesPath, 'data.js' ),
                         createDataFileContent( scriptSource, cacheContent, projectConfig )
                     )
 
                     fsUtil.copyFile(
                         spellEngineFile,
-                        path.join( spelljsResourcesPath, 'spell.js.mp3' )
+                        path.join( spelljsResourcesPath, 'spell.js' )
                     )
 
                     fsUtil.copyFiles(
