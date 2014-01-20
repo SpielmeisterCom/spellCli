@@ -106,6 +106,7 @@ define(
 	                contents[ 'UISupportedInterfaceOrientations' ]      = supportedInterfaceOrientations
 	                contents[ 'UISupportedInterfaceOrientations~ipad' ] = supportedInterfaceOrientations
                     contents[ 'CFBundleShortVersionString' ]            = version
+	                contents[ 'CFBundleVersion' ]                       = version
 
                     // If RenderGloss enabled,
                     /*if (manifest.ios.icons && manifest.ios.icons.renderGloss) {
