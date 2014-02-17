@@ -164,9 +164,11 @@ define(
 
 					var resolvedDirPath = path.resolve( basePath, value )
 
+					/*
 					if( !fsUtil.isDirectory( resolvedDirPath ) ) {
 						printErrors( 'WARNING: Configuration option "' + key + '" points to non-existing directory "' + resolvedDirPath + '".' )
 					}
+					*/
 
 					result[ key ] = resolvedDirPath
 				}
