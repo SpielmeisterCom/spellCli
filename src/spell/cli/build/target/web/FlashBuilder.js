@@ -160,9 +160,6 @@ define(
 						.txt( spellFlashPath + '/lib/Coral/src' )
 					.up()
 					.ele( 'path-element' )
-						.txt( spellFlashPath + '/lib/Box2D/Source' )
-					.up()
-					.ele( 'path-element' )
 						.txt( srcPath )
 					.up()
 				.up()
@@ -506,7 +503,11 @@ define(
 						)
 					}
 
-				).onComplete( next )
+				).onComplete(
+					next
+				).onError( function( message ) {
+					console.log( message )
+				})
 			}
 		}
 

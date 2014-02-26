@@ -8,17 +8,4 @@ fi
 
 DIRNAME=$(dirname $FILE)
 
-if [ -f $DIRNAME/modules/nodejs/node ]; then
-	NODE=$DIRNAME/modules/nodejs/node
-
-elif [ -f $DIRNAME/node ]; then
-	NODE=$DIRNAME/node
-
-elif [ -f $DIRNAME/node.exe ]; then
-	NODE=$DIRNAME/node.exe
-
-else
-	echo Error: Could not find node binary!
-fi
-
-$NODE $DIRNAME/src/spell/cli/spellcli.js $*
+node $DIRNAME/src/spell/cli/spellcli.js $*

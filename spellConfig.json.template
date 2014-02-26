@@ -8,6 +8,6 @@
 	"jdkPath": "",
 	"spellCliPath": ".",
 	"spellCorePath": "../spellCore/build",
-	"spellFlashPath": "../spellCore/build",
-	"spelliOSPath": "."
+	"spellFlashPath": "../spellFlash/build",
+	"spelliOSPath": "../spelliOS/build"
 }
