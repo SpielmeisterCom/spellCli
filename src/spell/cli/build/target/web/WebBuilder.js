@@ -29,7 +29,7 @@ define(
 		'use strict'
 
 
-		var build = function( projectLibraryPath, spellCorePath, outputWebPath, debug, includedSubTargets ) {
+		var build = function( projectPath, projectLibraryPath, spellCorePath, outputWebPath, debug, includedSubTargets ) {
 			// copy common files
 
 			// the library files
@@ -37,14 +37,19 @@ define(
 
 			// public template files go to "build/release/*"
 			outputFilePaths.push( [
-				path.join( spellCorePath, 'htmlTemplate', 'index.html' ),
-				path.join( outputWebPath, 'index.html' )
-			] )
-
-			outputFilePaths.push( [
 				path.join( spellCorePath, 'htmlTemplate', 'main.css' ),
 				path.join( outputWebPath, 'main.css' )
 			] )
+
+            //Check for exsting index.html
+            var indexHtmlPath = fs.existsSync( path.join( projectPath, 'index.html' ) ) ?
+                                    path.join( projectPath, 'index.html' ) :
+                                    path.join( spellCorePath, 'htmlTemplate', 'index.html' )
+
+            outputFilePaths.push( [
+                indexHtmlPath,
+                path.join( outputWebPath, 'index.html' )
+            ] )
 
 			// copy new library content to destination
 			var outputWebLibraryPath = path.join( outputWebPath, 'library' )
@@ -147,6 +152,7 @@ define(
 
 				f.next( function() {
 					build(
+                        this.projectPath,
 						this.projectLibraryPath,
 						this.environmentConfig.spellCorePath,
 						outputWebPath,
