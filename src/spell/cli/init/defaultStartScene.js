@@ -31,12 +31,6 @@ define(
 					],
 					"render": [
 						{
-							"id": "spell.system.visibility",
-							"config": {
-								"active": true
-							}
-						},
-						{
 							"id": "spell.system.keyFrameAnimation",
 							"config": {
 								"active": true
@@ -83,8 +77,7 @@ define(
 					"spell.system.cameraMover",
 					"spell.system.clearKeyInput",
 					"spell.system.keyFrameAnimation",
-					"spell.system.render",
-					"spell.system.visibility"
+					"spell.system.render"
 				],
 				"entities": [
 					{
