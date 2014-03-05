@@ -5,7 +5,7 @@ define(
 
 
 		return {
-			version        : '0.9.15',
+			version        : '0.9.16',
 			buildNumber    : '',
 			buildTimestamp : ''
 		}
