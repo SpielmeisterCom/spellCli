@@ -485,8 +485,8 @@ define(
 								tmpProjectPath,
 								projectManifestFilePath,
 								createEffectivePluginConfig( pluginConfig, debug ),
-								path.join( addonPath, addonConfig.injectionXML ),
-								path.join( addonPath, addonConfig.injectionXSL ),
+								addonConfig.injectionXML ? path.join( addonPath, addonConfig.injectionXML ) : undefined,
+								addonConfig.injectionXSL ? path.join( addonPath, addonConfig.injectionXSL ) : undefined,
 								f.wait()
 							)
 						}
