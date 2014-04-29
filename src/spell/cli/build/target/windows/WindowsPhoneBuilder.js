@@ -1,275 +1,242 @@
 define(
 	'spell/cli/build/target/windows/WindowsPhoneBuilder',
-	[
-		'spell/cli/build/createBuilderType',
-		'spell/cli/util/emptyDirectory',
-		'spell/cli/util/spawnChildProcess',
-		'spell/cli/util/writeFile',
+    [
+        'spell/cli/build/createBuilderType',
+        'spell/cli/util/emptyDirectory',
+        'spell/cli/util/writeFile',
 
-		'xmlbuilder',
+        'xmlbuilder',
 
-		'spell/cli/build/target/web/WebBuilder',
+        'spell/cli/build/target/web/WebBuilder',
 
-		'spell/cli/build/external/windows/msBuild',
+        'spell/cli/build/external/windows/appPackager',
+        'spell/cli/build/external/windows/signing',
 
-		'ff',
-		'fs',
-		'fsUtil',
-		'path',
-		'pathUtil',
-		'wrench'
-	],
-	function(
-		createBuilderType,
-		emptyDirectory,
-		spawnChildProcess,
-		writeFile,
+        'ff',
+        'fs',
+        'fsUtil',
+        'path'
+    ],
+    function(
+        createBuilderType,
+        emptyDirectory,
+        writeFile,
 
-		xmlbuilder,
+        xmlbuilder,
 
-		WebBuilder,
+        WebBuilder,
 
-		msBuild,
+        appPackager,
+        signing,
 
-		ff,
-		fs,
-		fsUtil,
-		path,
-		pathUtil,
-		wrench
-		)
-	{
+        ff,
+        fs,
+        fsUtil,
+        path
+        )
+    {
 		'use strict'
 
 
-		var convertToWaveFilePath = function(filePath ) {
-			var srcParts = filePath.split( '.' )
+        var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
+            var projectId               = projectConfig.config.projectId || 'defaultProjectId',
+                tmpProjectPath          = path.join( projectPath, 'build', 'tmp', 'winphone'),
+                windowsOutputPath       = path.join( outputPath, 'winphone' ),
+                appxFile                = path.join( windowsOutputPath, projectId + '_phone.appx' ),
+                windowsBuildSettings    = projectConfig.config.winstore || {},
+                windowsPhoneSettings    = projectConfig.config.winphone || {}
 
-			srcParts.pop()
-			srcParts.push( 'wav' )
+            var copyFile = function( fileName, targetName ) {
+                //Copy icons
+                var srcPath = path.join( projectPath, 'resources', 'winstore', fileName ),
+                    dstPath = path.join( tmpProjectPath, 'web', 'images', targetName )
 
-			return srcParts.join( '.' )
-		}
+                if( fs.existsSync( srcPath ) ) {
+                    console.log( '[spellcli] cp ' + srcPath + ' ' + dstPath )
+                    fsUtil.copyFile( srcPath, dstPath )
 
-		var build = function( environmentConfig, projectPath, projectLibraryPath, outputPath, target, projectConfig, library, cacheContent, scriptSource, minify, anonymizeModuleIds, debug, next ) {
-			var projectId             = projectConfig.config.projectId || 'defaultProjectId',
-				tmpProjectPath        = path.join( projectPath, 'build', 'tmp', 'winphone'),
-				outputPath            = path.join( outputPath, 'winphone'),
-				skeletonProjectPath   = environmentConfig.spellWindowsPhone8,
-				buildTarget           = debug ? 'Debug' : 'Release',
-				winphoneBuildSettings = projectConfig.config.winphone,
-				displayName           = winphoneBuildSettings.displayName,
-				iconPath              = "Assets\\ApplicationIcon.png",
-				smallIcon             = "Assets\\Tiles\\FlipCycleTileSmall.png",
-				mediumIcon            = "Assets\\Tiles\\FlipCycleTileMedium.png"
+                } else {
+                    console.log( '[spellcli] WARN did not find icon in ' + srcPath )
+                }
+            }
 
-			var f = ff(
-				function() {
-					console.log( '[spellcli] Checking prerequisite: MSBuild.exe' )
-					msBuild.checkPrerequisite( environmentConfig, f.wait(), f.fail )
-				},
-				function() {
-					console.log( '[spellcli] Cleaning ' + tmpProjectPath )
-					emptyDirectory( tmpProjectPath )
-				},
-				function() {
-					console.log( '[spellcli] Cleaning ' + outputPath )
-					emptyDirectory( outputPath )
-				},
-				function() {
-					console.log( '[spellcli] cp -aR ' + skeletonProjectPath + ' ' + tmpProjectPath )
+            var f = ff(
+                function() {
+                    console.log( '[spellcli] Checking prerequisite: MakeAppx.exe' )
+                    appPackager.checkPrerequisite( environmentConfig, f.wait(), f.fail )
+                },
+                function() {
+                    console.log( '[spellcli] Checking prerequisite: SignTool.exe' )
+                    signing.checkPrerequisite( environmentConfig, f.wait(), f.fail )
+                },
+                function() {
+                    console.log( '[spellcli] Cleaning ' + tmpProjectPath )
+                    emptyDirectory( tmpProjectPath )
+                },
+                function() {
+                    console.log( '[spellcli] Cleaning ' + windowsOutputPath )
+                    emptyDirectory( windowsOutputPath )
+                },
+                function() {
+                    console.log( '[spellcli] Creating web build for the Windows Store Phone package' )
 
-					wrench.copyDirSyncRecursive(
-						skeletonProjectPath,
-						tmpProjectPath,
-						{
-							filter: /^.git/,
-							forceDelete: true,
-							preserveFiles : false,
-							inflateSymlinks : false
-						}
-					)
-				},
-				function() {
-					console.log( '[spellcli] Creating web build for the Windows Phone package' )
+                    var builder = new WebBuilder(
+                        environmentConfig,
+                        projectPath,
+                        projectLibraryPath,
+                        tmpProjectPath,
+                        'html5',
+                        projectConfig,
+                        library,
+                        cacheContent,
+                        scriptSource,
+                        minify,
+                        anonymizeModuleIds,
+                        debug
+                    )
 
-					var builder = new WebBuilder(
-						environmentConfig,
-						projectPath,
-						projectLibraryPath,
-						tmpProjectPath,
-						'html5',
-						projectConfig,
-						library,
-						cacheContent,
-						scriptSource,
-						minify,
-						anonymizeModuleIds,
-						debug
-					)
+                    builder.init()
+                    builder.build( f.wait() )
 
-					builder.init()
-					builder.build( f.wait() )
+                },function() {
+                    console.log( '[spellcli] writing AppxManifest file' )
 
-				},
-				function() {
-					console.log( '[spellcli] Creating wav files from ogg' )
-					var files = pathUtil.createFilePathsFromDirSync( projectLibraryPath, ['ogg'] )
+                    var packageName          = projectId.replace( "_", '' ) ,
+                        version              = projectConfig.config.version || '1.0.0.0',
+                        packageDisplayName   = windowsBuildSettings.packageDisplayName || packageName,
+                        screenOrientation    = projectConfig.config.orientation || 'auto-rotation',
+                        startPage            = 'index.html',
+                        language             = '' || "en-us",
+                        displayName          = windowsBuildSettings.displayName,
+                        description          = windowsBuildSettings.description || 'A Windows Store App created with SpellJS',
+                        publisherDisplayName = windowsBuildSettings.publisherDisplayName,
+                        publisher            = windowsBuildSettings.publisher,
+                        foregroundText       = windowsBuildSettings.foregroundText,
+                        backgroundColor      = '#' + windowsBuildSettings.backgroundColor,
+                        splashScreen         = "images\\SplashScreen.scale-100.png",
+                        Square150x150Logo    = 'images\\Square150x150Logo.scale-100.png',
+                        Square44x44Logo      = 'images\\Square44x44Logo.scale-100.png',
+                        Square71x71Logo      = 'images\\Square71x71Logo.scale-100.png',
+                        storeLogo            = 'images\\storelogo.png'
 
-					_.each(
-						files,
-						function( relativeFilePath ) {
-							var filePath = path.join( projectLibraryPath, relativeFilePath),
-								wavPath  = path.join( tmpProjectPath, 'web', 'library' , convertToWaveFilePath( relativeFilePath ))
+                    var root = xmlbuilder.create()
 
-							wrench.mkdirSyncRecursive( path.dirname(wavPath) )
+                    var node = root.ele( 'Package', {
+                        'xmlns'         : 'http://schemas.microsoft.com/appx/2010/manifest',
+                        'xmlns:m2'      : 'http://schemas.microsoft.com/appx/2013/manifest',
+                        'xmlns:m3'      : "http://schemas.microsoft.com/appx/2014/manifest",
+                        'xmlns:mp'      : "http://schemas.microsoft.com/appx/2014/phone/manifest"
+                    })
 
-							spawnChildProcess(
-								'sox',
-								[
-									filePath.replace( /\\/g, '/' ),
-									wavPath.replace( /\\/g, '/' )
-								],
-								null,
-								false,
-								function() {}
-							)
-						}
-					)
-				},
-				function() {
-					var webBuildPath     = path.join( tmpProjectPath, 'web' ),
-						spellProjectPath = path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'Html' )
+                        .ele( 'Identity', {
+                            'Name'      : packageName,
+                            'Version'   : version,
+                            'Publisher' : publisher
 
-					console.log( '[spellcli] cp -aR ' + webBuildPath + ' ' + spellProjectPath )
+                        }).up()
+                        .ele( 'mp:PhoneIdentity', {
+                            'PhoneProductId': windowsPhoneSettings.PhoneProductId,
+                            'PhonePublisherId': windowsPhoneSettings.PhonePublisherId
+                        }).up()
+                        .ele( 'Properties' )
+                            .ele( 'DisplayName' ).txt( packageDisplayName ).up()
+                            .ele( 'PublisherDisplayName' ).txt( publisherDisplayName).up()
+                            .ele( 'Logo' ).txt( storeLogo ).up()
+                        .up()
+                        .ele( 'Prerequisites' )
+                            .ele( 'OSMinVersion' ).txt( '6.3.1' ).up()
+                            .ele( 'OSMaxVersionTested' ).txt( '6.3.1' ).up()
+                        .up()
+                        .ele( 'Resources' )
+                            .ele( 'Resource', {
+                                'Language': language
+                            }).up()
+                        .up()
+                        .ele( 'Applications' )
+                        .ele( 'Application', {
+                            Id: packageName,
+                            StartPage: startPage
+                        } )
+                        .ele( 'm3:VisualElements', {
+                            DisplayName: displayName,
+                            Square150x150Logo: Square150x150Logo,
+                            Square44x44Logo: Square44x44Logo,
+                            Description: description,
+                            ForegroundText: foregroundText,
+                            BackgroundColor: backgroundColor
+                        } )
+                        .ele( 'm3:DefaultTile', {
+                            Square71x71Logo: Square71x71Logo
+                        }).up()
+                        .ele( 'm3:SplashScreen', {
+                            Image: splashScreen
+                        }).up()
 
-					wrench.copyDirSyncRecursive(
-						webBuildPath,
-						spellProjectPath,
-						{
-							forceDelete: true,
-							preserveFiles : false,
-							inflateSymlinks : false
-						}
-					)
+                    if( screenOrientation != 'auto-rotation' ) {
+                        node.ele( 'm3:InitialRotationPreference').ele( 'm3:Rotation', { Preference: screenOrientation } )
+                    }
 
-					console.log( '[spellcli] rm -R ' + webBuildPath )
-					wrench.rmdirSyncRecursive( webBuildPath )
-				},
-				function() {
-					var xamlFilePath = path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'MainPage.xaml' ),
-						orientation  = projectConfig.config.orientation == 'auto' ? 'PortraitOrLandscape' : projectConfig.config.orientation
+                    node.up().up().up()
+                        .ele( 'Capabilities' )
+                        .ele( 'Capability', {
+                            Name: 'internetClient'
+                        })
 
-					console.log( '[spellcli] Patch the '+ xamlFilePath +' file' )
+                    var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+                    xmlContent += root.toString( { pretty : true } )
 
-					var fileContent = fs.readFileSync( xamlFilePath, 'utf-8' )
+                    writeFile( path.join( tmpProjectPath, 'web', 'AppxManifest.xml'), xmlContent )
+                },function() {
+                    //Copy icons
+                    fs.mkdirSync( path.join( tmpProjectPath, 'web', 'images' ) )
+                    copyFile( path.join( 'phone', 'SplashScreen.scale-100.png' ), 'SplashScreen.scale-100.png' )
+                    copyFile( path.join( 'phone', 'Square150x150Logo.scale-100.png' ), 'Square150x150Logo.scale-100.png' )
+                    copyFile( path.join( 'phone', 'Square44x44Logo.scale-100.png' ), 'Square44x44Logo.scale-100.png' )
+                    copyFile( path.join( 'phone', 'Square71x71Logo.scale-100.png' ), 'Square71x71Logo.scale-100.png' )
+                    copyFile( path.join( 'phone', 'storelogo.png' ), 'storelogo.png' )
+                },
+                function() {
+                    var cwd = path.join( tmpProjectPath, 'web' )
 
-					fileContent = fileContent.replace( /PortraitOrLandscape/, orientation )
+                    var argv = [
+                        'pack',
+                        '/o',
+                        '/d',
+                        cwd,
+                        '/p',
+                        appxFile
+                    ]
 
-					writeFile(
-						xamlFilePath,
-						fileContent
-					)
-				},
-				function() {
-					console.log( '[spellcli] writing WMAppManifest file' )
+                    console.log( '[spellcli] Pack: ' + argv.join(' ') )
 
-					var version              = projectConfig.config.version || '1.0.0.0',
-						language             = projectConfig.config.defaultLanguage || "en-us",
-						description          = winphoneBuildSettings.description || 'A Windows Store App created with SpellJS',
-						author               = winphoneBuildSettings.author,
-						publisher            = winphoneBuildSettings.publisher
+                    appPackager.run( environmentConfig, argv, cwd,  f.wait() )
+                },
+                function() {
+                    var cwd                 = path.join( tmpProjectPath, 'web' ),
+                        certificatePath     = path.join( projectPath, 'resources', 'winstore', 'certificates','windows-store.pfx' ),
+                        certificatePassword = windowsBuildSettings.signing.certificatePassword
 
-					var root = xmlbuilder.create()
+                    var argv = [
+                        'sign',
+                        '/a',
+                        '/v',
+                        '/fd',
+                        'SHA256',
+                        '/p',
+                        certificatePassword,
+                        '/f',
+                        certificatePath,
+                        appxFile
+                    ]
 
-					var node = root.ele( 'Deployment', { xmlns: 'http://schemas.microsoft.com/windowsphone/2012/deployment', AppPlatformVersion: "8.0"})
-						.ele( 'DefaultLanguage', { xmlns: "", code: language } ).up().ele( 'Languages', { xmlns: "" } )
+                    console.log( '[spellcli] Sign: ' + argv.join(' ') )
 
-					_.each(
-						projectConfig.config.supportedLanguages,
-						function( supportedLanguage ) {	node.ele( "Language", { code: supportedLanguage} ) }
-					)
-
-					node.up()
-						.ele( 'App',{
-							xmlns: "",
-							ProductID: "{9cc34fff-f4f8-44ad-9d67-367c2c2a0936}",
-							Title: displayName,
-							RuntimeType: "Silverlight",
-							Version: version,
-							Genre: "apps.normal",
-							Author: author,
-							Description: description,
-							Publisher: publisher,
-							PublisherID: "{123f91e3-8000-4af5-9465-bfb807d8fc9b}"
-						})
-						.ele( 'IconPath', { IsRelative: true, IsResource: false } ).txt( iconPath ).up()
-						.ele( 'Capabilities' )
-							.ele( 'Capability', { Name: 'ID_CAP_NETWORKING' }).up()
-							.ele( 'Capability', { Name: 'ID_CAP_SENSORS' }).up()
-							.ele( 'Capability', { Name: 'ID_CAP_WEBBROWSERCOMPONENT' }).up()
-						.up()
-						.ele( 'Tasks' )
-							.ele( 'DefaultTask', { Name: "_default", NavigationPage: "MainPage.xaml" }).up().up()
-						.ele( 'Tokens' )
-							.ele( 'PrimaryToken', { TokenID: displayName + 'Token', TaskName: "_default" })
-								.ele( 'TemplateFlip' )
-									.ele( 'SmallImageURI', { IsRelative: true, IsResource: false } ).txt( smallIcon ).up()
-									.ele( 'Count').txt(0).up()
-									.ele( 'BackgroundImageURI', { IsRelative: true, IsResource: false } ).txt( mediumIcon ).up()
-									.ele( 'Title').txt(displayName).up()
-									.ele( 'BackContent').up()
-									.ele( 'BackBackgroundImageURI').up()
-									.ele( 'BackTitle').up()
-									.ele( 'DeviceLockImageURI').up()
-									.ele( 'HasLarge').up()
-								.up()
-							.up()
-						.up()
-						.ele( 'ScreenResolutions' )
-							.ele( 'ScreenResolution', { Name: 'ID_RESOLUTION_WVGA' }).up()
-							.ele( 'ScreenResolution', { Name: 'ID_RESOLUTION_WXGA' } ).up()
-							.ele( 'ScreenResolution', { Name: 'ID_RESOLUTION_HD720P' } ).up()
-
-					var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-					xmlContent += root.toString( { pretty : true } )
-
-					writeFile( path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'Properties', 'WMAppManifest.xml'), xmlContent )
-				},
-				function() {
-					console.log( '[spellcli] Copy images' )
-
-					var resourcesPath = path.join( projectPath, 'resources', 'winphone'),
-						assetsPath    = path.join( tmpProjectPath, 'SpellJSProjectSceleton' )
-
-					fsUtil.copyFile( path.join( resourcesPath, 'ApplicationIcon.png' ) , path.join( assetsPath, iconPath ) )
-					fsUtil.copyFile( path.join( resourcesPath, 'FlipCycleTileSmall.png' ) , path.join( assetsPath, smallIcon ) )
-					fsUtil.copyFile( path.join( resourcesPath, 'FlipCycleTileMedium.png' ) , path.join( assetsPath, mediumIcon ) )
-				},
-				function() {
-					var cwd = path.join( tmpProjectPath, 'SpellJSProjectSceleton.sln' )
-
-					var argv = [
-						cwd,
-						'/property:Configuration=' + buildTarget
-					]
-
-					console.log( '[spellcli] Build: ' + argv.join(' ') )
-
-					msBuild.run( environmentConfig, argv, cwd, f.wait() )
-				},
-				function() {
-					var xapFilePath = path.join( tmpProjectPath, 'SpellJSProjectSceleton', 'bin', buildTarget, 'SpellJSProjectSceleton_' + buildTarget + '_AnyCPU.xap'),
-						targetPath  = path.join( outputPath, path.basename( xapFilePath ) )
-
-					console.log( '[spellcli] Copy XAP file to: ' + targetPath )
-
-					fsUtil.copyFile( xapFilePath, targetPath )
-				}
-			).onError( function( message ) {
-				console.log( message )
-			})
-		}
+                    signing.run( environmentConfig, argv, cwd,  f.wait() )
+                }
+            ).onError( function( message ) {
+                    console.log( message )
+                })
+        }
 
 		var TARGET_NAME         = 'winphone',
 			WindowsPhoneBuilder = createBuilderType()

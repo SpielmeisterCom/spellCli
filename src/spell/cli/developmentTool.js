@@ -148,7 +148,7 @@ define(
 				process.exit( 1 )
 			}
 
-			var configKeys = [ 'androidSdkPath', 'windowsSdkPath', 'spellWindowsPhone8', 'msBuildPath', 'tizenSdkPath', 'jdkPath', 'spellAndroidPath', 'spelliOSPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
+			var configKeys = [ 'androidSdkPath', 'windowsSdkPath', 'spellWindowsPhone8', 'tizenSdkPath', 'jdkPath', 'spellAndroidPath', 'spelliOSPath', 'spellCliPath', 'spellCorePath', 'spellFlashPath' ]
 
 			var result = {}
 
