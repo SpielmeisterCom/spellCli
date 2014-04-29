@@ -44,10 +44,10 @@ define(
 				appxFile                = path.join( windowsOutputPath, projectId + '.appx' ),
 				windowsBuildSettings    = projectConfig.config.winstore || {}
 
-			var copyFile = function( fileName ) {
+			var copyFile = function( fileName, targetName ) {
 				//Copy icons
 				var srcPath = path.join( projectPath, 'resources', 'winstore', fileName ),
-					dstPath = path.join( tmpProjectPath, 'web', 'images', fileName )
+					dstPath = path.join( tmpProjectPath, 'web', 'images', targetName )
 
 				if( fs.existsSync( srcPath ) ) {
 					console.log( '[spellcli] cp ' + srcPath + ' ' + dstPath )
@@ -119,7 +119,8 @@ define(
 					var root = xmlbuilder.create()
 
 					var node = root.ele( 'Package', {
-						'xmlns'         : 'http://schemas.microsoft.com/appx/2010/manifest'
+						'xmlns'         : 'http://schemas.microsoft.com/appx/2010/manifest',
+                        'xmlns:m2'      : 'http://schemas.microsoft.com/appx/2013/manifest'
 						})
 
 						.ele( 'Identity', {
@@ -134,8 +135,8 @@ define(
 						.ele( 'Logo' ).txt( storeLogo ).up()
 						.up()
 						.ele( 'Prerequisites' )
-						.ele( 'OSMinVersion' ).txt( '6.2.1' ).up()
-						.ele( 'OSMaxVersionTested' ).txt( '6.2.1' ).up()
+						.ele( 'OSMinVersion' ).txt( '6.3.0' ).up()
+						.ele( 'OSMaxVersionTested' ).txt( '6.3.0' ).up()
 						.up()
 						.ele( 'Resources' )
 						.ele( 'Resource', {
@@ -147,20 +148,20 @@ define(
 							Id: packageName,
 							StartPage: startPage
 						} )
-						.ele( 'VisualElements', {
+						.ele( 'm2:VisualElements', {
 							DisplayName: displayName,
 							Description: description,
-							Logo: logo,
-							SmallLogo: smallLogo,
+                            Square150x150Logo: logo,
+                            Square30x30Logo: smallLogo,
 							ForegroundText: foregroundText,
 							BackgroundColor: backgroundColor
 						} )
-						.ele( 'SplashScreen', {
+						.ele( 'm2:SplashScreen', {
 							Image: splashScreen
 						}).up()
 
 					if( screenOrientation != 'auto-rotation' ) {
-						node.ele( 'InitialRotationPreference').ele( 'Rotation', { Preference: screenOrientation } )
+						node.ele( 'm2:InitialRotationPreference').ele( 'm2:Rotation', { Preference: screenOrientation } )
 					}
 
 					node.up().up().up()
@@ -176,10 +177,10 @@ define(
 				},function() {
 					//Copy icons
 					fs.mkdirSync( path.join( tmpProjectPath, 'web', 'images' ) )
-					copyFile( 'logo.png' )
-					copyFile( 'smallLogo.png' )
-					copyFile( 'splash.png' )
-					copyFile( 'storelogo.png' )
+					copyFile( path.join( 'desktop', 'logo.png' ), 'logo.png' )
+					copyFile( path.join( 'desktop', 'smallLogo.png' ), 'smallLogo.png' )
+					copyFile( path.join( 'desktop', 'splash.png' ), 'splash.png' )
+					copyFile( path.join( 'desktop', 'storelogo.png' ), 'storelogo.png' )
 				},
 				function() {
 					var cwd = path.join( tmpProjectPath, 'web' )
