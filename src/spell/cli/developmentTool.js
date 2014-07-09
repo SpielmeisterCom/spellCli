@@ -55,7 +55,7 @@ define(
 		}
 
 		var checkLicenseInfo = function( licenseInfo ) {
-			if( !licenseInfo ) {
+			/*if( !licenseInfo ) {
 				printErrors( 'Error: No license installed. This feature requires a valid license to work.' )
 
 				process.exit( 2 )
@@ -74,7 +74,7 @@ define(
 
 					process.exit( 2 )
 				}
-			}
+			}*/
 
 			return true
 		}
