@@ -8,4 +8,4 @@ fi
 
 DIRNAME=$(dirname $FILE)
 
-node $DIRNAME/src/spell/cli/spellcli.js $*
+nodejs $DIRNAME/src/spell/cli/spellcli.js $*
